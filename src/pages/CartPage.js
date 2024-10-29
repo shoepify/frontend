@@ -1,7 +1,8 @@
-// src/pages/Cart.js
+// src/pages/CartPage.js
+
 import React from 'react';
 
-const Cart = () => {
+const CartPage = () => {
   // Example hardcoded cart data
   const cartItems = [
     { id: 1, name: 'Running Shoes', price: 100, quantity: 1 },
@@ -26,4 +27,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default CartPage;

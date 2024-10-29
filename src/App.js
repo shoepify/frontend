@@ -1,28 +1,37 @@
-// src/App.js
+
+
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import ProductList from './pages/ProductList';
-import ProductDetails from './pages/ProductDetails';
-import Cart from './pages/Cart';
-import Checkout from './pages/Checkout';
+import HomePage from './pages/HomePage';
+import ProductListPage from './pages/ProductListPage';
+import AdminPage from './pages/AdminPage';
+import ProductManagerPage from './pages/ProductManagerPage';
+import SalesManagerPage from './pages/SalesManagerPage';
+import CustomerPage from './pages/CustomerPage';
+import PrivateRoute from './components/PrivateRoute';
+import FavoritesPage from './pages/FavoritesPage';
 
 const App = () => {
-  return (
-    <Router>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/products" element={<ProductList />} />
-        <Route path="/products/:id" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-      </Routes>
-      <Footer />
-    </Router>
-  );
+    return (
+        <Router>
+            <Header />
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/products" element={<ProductListPage />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
+                
+                {/* Protected routes */}
+                <Route path="/admin" element={<PrivateRoute allowedRoles={['admin']} component={AdminPage} />} />
+                <Route path="/product-manager" element={<PrivateRoute allowedRoles={['productManager']} component={ProductManagerPage} />} />
+                <Route path="/sales-manager" element={<PrivateRoute allowedRoles={['salesManager']} component={SalesManagerPage} />} />
+                <Route path="/customer" element={<PrivateRoute allowedRoles={['customer']} component={CustomerPage} />} />
+                
+                {/* Redirect unmatched routes */}
+                <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+        </Router>
+    );
 };
 
 export default App;
