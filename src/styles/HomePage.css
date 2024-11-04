@@ -1,0 +1,12 @@
+/* HomePage.css */
+.banner-section {
+   /* background-image: url('/shoestore.png');*/
+    background-size: cover;
+    background-position: center;
+    color: white;
+    border-radius: 8px;
+}
+.uniform-image {
+    object-fit: cover;
+    height: 200px;
+}
