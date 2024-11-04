@@ -1,5 +1,3 @@
-// src/pages/CartPage.js
-
 import React from 'react';
 
 const CartPage = () => {
@@ -28,3 +26,4 @@ const CartPage = () => {
 };
 
 export default CartPage;
+

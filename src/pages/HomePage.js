@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const HomePage = () => {
-    // Mock data for demonstration (Replace with actual data fetching in a real app)
     const [cartItems] = useState([
         { id: 1, name: 'Running Shoe', price: 89.99, quantity: 1 },
         { id: 2, name: 'Casual Sneaker', price: 99.99, quantity: 2 }
@@ -14,39 +13,49 @@ const HomePage = () => {
     ]);
 
     const featuredProducts = [
-        { id: 1, name: 'Classic Running Shoe', price: 89.99, img: 'path/to/shoe1.jpg' },
-        { id: 2, name: 'Stylish Casual Sneaker', price: 99.99, img: 'path/to/shoe2.jpg' },
-        { id: 3, name: 'Sporty Training Shoe', price: 79.99, img: 'path/to/shoe3.jpg' }
+        { id: 1, name: 'Classic Running Shoe', price: 89.99, img: '/shoe1.jpg' },
+        { id: 2, name: 'Stylish Casual Sneaker', price: 99.99, img: '/shoe2.jpg' },
+        { id: 3, name: 'Sporty Training Shoe', price: 79.99, img: '/shoe3.jpg' }
     ];
+    
 
     return (
         <div className="container my-5">
-            {/* Banner Section */}
-            <section className="text-center bg-light p-5 rounded mb-5">
+            {/* Banner Section with Background Image */}
+            <section 
+                className="text-center bg-light p-5 rounded mb-5"
+                style={{
+                    backgroundImage: `url('/shoestore.png')`, // Directly reference the public folder
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    color: 'white',
+                    borderRadius: '8px',
+                    padding: '100px 20px'
+                }}
+            >
                 <h1>Welcome to Our Shoe Store</h1>
                 <p>Discover the best shoes for every style and occasion!</p>
                 <Link to="/products" className="btn btn-primary">Shop Now</Link>
             </section>
 
-         
-            {/* Featured Products Section */}
             <section>
-                <h2 className="text-center my-5">Featured Products</h2>
-                <div className="row">
-                    {featuredProducts.map(product => (
-                        <div key={product.id} className="col-md-4 mb-3">
-                            <div className="card h-100 text-center">
-                                <img src={product.img} className="card-img-top" alt={product.name} />
-                                <div className="card-body">
-                                    <h5 className="card-title">{product.name}</h5>
-                                    <p className="card-text">${product.price.toFixed(2)}</p>
-                                    <Link to={`/product/${product.id}`} className="btn btn-outline-primary">View Product</Link>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+    <h2 className="text-center my-5">Featured Products</h2>
+    <div className="row">
+        {featuredProducts.map(product => (
+            <div key={product.id} className="col-md-4 mb-3">
+                <div className="card h-100 text-center">
+                    <img src={product.img} className="card-img-top uniform-image" alt={product.name} />
+                    <div className="card-body">
+                        <h5 className="card-title">{product.name}</h5>
+                        <p className="card-text">${product.price.toFixed(2)}</p>
+                        <Link to={`/product/${product.id}`} className="btn btn-outline-primary">View Product</Link>
+                    </div>
                 </div>
-            </section>
+            </div>
+        ))}
+    </div>
+</section>
+
 
             {/* Categories Section */}
             <section>

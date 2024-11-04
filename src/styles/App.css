@@ -83,3 +83,61 @@
   font-size: 1.5em;
   cursor: pointer;
 }
+
+.uniform-image {
+  width: 100%; /* Adjusts image width based on the container */
+  height: 200px; /* Set a fixed height for uniformity */
+  object-fit: cover; /* Ensures images fill the space without distortion */
+  border-radius: 8px; /* Optional: adds rounded corners for aesthetics */
+}
+
+
+/* Container for the dropdown menu */
+.dropdown-menu-container {
+  position: absolute;
+  top: 100%; /* Opens directly below the header */
+  left: 0;
+  width: 100%;
+  background-color: #f8f9fa;
+  border-top: 1px solid #ddd;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 999;
+  animation: slideDown 0.3s ease; /* Slide-down animation */
+}
+
+/* Style for the dropdown menu items */
+.dropdown-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.dropdown-menu-list li {
+  padding: 10px 20px;
+}
+
+.dropdown-menu-list li a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.dropdown-menu-list li a:hover {
+  color: #007bff;
+}
+
+/* Slide-down animation */
+@keyframes slideDown {
+  from {
+      opacity: 0;
+      transform: translateY(-20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
