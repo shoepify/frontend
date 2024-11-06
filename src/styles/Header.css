@@ -1,55 +1,140 @@
-/* Vertical Sidebar Styles */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 250px;
-    background-color: #f8f9fa;
-    z-index: 1050;
-    padding-top: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    transform: translateX(-100%);  /* Initially hidden */
-    transition: transform 0.3s ease-in-out;
+/* src/styles/Header.css */
+
+/* General header styling */
+.main-header {
+    background-color: #fff;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.sidebar.show {
-    transform: translateX(0);  /* Slide in when 'show' class is added */
+.header-container {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.sidebar-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.sidebar-list li {
-    padding: 10px 20px;
-}
-
-.sidebar-list li a {
-    text-decoration: none;
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
     color: #333;
-    font-size: 1rem;
-    display: block;
+    text-decoration: none;
+}
+
+/* Remove circular style for the nav-toggle button */
+.nav-toggle {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 1.2rem;
     font-weight: 500;
+    cursor: pointer;
+    padding: 5px 10px;
     transition: color 0.3s ease, background-color 0.3s ease;
 }
 
-.sidebar-list li a:hover {
+.nav-toggle:hover {
     color: #007bff;
     background-color: #e9f4ff;
-    border-radius: 5px;
+    border-radius: 5px; /* Optional: small rounding on hover, or remove for no rounding */
 }
 
-/* Sidebar Close Button */
-.sidebar .close-button {
-    position: absolute;
-    top: 10px;
-    right: 15px;
+/* Icon Button Style for other icons (Favorites, Cart, and Login) */
+.icon-button {
+    color: #333;
+    font-size: 1.2rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f1f1f1;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin: 0 5px;
+}
+
+.icon-button:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+/* Right Side: Search and Icons */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Search Bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #f1f1f1;
+    border-radius: 20px;
+    padding: 5px 10px;
+}
+
+.search-input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 1rem;
+    padding: 5px;
+    width: 100px;
+    transition: width 0.3s ease;
+}
+
+.search-input:focus {
+    width: 150px;
+}
+
+.search-icon {
     background: none;
     border: none;
-    font-size: 1.5rem;
     color: #333;
+    font-size: 1.2rem;
     cursor: pointer;
+    padding: 5px;
+}
+
+/* Dropdown Categories */
+.dropdown-categories {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.4s ease;
+    background-color: #f8f9fa;
+    border-top: 1px solid #ddd;
+    width: 100%;
+}
+
+.dropdown-categories.show {
+    max-height: 200px;
+}
+
+.categories-list {
+    list-style: none;
+    padding: 10px 20px;
+    margin: 0;
+}
+
+.categories-list li {
+    padding: 10px 0;
+}
+
+.categories-list li a {
+    text-decoration: none;
+    color: #333;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.categories-list li a:hover {
+    color: #007bff;
 }

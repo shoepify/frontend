@@ -1,9 +1,10 @@
 /* HomePage.css */
 .banner-section {
-   /* background-image: url('/shoestore.png');*/
+
+   /*background-image: url('/shoestore.png');*/
     background-size: cover;
     background-position: center;
-    color: white;
+    color: rgb(67, 54, 54);
     border-radius: 8px;
 }
 .uniform-image {

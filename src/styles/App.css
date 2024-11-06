@@ -140,4 +140,16 @@
       opacity: 1;
       transform: translateY(0);
   }
+  /* src/styles/App.css */
+
+
+
 }
+
+/* src/styles/App.css */
+
+.content {
+  min-height: calc(100vh - 200px); /* Adjust 200px based on Header and Footer height */
+  padding-bottom: 20px; /* Ensure some space above the footer */
+}
+

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './styles/App';
+import App from './pages/App';
 import UserProvider from './context/UserContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 

@@ -1,28 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+// src/components/Header.js
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import Cart from './Cart';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faSignInAlt, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faSignInAlt, faShoppingCart, faSearch, faBars } from '@fortawesome/free-solid-svg-icons';
 import '../styles/Header.css';
 
 const Header = () => {
-    const [showSidebar, setShowSidebar] = useState(false);
+    const [showCategories, setShowCategories] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [cartItemsCount, setCartItemsCount] = useState(0);
-    const sidebarRef = useRef(null);
 
-    const toggleSidebar = () => setShowSidebar(!showSidebar);
-
-    // Close the sidebar if the user clicks outside of it
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-                setShowSidebar(false);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    const toggleCategories = () => setShowCategories(!showCategories);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -31,46 +18,47 @@ const Header = () => {
 
     return (
         <>
-            {/* Header with logo, search bar, and icons */}
-            <header className="navbar navbar-light bg-light">
-                <div className="container d-flex align-items-center">
-                    {/* Toggle Sidebar Button */}
-                    <button className="btn" onClick={toggleSidebar}>
+            <header className="main-header">
+                <div className="header-container">
+                    {/* Menu Button with a Distinct Class */}
+                    <button className="nav-toggle" onClick={toggleCategories}>
                         <FontAwesomeIcon icon={faBars} /> Menu
                     </button>
 
                     {/* Logo */}
-                    <Link to="/" className="navbar-brand ms-3">My Shoe Store</Link>
+                    <Link to="/" className="logo">My Shoe Store</Link>
 
-                    {/* Search Bar */}
-                    <form className="d-flex ms-3 me-auto" onSubmit={handleSearch}>
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search for products..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </form>
+                    {/* Right Side: Search and Icons */}
+                    <div className="header-right">
+                        <form onSubmit={handleSearch} className="search-bar">
+                            <input
+                                type="text"
+                                placeholder="Search"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="search-input"
+                            />
+                            <button type="submit" className="icon-button search-icon">
+                                <FontAwesomeIcon icon={faSearch} />
+                            </button>
+                        </form>
 
-                    {/* Favorites, Cart, and Login */}
-                    <div className="d-flex align-items-center">
-                        <Link to="/favorites" className="btn">
-                            <FontAwesomeIcon icon={faHeart} /> Favorites
+                        <Link to="/favorites" className="icon-button favorites-icon">
+                            <FontAwesomeIcon icon={faHeart} />
                         </Link>
-                        <Cart cartItemsCount={cartItemsCount} />
-                        {/* Link to Login Page */}
-                        <Link to="/login" className="btn btn-outline-primary">
-                            <FontAwesomeIcon icon={faSignInAlt} /> Login
+                        <Link to="/cart" className="icon-button">
+                            <FontAwesomeIcon icon={faShoppingCart} />
+                        </Link>
+                        <Link to="/login" className="icon-button">
+                            <FontAwesomeIcon icon={faSignInAlt} />
                         </Link>
                     </div>
                 </div>
             </header>
 
-            {/* Vertical Sidebar Navigation */}
-            <div className={`sidebar ${showSidebar ? 'show' : ''}`} ref={sidebarRef}>
-                <button className="close-button" onClick={toggleSidebar}>×</button>
-                <ul className="sidebar-list">
+            {/* Dropdown Categories */}
+            <div className={`dropdown-categories ${showCategories ? 'show' : ''}`}>
+                <ul className="categories-list">
                     <li><Link to="/mens">Men's Shoes</Link></li>
                     <li><Link to="/womens">Women's Shoes</Link></li>
                     <li><Link to="/kids">Kids' Shoes</Link></li>
