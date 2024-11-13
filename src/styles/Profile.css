@@ -1,0 +1,47 @@
+/* General Styles for Profile Page */
+.profile-container {
+    max-width: 800px;
+    margin: 100px auto; /* Center the container and add margin from top */
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: center; /* Center the text content */
+}
+
+.profile-header {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: #4a90e2;
+    margin-bottom: 10px;
+}
+
+.profile-info {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    color: #555555;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.profile-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.profile-button {
+    background-color: #4a90e2;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.profile-button:hover {
+    background-color: #3a78c2;
+}

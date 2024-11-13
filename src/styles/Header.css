@@ -1,140 +1,180 @@
-/* src/styles/Header.css */
-
-/* General header styling */
+/* General Header Styles */
 .main-header {
-    background-color: #fff;
-    padding: 15px 20px;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: linear-gradient(135deg, #4a90e2, #00c6ff);
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0; /* Yalnızca üst ve alt için padding */
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
 }
 
 .header-container {
-    width: 100%;
-    max-width: 1200px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between; /* Sol ve sağ tarafı dengele */
+    max-width: 1200px; /* Konteyneri sınırla */
+    margin: 0 auto; /* Ortalamak için */
+    padding: 0 20px; /* İçeriği biraz içeri al */
+    box-sizing: border-box;
 }
 
 .logo {
+    font-family: 'Poppins', sans-serif;
     font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
+    font-weight: 600;
+    color: #fff;
     text-decoration: none;
+    white-space: nowrap;
 }
 
-/* Remove circular style for the nav-toggle button */
+.logo:hover {
+    color: #e3f2fd;
+}
+
+/* Menu Button */
 .nav-toggle {
     background: none;
     border: none;
-    color: #333;
+    color: #fff;
     font-size: 1.2rem;
-    font-weight: 500;
     cursor: pointer;
-    padding: 5px 10px;
-    transition: color 0.3s ease, background-color 0.3s ease;
+    margin-right: 1rem; /* Logo ile aradaki boşluğu ayarla */
+    white-space: nowrap;
 }
 
 .nav-toggle:hover {
-    color: #007bff;
-    background-color: #e9f4ff;
-    border-radius: 5px; /* Optional: small rounding on hover, or remove for no rounding */
-}
-
-/* Icon Button Style for other icons (Favorites, Cart, and Login) */
-.icon-button {
-    color: #333;
-    font-size: 1.2rem;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #f1f1f1;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    margin: 0 5px;
-}
-
-.icon-button:hover {
-    background-color: #007bff;
-    color: #fff;
-}
-
-/* Right Side: Search and Icons */
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+    color: #cfe9ff;
 }
 
 /* Search Bar */
 .search-bar {
     display: flex;
     align-items: center;
-    background-color: #f1f1f1;
+    background: #fff;
     border-radius: 20px;
-    padding: 5px 10px;
+    padding: 0.25rem 1rem;
+    flex: 1; /* Search bar'ı genişlet */
+    max-width: 500px; /* Maksimum genişlik sınırı */
+    margin-left: 2rem; /* Logodan uzaklaştır */
+    margin-right: 2rem; /* Sağdaki elemanlardan uzaklaştır */
 }
 
 .search-input {
     border: none;
-    background: none;
     outline: none;
-    font-size: 1rem;
-    padding: 5px;
-    width: 100px;
-    transition: width 0.3s ease;
-}
-
-.search-input:focus {
-    width: 150px;
+    padding: 0.5rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    flex-grow: 1;
 }
 
 .search-icon {
     background: none;
     border: none;
-    color: #333;
+    color: #4a90e2;
+    cursor: pointer;
+}
+
+/* Header Right Section */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Elemanlar arası boşluk */
+}
+
+/* Icon Button Styling */
+.icon-button {
+    background: none;
+    border: none;
+    color: #fff;
     font-size: 1.2rem;
     cursor: pointer;
-    padding: 5px;
+    transition: color 0.3s ease;
+}
+
+.icon-button:hover {
+    color: #cfe9ff;
+}
+
+/* Text Link Styling */
+.text-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 400;
+    transition: color 0.3s ease;
+    position: relative;
+    white-space: nowrap;
+}
+
+.text-link:hover {
+    color: #ffdd57;
+}
+
+.text-link::after {
+    content: "";
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: #ffdd57;
+    transition: width 0.3s ease;
+}
+
+.text-link:hover::after {
+    width: 100%;
 }
 
 /* Dropdown Categories */
 .dropdown-categories {
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.4s ease;
-    background-color: #f8f9fa;
-    border-top: 1px solid #ddd;
+    display: none;
+    background-color: #fff;
+    color: #4a4a4a;
+    position: absolute;
+    top: 70px;
     width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    padding: 1rem 0;
 }
 
 .dropdown-categories.show {
-    max-height: 200px;
+    display: block;
 }
 
 .categories-list {
     list-style: none;
-    padding: 10px 20px;
+    display: flex;
+    justify-content: space-around;
+    padding: 0;
     margin: 0;
 }
 
-.categories-list li {
-    padding: 10px 0;
-}
-
 .categories-list li a {
+    color: #4a90e2;
     text-decoration: none;
-    color: #333;
-    font-size: 1rem;
     font-weight: 500;
     transition: color 0.3s ease;
 }
 
 .categories-list li a:hover {
-    color: #007bff;
+    color: #006db3;
+}
+
+/* Responsive Design for Header */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-right {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 1rem;
+    }
 }

@@ -1,5 +1,7 @@
 // src/App.js
 
+
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -11,10 +13,11 @@ import LoginPage from './LoginPage'; // Import LoginPage
 import PrivateRoute from '../components/PrivateRoute';
 import CartRoutes from '../routes/CartRoutes';
 import FooterRoutes from '../routes/FooterRoutes';  // Import FooterRoutes
-import AdminPage from './AdminPage';
 import ProductManagerPage from './ProductManagerPage';
 import SalesManagerPage from './SalesManagerPage';
-import CustomerPage from './CustomerPage';
+import Profile from './Profile'; // Import your Profile component
+import ProductDetailPage from './ProductDetailPage';
+
 import '../styles/App.css';
 
 const App = () => {
@@ -28,13 +31,14 @@ const App = () => {
                     <Route path="/products" element={<ProductListPage />} />
                     <Route path="/favorites" element={<FavoritesPage />} />
                     <Route path="/login" element={<LoginPage />} />  {/* Add LoginPage route here */}
-
+                    
                     {/* Protected routes */}
                     <Route path="/" element={<HomePage />} />  {/* HomePage for Customer */}
                     <Route path="/login" element={<LoginPage />} />  {/* LoginPage */}
                     <Route path="/sales-manager" element={<SalesManagerPage />} />  {/* Sales Manager Page */}
                     <Route path="/product-manager" element={<ProductManagerPage />} />  {/* Product Manager Page */}
-
+                    <Route path="/product/:productId" element={<ProductDetailPage />} />
+                    
                     {/* Footer-related routes */}
                     <Route path="/footer/*" element={<FooterRoutes />} />
 
@@ -43,6 +47,8 @@ const App = () => {
 
                     {/* Redirect unmatched routes */}
                     <Route path="*" element={<Navigate to="/" />} />
+
+                    <Route path="/profile" element={<Profile />} /> {/* Profile route */}
                 </Routes>
             </div>
             <Footer /> {/* Add Footer here to display it on all pages */}

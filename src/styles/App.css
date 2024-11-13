@@ -1,155 +1,64 @@
-.homepage {
-  padding: 20px;
+/* General Reset for Consistency */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.banner {
-  text-align: center;
-  margin-bottom: 30px;
+/* Content Wrapper */
+.content {
+  min-height: calc(100vh - 200px); /* Adjust based on the height of Header and Footer */
+  padding-top: 80px; /* Add top padding to ensure content is visible below the fixed header */
+  padding-bottom: 20px; /* Space above the footer */
+  max-width: 1200px; /* Limit the content width for better readability */
+  margin: 0 auto; /* Center the content horizontally */
 }
 
-.banner h1 {
-  font-size: 2.5em;
-  margin-bottom: 10px;
-}
-
-.shop-now-button {
-  background-color: #333;
-  color: white;
-  padding: 10px 20px;
-  text-decoration: none;
-  border-radius: 5px;
-}
-
-.featured-products, .categories, .promotions {
-  margin-bottom: 40px;
-}
-
-.product-list, .category-list, .promotion-list {
-  display: flex;
-  justify-content: space-around;
-  gap: 20px;
-}
-
-.product-item, .promotion-item {
-  text-align: center;
-  max-width: 200px;
-}
-
-.category-item {
-  display: block;
-  background-color: #ddd;
-  padding: 10px;
-  border-radius: 5px;
-  text-align: center;
-  text-decoration: none;
-  color: #333;
-  transition: background-color 0.3s ease;
-}
-
-.category-item:hover {
-  background-color: #bbb;
-}
-
-
-.modal-overlay {
+/* Fix for Fixed Header */
+.main-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* Dark semi-transparent background */
+  z-index: 1000;
+  height: 80px; /* Adjust this to match your header height */
+  background-color: #fff; /* Add a background color to your header if needed */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
+}
+
+/* Adjusted Header Container Styles */
+.header-container {
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1000; /* Ensure it appears above other elements */
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 100%; /* Ensure the container takes up the full height of the header */
 }
 
-.modal-content {
-  background: white;
+/* Adjustments for Smooth Page Transitions */
+.page-transition {
+  transition: all 0.3s ease; /* Smooth transition for page content changes */
+}
+
+/* Example Styles for Body and Other Elements */
+body {
+  font-family: Arial, sans-serif; /* Use your preferred font */
+  line-height: 1.6;
+  background-color: #f9f9f9; /* Light background color for the body */
+  padding-top: 80px; /* Ensure content is pushed below the fixed header */
+}
+
+/* Footer Styles */
+.footer {
+  text-align: center;
   padding: 20px;
-  border-radius: 8px;
-  width: 300px;
-  max-width: 80%;
-  position: relative;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+  background-color: #333;
+  color: #fff;
 }
 
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  border: none;
-  background: transparent;
-  font-size: 1.5em;
-  cursor: pointer;
+/* Additional Styling for Visibility */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 20px; /* Add some space above headings */
 }
-
-.uniform-image {
-  width: 100%; /* Adjusts image width based on the container */
-  height: 200px; /* Set a fixed height for uniformity */
-  object-fit: cover; /* Ensures images fill the space without distortion */
-  border-radius: 8px; /* Optional: adds rounded corners for aesthetics */
-}
-
-
-/* Container for the dropdown menu */
-.dropdown-menu-container {
-  position: absolute;
-  top: 100%; /* Opens directly below the header */
-  left: 0;
-  width: 100%;
-  background-color: #f8f9fa;
-  border-top: 1px solid #ddd;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  z-index: 999;
-  animation: slideDown 0.3s ease; /* Slide-down animation */
-}
-
-/* Style for the dropdown menu items */
-.dropdown-menu-list {
-  list-style: none;
-  margin: 0;
-  padding: 10px 0;
-  display: flex;
-  justify-content: space-around;
-}
-
-.dropdown-menu-list li {
-  padding: 10px 20px;
-}
-
-.dropdown-menu-list li a {
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-  transition: color 0.2s ease;
-}
-
-.dropdown-menu-list li a:hover {
-  color: #007bff;
-}
-
-/* Slide-down animation */
-@keyframes slideDown {
-  from {
-      opacity: 0;
-      transform: translateY(-20px);
-  }
-  to {
-      opacity: 1;
-      transform: translateY(0);
-  }
-  /* src/styles/App.css */
-
-
-
-}
-
-/* src/styles/App.css */
-
-.content {
-  min-height: calc(100vh - 200px); /* Adjust 200px based on Header and Footer height */
-  padding-bottom: 20px; /* Ensure some space above the footer */
-}
-

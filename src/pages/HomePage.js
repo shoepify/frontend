@@ -1,22 +1,38 @@
-// HomePage.js
+// src/HomePage.js
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import FeaturedProductCard from '../components/FeaturedProductCard';
-import CategoryLink from '../components/CategoryLink';
+import FeaturedProductCard from '../components/FeaturedProductCard'; // Adjust the path as needed
 import '../styles/HomePage.css';
-// Custom styles if needed
 
 const HomePage = () => {
-    const [cartItems] = useState([
-        { id: 1, name: 'Running Shoe', price: 89.99, quantity: 1 },
-        { id: 2, name: 'Casual Sneaker', price: 99.99, quantity: 2 }
-    ]);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    
 
-    const [favorites] = useState([
-        { id: 1, name: 'High-Top Sneaker', price: 79.99 },
-        { id: 2, name: 'Leather Boot', price: 129.99 }
-    ]);
+    useEffect(() => {
+        // Fetch products from the backend
+        fetch('http://localhost:8000/products/')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // Store only the first three products
+                setProducts(data.slice(0, 3));
+                setLoading(false);
+            })
+            .catch((error) => {
+                setError(error);
+                setLoading(false);
+            });
+    }, []);
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error.message}</div>;
 
     return (
         <div className="container my-5">
@@ -31,39 +47,15 @@ const HomePage = () => {
             <section>
                 <h2 className="text-center my-5">Featured Products</h2>
                 <div className="row">
-                    {featuredProducts.map(product => (
-                        <div key={product.id} className="col-md-4 mb-3">
+                    {products.map((product) => (
+                        <div key={product.product_id} className="col-md-4 mb-3">
                             <FeaturedProductCard product={product} />
                         </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Categories Section */}
-            <section>
-                <h2 className="text-center my-5">Shop by Category</h2>
-                <div className="d-flex justify-content-around">
-                    {categories.map(category => (
-                        <CategoryLink key={category.label} category={category} />
                     ))}
                 </div>
             </section>
         </div>
     );
 };
-
-// Featured products data
-const featuredProducts = [
-    { id: 1, name: 'Classic Running Shoe', price: 89.99, img: '/shoe1.jpg' },
-    { id: 2, name: 'Stylish Casual Sneaker', price: 99.99, img: '/shoe2.jpg' },
-    { id: 3, name: 'Sporty Training Shoe', price: 79.99, img: '/shoe3.jpg' }
-];
-
-// Categories data
-const categories = [
-    { label: 'Men', query: 'men', buttonClass: 'btn-outline-primary' },
-    { label: 'Women', query: 'women', buttonClass: 'btn-outline-secondary' },
-    { label: 'Kids', query: 'kids', buttonClass: 'btn-outline-success' }
-];
 
 export default HomePage;
