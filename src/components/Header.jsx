@@ -8,6 +8,7 @@ const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showCategories, setShowCategories] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [role, setRole] = useState('Dummy User'); // Default role is "Dummy User"
 
     const toggleCategories = () => setShowCategories(!showCategories);
 
@@ -30,6 +31,67 @@ const Header = () => {
     useEffect(() => {
         console.log("isLoggedIn state changed:", isLoggedIn); // Logging state changes
     }, [isLoggedIn]);
+
+    // List of roles to toggle through
+    const roles = ['Dummy User', 'Customer', 'Admin', 'Sales Manager', 'Product Manager'];
+
+    // Function to toggle roles
+    const toggleRole = () => {
+        const currentIndex = roles.indexOf(role);
+        const nextIndex = (currentIndex + 1) % roles.length; // Move to the next role
+        setRole(roles[nextIndex]);
+        console.log("Role changed to:", roles[nextIndex]);
+    };
+
+    // Function to render menu sections based on the role
+    const renderMenuSections = () => {
+        switch (role) {
+            case 'Sales Manager':
+                return (
+                    <>
+                        <li><Link to="/products">Products</Link></li>
+                        <li><Link to="/discounts">Discounts</Link></li>
+                        <li><Link to="/invoices">Invoices</Link></li>
+                    </>
+                );
+            case 'Product Manager':
+                return (
+                    <>
+                        <li><Link to="/header">Header</Link></li>
+                        <li><Link to="/comments">Comments</Link></li>
+                        <li><Link to="/products">Products</Link></li>
+                        <li><Link to="/categories">Categories</Link></li>
+                    </>
+                );
+            case 'Customer':
+            case 'Dummy User': // Both Customer and Dummy User see product categories
+                return (
+                    <>
+                        <li><Link to="/men">Men</Link></li>
+                        <li><Link to="/women">Women</Link></li>
+                        <li><Link to="/kids">Kids</Link></li>
+                        <li><Link to="/sports">Sports</Link></li>
+                        <li><Link to="/classic">Classic</Link></li>
+                    </>
+                );
+            case 'Admin':
+                return (
+                    <>
+                        <li><Link to="/dashboard">Dashboard</Link></li>
+                        <li><Link to="/users">Users</Link></li>
+                        <li><Link to="/settings">Settings</Link></li>
+                    </>
+                );
+            default:
+                return (
+                    <>
+                        <li><Link to="/home">Home</Link></li>
+                        <li><Link to="/about">About</Link></li>
+                        <li><Link to="/contact">Contact</Link></li>
+                    </>
+                );
+        }
+    };
 
     return (
         <>
@@ -78,7 +140,13 @@ const Header = () => {
                             </>
                         )}
 
-                        {/* Toggle Button for Testing */}
+                        {/* Role Display and Toggle Button */}
+                        <p className="current-role">Current Role: {role}</p>
+                        <button onClick={toggleRole} className="text-link">
+                            Change Role
+                        </button>
+
+                        {/* Toggle Button for Testing Login State */}
                         <button onClick={() => setIsLoggedIn(!isLoggedIn)} className="text-link">
                             Toggle Login State
                         </button>
@@ -89,11 +157,7 @@ const Header = () => {
             {/* Dropdown Categories */}
             <div className={`dropdown-categories ${showCategories ? 'show' : ''}`}>
                 <ul className="categories-list">
-                    <li><Link to="/mens">Men's Shoes</Link></li>
-                    <li><Link to="/womens">Women's Shoes</Link></li>
-                    <li><Link to="/kids">Kids' Shoes</Link></li>
-                    <li><Link to="/accessories">Accessories</Link></li>
-                    <li><Link to="/sale">Sale</Link></li>
+                    {renderMenuSections()}
                 </ul>
             </div>
         </>

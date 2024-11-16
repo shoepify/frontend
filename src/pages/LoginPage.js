@@ -1,57 +1,38 @@
-// src/pages/LoginPage.js
-
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.css';
 
 const LoginPage = () => {
-    const [isSignUp, setIsSignUp] = useState(false);
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [email, setEmail] = useState('');
-    const [role, setRole] = useState('Customer');
-    const navigate = useNavigate();  // Initialize navigation
+    const [role, setRole] = useState('Dummy User'); // Default role is "Dummy User"
+    const navigate = useNavigate();
 
-    // Dummy data for users
-    const dummyUsers = [
-        { username: 'customer', password: 'customer123', role: 'Customer' },
-        { username: 'salesmanager', password: 'sales123', role: 'Sales Manager' },
-        { username: 'productmanager', password: 'product123', role: 'Product Manager' },
-    ];
+    // List of roles to toggle through
+    const roles = ['Dummy User', 'Customer', 'Admin', 'Sales Manager', 'Product Manager'];
 
-    // Toggle between Login and Sign Up
-    const toggleSignUp = () => {
-        setIsSignUp(!isSignUp);
-        setUsername('');
-        setPassword('');
-        setEmail('');
-        setRole('Customer');
-    };
+    // Function to toggle through roles sequentially
+    const toggleRole = () => {
+        const currentIndex = roles.indexOf(role);
+        const nextIndex = (currentIndex + 1) % roles.length; // Move to the next role
+        const nextRole = roles[nextIndex];
+        setRole(nextRole);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        if (isSignUp) {
-            console.log("Signing up:", { username, password, email, role });
-            // Add sign-up logic here if needed
-        } else {
-            // Validate login
-            const user = dummyUsers.find(
-                (user) => user.username === username && user.password === password
-            );
-
-            if (user) {
-                console.log("Logging in:", { username, password });
-                // Navigate to the corresponding page based on user role
-                if (user.role === 'Customer') {
-                    navigate('/');  // Route to HomePage for Customer
-                } else if (user.role === 'Sales Manager') {
-                    navigate('/sales-manager');  // Route to SalesManagerPage
-                } else if (user.role === 'Product Manager') {
-                    navigate('/product-manager');  // Route to ProductManagerPage
-                }
-            } else {
-                alert("Invalid username or password");  // Show alert if credentials are wrong
+        // Navigate to the appropriate page if the role is not "Dummy User"
+        if (nextRole !== 'Dummy User') {
+            switch (nextRole) {
+                case 'Customer':
+                    navigate('/');  // Redirect to HomePage for Customer
+                    break;
+                case 'Admin':
+                    navigate('/admin');  // Redirect to AdminPage
+                    break;
+                case 'Sales Manager':
+                    navigate('/sales-manager');  // Redirect to SalesManagerPage
+                    break;
+                case 'Product Manager':
+                    navigate('/product-manager');  // Redirect to ProductManagerPage
+                    break;
+                default:
+                    break;
             }
         }
     };
@@ -60,72 +41,25 @@ const LoginPage = () => {
         <div className="login-container my-5">
             <div className="row justify-content-center">
                 <div className="col-md-6">
-                    <h2>{isSignUp ? 'Sign Up' : 'Login'}</h2>
-                    <form onSubmit={handleSubmit}>
-                        <div className="form-group mb-3">
-                            <label>Username</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                required
-                            />
-                        </div>
+                    <h2>Role Selection</h2>
+                    <div className="form-group mb-3">
+                        <label>Current Role</label>
+                        <p className="form-control">{role}</p>
+                    </div>
 
-                        {/* Email field for Sign Up */}
-                        {isSignUp && (
-                            <div className="form-group mb-3">
-                                <label>Email</label>
-                                <input
-                                    type="email"
-                                    className="form-control"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                />
-                            </div>
-                        )}
+                    {/* Button to toggle role */}
+                    <button
+                        onClick={toggleRole}
+                        className="btn btn-secondary w-100 mt-3"
+                    >
+                        Change Role
+                    </button>
 
-                        <div className="form-group mb-3">
-                            <label>Password</label>
-                            <input
-                                type="password"
-                                className="form-control"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        {/* Role selection for Sign Up */}
-                        {isSignUp && (
-                            <div className="form-group mb-3">
-                                <label>Select Role</label>
-                                <select
-                                    className="form-control"
-                                    value={role}
-                                    onChange={(e) => setRole(e.target.value)}
-                                >
-                                    <option value="Customer">Customer</option>
-                                    <option value="Admin">Admin</option>
-                                    <option value="Sales Manager">Sales Manager</option>
-                                    <option value="Product Manager">Product Manager</option>
-                                </select>
-                            </div>
-                        )}
-
-                        <button type="submit" className="btn btn-primary w-100">
-                            {isSignUp ? 'Sign Up' : 'Login'}
-                        </button>
-                    </form>
-
-                    {/* Toggle button between Login and Sign Up */}
+                    {/* Message about the current role */}
                     <p className="text-center mt-3">
-                        {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-                        <button onClick={toggleSignUp} className="btn btn-link">
-                            {isSignUp ? 'Login' : 'Sign Up'}
-                        </button>
+                        {role === 'Dummy User'
+                            ? 'You are not logged in. Press the button to change roles.'
+                            : `You are logged in as: ${role}`}
                     </p>
                 </div>
             </div>
