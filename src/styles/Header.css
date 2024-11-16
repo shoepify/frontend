@@ -3,7 +3,7 @@
     background: linear-gradient(135deg, #4a90e2, #00c6ff);
     color: #fff;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 1rem 0; /* Yalnızca üst ve alt için padding */
+    padding: 1rem 0; /* Top and bottom padding */
     position: fixed;
     top: 0;
     width: 100%;
@@ -13,10 +13,10 @@
 .header-container {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Sol ve sağ tarafı dengele */
-    max-width: 1200px; /* Konteyneri sınırla */
-    margin: 0 auto; /* Ortalamak için */
-    padding: 0 20px; /* İçeriği biraz içeri al */
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto; /* Center the container */
+    padding: 0 20px; /* Add padding to the sides */
     box-sizing: border-box;
 }
 
@@ -40,7 +40,7 @@
     color: #fff;
     font-size: 1.2rem;
     cursor: pointer;
-    margin-right: 1rem; /* Logo ile aradaki boşluğu ayarla */
+    margin-right: 1rem;
     white-space: nowrap;
 }
 
@@ -55,10 +55,9 @@
     background: #fff;
     border-radius: 20px;
     padding: 0.25rem 1rem;
-    flex: 1; /* Search bar'ı genişlet */
-    max-width: 500px; /* Maksimum genişlik sınırı */
-    margin-left: 2rem; /* Logodan uzaklaştır */
-    margin-right: 2rem; /* Sağdaki elemanlardan uzaklaştır */
+    flex: 1; /* Expand search bar to take available space */
+    max-width: 500px; /* Limit max width */
+    margin: 0 2rem; /* Add spacing between left and right elements */
 }
 
 .search-input {
@@ -67,7 +66,13 @@
     padding: 0.5rem;
     border-radius: 20px;
     font-size: 0.9rem;
-    flex-grow: 1;
+    flex-grow: 1; /* Allow input to expand */
+    background-color: transparent;
+}
+
+.search-input::placeholder {
+    color: #aaa;
+    font-style: italic;
 }
 
 .search-icon {
@@ -75,13 +80,14 @@
     border: none;
     color: #4a90e2;
     cursor: pointer;
+    font-size: 1.2rem;
 }
 
 /* Header Right Section */
 .header-right {
     display: flex;
     align-items: center;
-    gap: 15px; /* Elemanlar arası boşluk */
+    gap: 15px; /* Add space between elements */
 }
 
 /* Icon Button Styling */
@@ -143,6 +149,7 @@
 
 .dropdown-categories.show {
     display: block;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 .categories-list {
@@ -162,6 +169,18 @@
 
 .categories-list li a:hover {
     color: #006db3;
+}
+
+/* Animation for Dropdown */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Responsive Design for Header */

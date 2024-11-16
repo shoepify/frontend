@@ -1,7 +1,3 @@
-// src/App.js
-
-
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -10,13 +6,13 @@ import HomePage from './HomePage';
 import ProductListPage from './ProductListPage';
 import FavoritesPage from './FavoritesPage';
 import LoginPage from './LoginPage'; // Import LoginPage
-import PrivateRoute from '../components/PrivateRoute';
-import CartRoutes from '../routes/CartRoutes';
-import FooterRoutes from '../routes/FooterRoutes';  // Import FooterRoutes
+import Profile from './Profile'; // Import Profile component
 import ProductManagerPage from './ProductManagerPage';
 import SalesManagerPage from './SalesManagerPage';
-import Profile from './Profile'; // Import your Profile component
-import ProductDetailPage from './ProductDetailPage';
+import ProductDetailPage from './ProductDetailPage'; // Import ProductDetailPage
+import PrivateRoute from '../components/PrivateRoute'; // Add PrivateRoute logic for protected pages
+import CartRoutes from '../routes/CartRoutes'; // Import Cart-related routes
+import FooterRoutes from '../routes/FooterRoutes'; // Import Footer-related routes
 
 import '../styles/App.css';
 
@@ -24,34 +20,50 @@ const App = () => {
     return (
         <Router>
             <Header />
-            <div className="content"> {/* Wrapper to handle page content styling */}
+            <div className="content"> {/* Wrapper for page content */}
                 <Routes>
                     {/* Public routes */}
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/products" element={<ProductListPage />} />
-                    <Route path="/favorites" element={<FavoritesPage />} />
-                    <Route path="/login" element={<LoginPage />} />  {/* Add LoginPage route here */}
-                    
-                    {/* Protected routes */}
-                    <Route path="/" element={<HomePage />} />  {/* HomePage for Customer */}
-                    <Route path="/login" element={<LoginPage />} />  {/* LoginPage */}
-                    <Route path="/sales-manager" element={<SalesManagerPage />} />  {/* Sales Manager Page */}
-                    <Route path="/product-manager" element={<ProductManagerPage />} />  {/* Product Manager Page */}
-                    <Route path="/product/:productId" element={<ProductDetailPage />} />
-                    
-                    {/* Footer-related routes */}
-                    <Route path="/footer/*" element={<FooterRoutes />} />
+                    <Route path="/" element={<HomePage />} /> {/* Home page */}
+                    <Route path="/products" element={<ProductListPage />} /> {/* Product List */}
+                    <Route path="/favorites" element={<FavoritesPage />} /> {/* Favorites */}
+                    <Route path="/login" element={<LoginPage />} /> {/* Login Page */}
+                    <Route path="/product/:productId" element={<ProductDetailPage />} /> {/* Product Detail Page */}
 
-                    {/* Cart-related routes */}
+                    {/* Protected routes */}
+                    <Route
+                        path="/sales-manager"
+                        element={
+                            <PrivateRoute allowedRoles={['Sales Manager']}>
+                                <SalesManagerPage />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/product-manager"
+                        element={
+                            <PrivateRoute allowedRoles={['Product Manager']}>
+                                <ProductManagerPage />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/profile"
+                        element={
+                            <PrivateRoute allowedRoles={['Customer', 'Admin', 'Sales Manager', 'Product Manager']}>
+                                <Profile />
+                            </PrivateRoute>
+                        }
+                    />
+
+                    {/* Footer and cart-related routes */}
+                    <Route path="/footer/*" element={<FooterRoutes />} />
                     <Route path="/cart/*" element={<CartRoutes />} />
 
                     {/* Redirect unmatched routes */}
                     <Route path="*" element={<Navigate to="/" />} />
-
-                    <Route path="/profile" element={<Profile />} /> {/* Profile route */}
                 </Routes>
             </div>
-            <Footer /> {/* Add Footer here to display it on all pages */}
+            <Footer /> {/* Footer for all pages */}
         </Router>
     );
 };

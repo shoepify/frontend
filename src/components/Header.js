@@ -1,49 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Import axios for API requests
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faShoppingCart, faSearch, faBars, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import {
+    faHeart,
+    faShoppingCart,
+    faSearch,
+    faBars,
+    faUser,
+    faSignOutAlt
+} from '@fortawesome/free-solid-svg-icons';
 import '../styles/Header.css';
 
 const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showCategories, setShowCategories] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
     const [role, setRole] = useState('Dummy User'); // Default role is "Dummy User"
+    const navigate = useNavigate();
 
     const toggleCategories = () => setShowCategories(!showCategories);
 
-    const handleSearch = (e) => {
+    const handleSearch = async (e) => {
         e.preventDefault();
-        console.log("Searching for:", searchQuery);
+        if (!searchQuery.trim()) {
+            alert('Please enter a search term');
+            return;
+        }
+
+        try {
+            const response = await axios.get('/products/search/', {
+                params: { query: searchQuery }, // Send search query to the backend
+            });
+
+            if (response.data && response.data.length > 0) {
+                setSearchResults(response.data); // Update search results state
+                navigate('/products', { state: { searchResults: response.data } }); // Navigate to the product list page with search results
+            } else {
+                alert('No products found');
+            }
+        } catch (error) {
+            console.error('Error searching for products:', error);
+            alert('Failed to fetch search results. Please try again later.');
+        }
     };
 
     const handleLogin = () => {
         setIsLoggedIn(true);
-        console.log("User logged in"); // Logging login action
     };
 
     const handleLogout = () => {
         setIsLoggedIn(false);
-        console.log("User logged out"); // Logging logout action
     };
 
-    // useEffect to log the login state
-    useEffect(() => {
-        console.log("isLoggedIn state changed:", isLoggedIn); // Logging state changes
-    }, [isLoggedIn]);
-
-    // List of roles to toggle through
-    const roles = ['Dummy User', 'Customer', 'Admin', 'Sales Manager', 'Product Manager'];
-
-    // Function to toggle roles
     const toggleRole = () => {
+        const roles = ['Dummy User', 'Customer', 'Admin', 'Sales Manager', 'Product Manager'];
         const currentIndex = roles.indexOf(role);
-        const nextIndex = (currentIndex + 1) % roles.length; // Move to the next role
+        const nextIndex = (currentIndex + 1) % roles.length;
         setRole(roles[nextIndex]);
-        console.log("Role changed to:", roles[nextIndex]);
     };
 
-    // Function to render menu sections based on the role
     const renderMenuSections = () => {
         switch (role) {
             case 'Sales Manager':
@@ -64,7 +81,7 @@ const Header = () => {
                     </>
                 );
             case 'Customer':
-            case 'Dummy User': // Both Customer and Dummy User see product categories
+            case 'Dummy User':
                 return (
                     <>
                         <li><Link to="/men">Men</Link></li>
@@ -144,11 +161,6 @@ const Header = () => {
                         <p className="current-role">Current Role: {role}</p>
                         <button onClick={toggleRole} className="text-link">
                             Change Role
-                        </button>
-
-                        {/* Toggle Button for Testing Login State */}
-                        <button onClick={() => setIsLoggedIn(!isLoggedIn)} className="text-link">
-                            Toggle Login State
                         </button>
                     </div>
                 </div>
