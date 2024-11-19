@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css'; // Optional blur effect
+import { decodeToken } from '../utils/auth'; // Import the utility function
 
 const ProductDetailPage = () => {
     const { productId } = useParams();
@@ -9,25 +10,47 @@ const ProductDetailPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        // Use the API endpoint from the ProductViewSet
-        const url = `http://localhost:8000/products/${productId}/`;
+    const handleAddToFavorites = () => {
+        const token = localStorage.getItem("token");
 
-        fetch(url)
+        if (!token) {
+            alert("You must be logged in to add favorites.");
+            return;
+        }
+
+        const decoded = decodeToken(token);
+        if (!decoded || !decoded.user_id) {
+            alert("Invalid token. Please log in again.");
+            return;
+        }
+
+        fetch("http://localhost:8000/favorites/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`, // Include the token
+            },
+            body: JSON.stringify({ product_id: productId }),
+        })
             .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch product details');
-                }
+                if (!response.ok) throw new Error("Failed to add to favorites");
+                alert("Product added to favorites!");
+            })
+            .catch((err) => alert(err.message));
+    };
+
+    useEffect(() => {
+        fetch(`http://localhost:8000/products/${productId}/`)
+            .then((response) => {
+                if (!response.ok) throw new Error('Failed to fetch product details');
                 return response.json();
             })
             .then((data) => {
-                console.log("Fetched product data:", data); // Check the product data
                 setProduct(data);
                 setLoading(false);
             })
-            .catch((error) => {
-                console.error("Error fetching product data:", error);
-                setError(error);
+            .catch((err) => {
+                setError(err);
                 setLoading(false);
             });
     }, [productId]);
@@ -40,11 +63,10 @@ const ProductDetailPage = () => {
             {product && (
                 <>
                     <h1>{product.model}</h1>
-                    {/* Use the image_url field to display the image */}
                     <LazyLoadImage
-                        src={product.image_url || "https://via.placeholder.com/150"} // Use image_url
+                        src={product.image_url || 'https://via.placeholder.com/150'}
                         alt={product.model}
-                        effect="blur" // Adds a blur effect while loading
+                        effect="blur"
                         className="product-image"
                     />
                     <p><strong>Serial Number:</strong> {product.serial_number}</p>
@@ -54,6 +76,11 @@ const ProductDetailPage = () => {
                     <p><strong>Description:</strong> {product.description}</p>
                     <p><strong>Base Price:</strong> ${parseFloat(product.base_price).toFixed(2)}</p>
                     <p><strong>Price:</strong> ${parseFloat(product.price).toFixed(2)}</p>
+
+                    {/* Add to Favorites Button */}
+                    <button className="btn btn-outline-primary" onClick={handleAddToFavorites}>
+                        Add to Favorites
+                    </button>
                 </>
             )}
         </div>

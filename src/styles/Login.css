@@ -1,0 +1,132 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #493c7b, #8e56c7);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.login-page {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    padding: 40px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    color: #fff;
+}
+
+.login-container h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    transition: 0.3s ease-in-out;
+}
+
+.input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.input-group input:focus {
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.input-group .icon {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.options a {
+    color: #f4d03f;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.options a:hover {
+    color: #ffce00;
+}
+
+.login-button {
+    padding: 12px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #f4d03f;
+    color: #4b3b83;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.login-button:hover {
+    background: #ffce00;
+    box-shadow: 0 8px 20px rgba(255, 206, 0, 0.4);
+}
+
+.signup-link {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.signup-link a {
+    color: #f4d03f;
+    text-decoration: none;
+    transition: 0.3s ease;
+}
+
+.signup-link a:hover {
+    color: #ffce00;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 20px;
+    }
+
+    .input-group input,
+    .login-button {
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+}

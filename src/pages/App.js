@@ -1,7 +1,3 @@
-// src/App.js
-
-
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from '../components/Header';
@@ -9,14 +5,16 @@ import Footer from '../components/Footer';
 import HomePage from './HomePage';
 import ProductListPage from './ProductListPage';
 import FavoritesPage from './FavoritesPage';
-import LoginPage from './LoginPage'; // Import LoginPage
-import PrivateRoute from '../components/PrivateRoute';
-import CartRoutes from '../routes/CartRoutes';
-import FooterRoutes from '../routes/FooterRoutes';  // Import FooterRoutes
+import LoginPage from './LoginPage';
+import SignUpPage from './SignUpPage'; // Import the SignupPage
+import Profile from './Profile';
+import SearchResultPage from './SearchResultPage';
+import ProductDetailPage from './ProductDetailPage';
 import ProductManagerPage from './ProductManagerPage';
 import SalesManagerPage from './SalesManagerPage';
-import Profile from './Profile'; // Import your Profile component
-import ProductDetailPage from './ProductDetailPage';
+import CartRoutes from '../routes/CartRoutes';
+import FooterRoutes from '../routes/FooterRoutes';
+import CategoryPage from './CategoryPage'; // Import CategoryPage
 
 import '../styles/App.css';
 
@@ -24,34 +22,34 @@ const App = () => {
     return (
         <Router>
             <Header />
-            <div className="content"> {/* Wrapper to handle page content styling */}
+            <div className="content"> {/* Page content wrapper */}
                 <Routes>
                     {/* Public routes */}
                     <Route path="/" element={<HomePage />} />
                     <Route path="/products" element={<ProductListPage />} />
+                    <Route path="/products/:productId" element={<ProductDetailPage />} />
                     <Route path="/favorites" element={<FavoritesPage />} />
-                    <Route path="/login" element={<LoginPage />} />  {/* Add LoginPage route here */}
-                    
-                    {/* Protected routes */}
-                    <Route path="/" element={<HomePage />} />  {/* HomePage for Customer */}
-                    <Route path="/login" element={<LoginPage />} />  {/* LoginPage */}
-                    <Route path="/sales-manager" element={<SalesManagerPage />} />  {/* Sales Manager Page */}
-                    <Route path="/product-manager" element={<ProductManagerPage />} />  {/* Product Manager Page */}
-                    <Route path="/product/:productId" element={<ProductDetailPage />} />
-                    
-                    {/* Footer-related routes */}
+                    <Route path="/login" element={<LoginPage />} /> {/* Login route */}
+                    <Route path="/signup" element={<SignUpPage />} /> {/* Sign Up route */}
+                    <Route path="/search" element={<SearchResultPage />} /> {/* Search Results Page */}
+                    <Route path="/profile" element={<Profile />} />
+
+                    {/* Category Page */}
+                    <Route path="/categories/:category" element={<CategoryPage />} /> {/* Dynamic category route */}
+
+                    {/* Manager-specific routes */}
+                    <Route path="/sales-manager" element={<SalesManagerPage />} />
+                    <Route path="/product-manager" element={<ProductManagerPage />} />
+
+                    {/* Nested routes */}
+                    <Route path="/cart/*" element={<CartRoutes />} />
                     <Route path="/footer/*" element={<FooterRoutes />} />
 
-                    {/* Cart-related routes */}
-                    <Route path="/cart/*" element={<CartRoutes />} />
-
-                    {/* Redirect unmatched routes */}
+                    {/* Fallback route */}
                     <Route path="*" element={<Navigate to="/" />} />
-
-                    <Route path="/profile" element={<Profile />} /> {/* Profile route */}
                 </Routes>
             </div>
-            <Footer /> {/* Add Footer here to display it on all pages */}
+            <Footer /> {/* Footer displayed on all pages */}
         </Router>
     );
 };

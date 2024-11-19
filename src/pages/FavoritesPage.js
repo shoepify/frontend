@@ -1,34 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const FavoritesPage = () => {
-    // Mock data for demonstration
-    const [favorites] = useState([
-        { id: 1, name: 'High-Top Sneaker', price: 79.99, img: 'path/to/image1.jpg' },
-        { id: 2, name: 'Leather Boot', price: 129.99, img: 'path/to/image2.jpg' },
-        { id: 3, name: 'Sporty Running Shoe', price: 99.99, img: 'path/to/image3.jpg' }
-    ]);
+    const [favorites, setFavorites] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const customerId = 1; // Replace with logged-in customer ID
+        fetch(`http://localhost:8000/favorites/${customerId}/`)
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch favorites');
+                return response.json();
+            })
+            .then(data => {
+                setFavorites(data);
+                setLoading(false);
+            })
+            .catch(err => {
+                setError(err.message);
+                setLoading(false);
+            });
+    }, []);
+
+    if (loading) return <div>Loading favorites...</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="container my-5">
-            <h2 className="text-center mb-4">Your Favorites</h2>
-            <div className="row">
-                {favorites.length > 0 ? (
-                    favorites.map(item => (
-                        <div key={item.id} className="col-md-4 mb-3">
-                            <div className="card h-100 text-center">
-                                <img src={item.img} className="card-img-top" alt={item.name} />
-                                <div className="card-body">
-                                    <h5 className="card-title">{item.name}</h5>
-                                    <p className="card-text">${item.price.toFixed(2)}</p>
-                                    {/* Add "Remove from Favorites" or other actions as needed */}
-                                </div>
-                            </div>
-                        </div>
-                    ))
-                ) : (
-                    <p className="text-center">You have no favorites yet.</p>
-                )}
-            </div>
+        <div className="favorites-page">
+            <h1>Your Favorites</h1>
+            <ul>
+                {favorites.map(item => (
+                    <li key={item.product_id}>
+                        {item.product_name}
+                    </li>
+                ))}
+            </ul>
         </div>
     );
 };

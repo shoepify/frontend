@@ -1,68 +1,102 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/LoginPage.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-    const [role, setRole] = useState('Dummy User'); // Default role is "Dummy User"
+    const [role, setRole] = useState(""); // Selected role
+    const [formData, setFormData] = useState({});
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // List of roles to toggle through
-    const roles = ['Dummy User', 'Customer', 'Admin', 'Sales Manager', 'Product Manager'];
+    const handleRoleChange = (e) => {
+        setRole(e.target.value);
+        setFormData({}); // Reset form data when role changes
+        setError(null); // Clear previous errors
+    };
 
-    // Function to toggle through roles sequentially
-    const toggleRole = () => {
-        const currentIndex = roles.indexOf(role);
-        const nextIndex = (currentIndex + 1) % roles.length; // Move to the next role
-        const nextRole = roles[nextIndex];
-        setRole(nextRole);
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
 
-        // Navigate to the appropriate page if the role is not "Dummy User"
-        if (nextRole !== 'Dummy User') {
-            switch (nextRole) {
-                case 'Customer':
-                    navigate('/');  // Redirect to HomePage for Customer
-                    break;
-                case 'Admin':
-                    navigate('/admin');  // Redirect to AdminPage
-                    break;
-                case 'Sales Manager':
-                    navigate('/sales-manager');  // Redirect to SalesManagerPage
-                    break;
-                case 'Product Manager':
-                    navigate('/product-manager');  // Redirect to ProductManagerPage
-                    break;
-                default:
-                    break;
-            }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+    
+        if (!role) {
+            setError("Please select a role.");
+            return;
         }
+    
+        const endpoint =
+            role === "customer"
+                ? "http://localhost:8000/login/customer/"
+                : role === "sales_manager"
+                ? "http://localhost:8000/login/sales_manager/"
+                : "http://localhost:8000/login/product_manager/";
+    
+        fetch(endpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    return response.json().then((data) => {
+                        throw new Error(data.error || "Login failed");
+                    });
+                }
+                return response.json();
+            })
+            .then(() => {
+                navigate("/"); // Redirect to the homepage after successful login
+            })
+            .catch((err) => setError(err.message));
     };
 
     return (
-        <div className="login-container my-5">
-            <div className="row justify-content-center">
-                <div className="col-md-6">
-                    <h2>Role Selection</h2>
-                    <div className="form-group mb-3">
-                        <label>Current Role</label>
-                        <p className="form-control">{role}</p>
-                    </div>
+        <div className="login-page">
+            <h1>Log In</h1>
 
-                    {/* Button to toggle role */}
-                    <button
-                        onClick={toggleRole}
-                        className="btn btn-secondary w-100 mt-3"
-                    >
+            {!role ? (
+                <div className="role-selection">
+                    <h2>Select your role</h2>
+                    <select value={role} onChange={handleRoleChange}>
+                        <option value="">-- Select Role --</option>
+                        <option value="customer">Customer</option>
+                        <option value="sales_manager">Sales Manager</option>
+                        <option value="product_manager">Product Manager</option>
+                    </select>
+                </div>
+            ) : (
+                <form onSubmit={handleSubmit} className="login-form">
+                    <button type="button" onClick={() => setRole("")}>
                         Change Role
                     </button>
-
-                    {/* Message about the current role */}
-                    <p className="text-center mt-3">
-                        {role === 'Dummy User'
-                            ? 'You are not logged in. Press the button to change roles.'
-                            : `You are logged in as: ${role}`}
-                    </p>
-                </div>
-            </div>
+                    <label>
+                        Email:
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </label>
+                    <label>
+                        Password:
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </label>
+                    <button type="submit">Log In</button>
+                    {error && <p className="error-message">{error}</p>}
+                </form>
+            )}
         </div>
     );
 };
