@@ -1,29 +1,31 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "../styles/LoginPage.css"; // Add this line to include the new CSS
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useUser } from "../context/UserContext"; // Import User Context
+import "../styles/LoginPage.css"; // Import CSS
 
 const LoginPage = () => {
     const [role, setRole] = useState(""); // Selected role
-    const [formData, setFormData] = useState({});
-    const [error, setError] = useState(null);
-    const navigate = useNavigate();
+    const [formData, setFormData] = useState({}); // Login form data
+    const [error, setError] = useState(null); // Error state
+    const navigate = useNavigate(); // Initialize useNavigate
+    const { setUserRole } = useUser(); // Destructure setUserRole from context
 
     const handleRoleChange = (e) => {
-        setRole(e.target.value);
+        setRole(e.target.value); // Update selected role
         setFormData({}); // Reset form data when role changes
         setError(null); // Clear previous errors
     };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData({ ...formData, [name]: value }); // Update form data
     };
 
     const handleSubmit = (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default form submission
 
         if (!role) {
-            setError("Please select a role.");
+            setError("Please select a role."); // Error if no role selected
             return;
         }
 
@@ -36,9 +38,7 @@ const LoginPage = () => {
 
         fetch(endpoint, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData),
         })
             .then((response) => {
@@ -49,10 +49,15 @@ const LoginPage = () => {
                 }
                 return response.json();
             })
-            .then(() => {
-                navigate("/"); // Redirect to the homepage after successful login
+            .then((data) => {
+                localStorage.setItem("accessToken", data.tokens.access);
+                localStorage.setItem("refreshToken", data.tokens.refresh);
+                localStorage.setItem("userId", data.user.id);
+    
+                setUserRole(role); // Update the global role
+                navigate("/"); // Redirect after successful login
             })
-            .catch((err) => setError(err.message));
+            .catch((err) => setError(err.message)); // Handle errors
     };
 
     return (

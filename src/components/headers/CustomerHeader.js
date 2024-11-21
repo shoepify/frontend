@@ -2,16 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faShoppingCart, faBars } from "@fortawesome/free-solid-svg-icons";
-import "../styles/Header.css";
+import '../../styles/CustomerHeader.css';
+import { useUser } from "../../context/UserContext";
 
-const Header = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
+const CustomerHeader = () => {
     const [showCategories, setShowCategories] = useState(false);
     const [categories, setCategories] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const navigate = useNavigate();
+    const { setUserRole } = useUser(); // Ensure this works
 
     const toggleCategories = () => setShowCategories(!showCategories);
+  
 
     // Fetch categories from the backend
     useEffect(() => {
@@ -35,6 +39,19 @@ const Header = () => {
         if (searchQuery.trim()) {
             navigate(`/search?q=${searchQuery.trim()}`);
         }
+    };
+
+   
+    const handleLogout = () => {
+        // Clear localStorage
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("userId");
+        setUserRole("guest");
+
+
+        // Navigate to homepage or login page
+        navigate("/");
     };
 
     return (
@@ -70,24 +87,12 @@ const Header = () => {
                     <Link to="/cart" className="icon-button">
                         <FontAwesomeIcon icon={faShoppingCart} />
                     </Link>
-
-                    {!isLoggedIn ? (
-                        <>
-                            <Link to="/signup" className="header-button signup-button">
-                                Sign Up
-                            </Link>
-                            <Link to="/login" className="header-button login-button">
-                                Login
-                            </Link>
-                        </>
-                    ) : (
-                        <button
-                            onClick={() => setIsLoggedIn(false)}
-                            className="header-button logout-button"
-                        >
-                            Logout
-                        </button>
-                    )}
+                    <Link to="/profile" className="header-button profile-button">
+                        Profile
+                    </Link>
+                    <button onClick={handleLogout} className="header-button logout-button">
+                        Logout
+                    </button>
                 </div>
             </div>
 
@@ -109,5 +114,4 @@ const Header = () => {
     );
 };
 
-export default Header;
-
+export default CustomerHeader;

@@ -1,0 +1,38 @@
+/* SalesManagerHeader.css */
+.main-header {
+    background: #ffffff;
+    color: #343a40;
+    padding: 1rem;
+    border-bottom: 2px solid #007bff;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fixed-sections {
+    display: flex;
+    gap: 15px;
+}
+
+.fixed-sections .header-button {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.fixed-sections .header-button:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.logout-button {
+    background: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}

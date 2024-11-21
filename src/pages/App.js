@@ -1,55 +1,113 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Header from '../components/Header';
+import GuestHeader from '../components/headers/GuestHeader';
+import CustomerHeader from '../components/headers/CustomerHeader';
+import SalesManagerHeader from '../components/headers/SalesManagerHeader';
+import ProductManagerHeader from '../components/headers/ProductManagerHeader';
+import AdminHeader from '../components/headers/AdminHeader';
 import Footer from '../components/Footer';
 import HomePage from './HomePage';
 import ProductListPage from './ProductListPage';
 import FavoritesPage from './FavoritesPage';
 import LoginPage from './LoginPage';
-import SignUpPage from './SignUpPage'; // Import the SignupPage
+import SignUpPage from './SignUpPage';
 import Profile from './Profile';
 import SearchResultPage from './SearchResultPage';
 import ProductDetailPage from './ProductDetailPage';
-import ProductManagerPage from './ProductManagerPage';
-import SalesManagerPage from './SalesManagerPage';
-import CartRoutes from '../routes/CartRoutes';
 import FooterRoutes from '../routes/FooterRoutes';
-import CategoryPage from './CategoryPage'; // Import CategoryPage
-
+import CategoryPage from './CategoryPage';
 import '../styles/App.css';
+import { useUser } from '../context/UserContext';
 
 const App = () => {
+    const { userRole } = useUser(); // Get the current role
+
+    // Select the appropriate header based on the user role
+    const renderHeader = () => {
+        switch (userRole) {
+            case 'guest':
+                return <GuestHeader />;
+            case 'customer':
+                return <CustomerHeader />;
+            case 'sales_manager':
+                return <SalesManagerHeader />;
+            case 'product_manager':
+                return <ProductManagerHeader />;
+            case 'admin':
+                return <AdminHeader />;
+            default:
+                return <GuestHeader />; // Default to GuestHeader
+        }
+    };
+
     return (
         <Router>
-            <Header />
-            <div className="content"> {/* Page content wrapper */}
+            {renderHeader()} {/* Render the appropriate header */}
+            <div className="content">
                 <Routes>
-                    {/* Public routes */}
-                    <Route path="/" element={<HomePage />} />
-                    <Route path="/products" element={<ProductListPage />} />
-                    <Route path="/products/:productId" element={<ProductDetailPage />} />
-                    <Route path="/favorites" element={<FavoritesPage />} />
-                    <Route path="/login" element={<LoginPage />} /> {/* Login route */}
-                    <Route path="/signup" element={<SignUpPage />} /> {/* Sign Up route */}
-                    <Route path="/search" element={<SearchResultPage />} /> {/* Search Results Page */}
-                    <Route path="/profile" element={<Profile />} />
+                    {/* Guest Routes */}
+                    {userRole === 'guest' && (
+                        <>
+                            <Route path="/" element={<HomePage />} />
+                            <Route path="/products" element={<ProductListPage />} />
+                            <Route path="/products/:productId" element={<ProductDetailPage />} />
+                            <Route path="/favorites" element={<FavoritesPage />} />
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route path="/signup" element={<SignUpPage />} />
+                            <Route path="/search" element={<SearchResultPage />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/categories/:category" element={<CategoryPage />} />
+                            <Route path="/footer/*" element={<FooterRoutes />} />
+                            <Route path="*" element={<Navigate to="/" />} />
+                        </>
+                    )}
 
-                    {/* Category Page */}
-                    <Route path="/categories/:category" element={<CategoryPage />} /> {/* Dynamic category route */}
+                    {/* Customer Routes */}
+                    {userRole === 'customer' && (
+                        <>
+                            <Route path="/" element={<HomePage />} />
+                            <Route path="/favorites" element={<FavoritesPage />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/products" element={<ProductListPage />} />
+                            <Route path="/products/:productId" element={<ProductDetailPage />} />
+                            <Route path="/favorites" element={<FavoritesPage />} />
+                            <Route path="/login" element={<LoginPage />} />
+                            <Route path="/signup" element={<SignUpPage />} />
+                            <Route path="/search" element={<SearchResultPage />} />
+                            <Route path="/profile" element={<Profile />} />
+                            <Route path="/categories/:category" element={<CategoryPage />} />
+                            <Route path="/footer/*" element={<FooterRoutes />} />
+                            <Route path="*" element={<Navigate to="/" />} />
 
-                    {/* Manager-specific routes */}
-                    <Route path="/sales-manager" element={<SalesManagerPage />} />
-                    <Route path="/product-manager" element={<ProductManagerPage />} />
+                        </>
+                    )}
 
-                    {/* Nested routes */}
-                    <Route path="/cart/*" element={<CartRoutes />} />
-                    <Route path="/footer/*" element={<FooterRoutes />} />
+                    {/* Sales Manager Routes */}
+                    {userRole === 'sales_manager' && (
+                        <>
+                            <Route path="/" element={<div>You are a Sales Manager now.</div>} />
+                        </>
+                    )}
 
-                    {/* Fallback route */}
+                    {/* Product Manager Routes */}
+                    {userRole === 'product_manager' && (
+                        <>
+                            <Route path="/" element={<div>You are a Product Manager now.</div>} />
+                        </>
+                    )}
+
+                    {/* Admin Routes */}
+                    {userRole === 'admin' && (
+                        <>
+                            <Route path="/" element={<div>You are an Admin now.</div>} />
+                        </>
+                    )}
+
+                    {/* Fallback Route */}
                     <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
             </div>
-            <Footer /> {/* Footer displayed on all pages */}
+            <Footer />
         </Router>
     );
 };

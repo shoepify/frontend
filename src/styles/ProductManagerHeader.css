@@ -1,0 +1,100 @@
+/* General Header Styles */
+.product-manager-header {
+    background: #f8f9fa;
+    color: #343a40;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.product-manager-header .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Logo Styling */
+.product-manager-header .logo {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #007bff;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.product-manager-header .logo:hover {
+    text-decoration: underline;
+}
+
+/* Fixed Sections Navigation */
+.product-manager-header .fixed-sections {
+    display: flex;
+    gap: 15px;
+}
+
+.product-manager-header .fixed-sections .header-button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #fff;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    background: #007bff;
+}
+
+.product-manager-header .fixed-sections .header-button:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Logout Button Styling */
+.product-manager-header .header-right {
+    display: flex;
+    align-items: center;
+}
+
+.product-manager-header .logout-button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    background: #dc3545;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.product-manager-header .logout-button:hover {
+    background: #c82333;
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .product-manager-header .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .product-manager-header .fixed-sections {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 1rem;
+    }
+
+    .product-manager-header .header-right {
+        margin-top: 1rem;
+    }
+}
