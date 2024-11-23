@@ -1,0 +1,224 @@
+/* General Header Styles */
+.main-header {
+    background: #f8f9fa;
+    color: #343a40;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.logo {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #007bff;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.logo:hover {
+    text-decoration: underline;
+}
+
+.nav-toggle {
+    background: none;
+    border: none;
+    color: #343a40;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-right: 1rem;
+}
+
+.nav-toggle:hover {
+    color: #007bff;
+}
+
+/* Search Bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 0.25rem 1rem;
+    flex: 1;
+    max-width: 500px;
+    margin-left: 2rem;
+    margin-right: 2rem;
+}
+
+.search-input {
+    border: none;
+    outline: none;
+    padding: 0.5rem;
+    font-size: 1rem;
+    flex-grow: 1;
+    font-family: 'Poppins', sans-serif;
+}
+
+.search-button {
+    background: #007bff;
+    border: none;
+    color: #fff;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+    background: #0056b3;
+}
+
+/* Header Right Section */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Icon Button Styling */
+.icon-button {
+    background: none;
+    border: none;
+    color: #343a40;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.icon-button:hover {
+    color: #007bff;
+}
+
+/* Sign Up and Login Buttons */
+.header-button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: none;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #fff;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.signup-button {
+    background: #28a745;
+}
+
+.signup-button:hover {
+    background: #218838;
+    transform: scale(1.05);
+}
+
+.login-button {
+    background: #007bff;
+}
+
+.login-button:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+.logout-button {
+    background: #dc3545;
+    color: #fff;
+}
+
+.logout-button:hover {
+    background: #c82333;
+    transform: scale(1.05);
+}
+
+/* Dropdown Categories */
+.dropdown-categories {
+    display: none; /* Hidden by default */
+    background-color: #fff;
+    color: #343a40;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 9999; /* Ensure it is above other elements */
+    padding: 1rem 0;
+    transition: all 0.3s ease-in-out; /* Smooth opening */
+}
+
+.dropdown-categories.show {
+    display: block; /* Show when toggled */
+    opacity: 1; /* Ensure visibility */
+    transform: translateY(0); /* Start position */
+}
+
+.categories-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap; /* Allows multiple rows if needed */
+    justify-content: space-around;
+    padding: 0;
+    margin: 0;
+}
+
+.categories-list li {
+    margin: 0.5rem 1rem; /* Space between items */
+}
+
+.categories-list li a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.categories-list li a:hover {
+    color: #0056b3;
+}
+
+
+/* Responsive Design for Header */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-right {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 1rem;
+    }
+}
+.header-button.profile-button {
+    background: #17a2b8;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.header-button.profile-button:hover {
+    background: #138496;
+    transform: scale(1.05);
+}

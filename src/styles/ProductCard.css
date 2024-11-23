@@ -1,0 +1,217 @@
+/* General Product Card Styling */
+.product-card {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 15px;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Product Image */
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Product Info */
+.product-info {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.product-info h3 {
+    font-size: 1.4rem;
+    color: #333;
+    margin: 0 0 10px;
+    font-weight: 600;
+}
+
+.product-info p {
+    font-size: 1rem;
+    color: #555;
+    margin: 5px 0;
+}
+/* Rating stars container */
+.product-card .rating {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+/* Default star styling */
+.product-card .rating .star {
+    font-size: 1.5rem;
+    color: #ddd; /* Default star color */
+    cursor: pointer;
+    transition: color 0.3s ease; /* Smooth color change */
+}
+
+/* Highlighted star styling */
+.product-card .rating .star.selected {
+    color: #ffc107; /* Highlighted stars (gold) */
+}
+
+/* On hover, give visual feedback */
+.product-card .rating .star:hover {
+    color: #ffcc00; /* Slightly brighter gold */
+}
+
+/* Highlight stars on hover */
+.product-card .rating .star:hover ~ .star {
+    color: #ddd; /* Reset stars after the hovered one */
+}
+
+
+/* Product Actions */
+.product-actions {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.product-actions .btn {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.product-actions .btn:hover {
+    opacity: 0.9;
+}
+
+/* Primary Button */
+.btn-outline-primary {
+    color: #4a90e2;
+    background: none;
+    border: 2px solid #4a90e2;
+}
+
+.btn-outline-primary:hover {
+    background: #4a90e2;
+    color: #fff;
+}
+
+/* Success Button */
+.btn-outline-success {
+    color: #28a745;
+    background: none;
+    border: 2px solid #28a745;
+}
+
+.btn-outline-success:hover {
+    background: #28a745;
+    color: #fff;
+}
+
+/* Info Button */
+.btn-outline-info {
+    color: #17a2b8;
+    background: none;
+    border: 2px solid #17a2b8;
+}
+
+.btn-outline-info:hover {
+    background: #17a2b8;
+    color: #fff;
+}
+
+/* Comments Section */
+.comments-section {
+    margin-top: 20px;
+    border-top: 1px solid #ddd;
+    padding-top: 15px;
+}
+
+.comments-section h4 {
+    font-size: 1.2rem;
+    color: #4a90e2;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.comments-section p {
+    font-size: 0.95rem;
+    color: #555;
+    margin: 10px 0;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.comments-section textarea {
+    width: 100%;
+    height: 80px;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.95rem;
+    font-family: 'Poppins', sans-serif;
+    resize: none;
+    transition: border-color 0.3s ease;
+}
+
+.comments-section textarea:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+}
+
+/* Submit Button */
+.comments-section .btn-submit {
+    display: inline-block;
+    margin-top: 10px;
+    background: #007bff;
+    color: #fff;
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.comments-section .btn-submit:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .product-card {
+        padding: 10px;
+    }
+
+    .product-info h3 {
+        font-size: 1.2rem;
+    }
+
+    .product-info p {
+        font-size: 0.9rem;
+    }
+
+    .rating .star {
+        font-size: 1.2rem;
+    }
+
+    .comments-section textarea {
+        height: 70px;
+    }
+
+    .comments-section h4 {
+        font-size: 1rem;
+    }
+}
