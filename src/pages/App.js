@@ -7,7 +7,6 @@ import ProductManagerHeader from '../components/headers/ProductManagerHeader';
 import AdminHeader from '../components/headers/AdminHeader';
 import Footer from '../components/Footer';
 import HomePage from './HomePage';
-import ProductListPage from './ProductListPage';
 import FavoritesPage from './FavoritesPage';
 import LoginPage from './LoginPage';
 import SignUpPage from './SignUpPage';
@@ -18,6 +17,7 @@ import FooterRoutes from '../routes/FooterRoutes';
 import CategoryPage from './CategoryPage';
 import '../styles/App.css';
 import { useUser } from '../context/UserContext';
+import ProductManagerProductPage from "./ProductManagerProductPage";
 
 const App = () => {
     const { userRole } = useUser(); // Get the current role
@@ -49,7 +49,6 @@ const App = () => {
                     {userRole === 'guest' && (
                         <>
                             <Route path="/" element={<HomePage />} />
-                            <Route path="/products" element={<ProductListPage />} />
                             <Route path="/products/:productId" element={<ProductDetailPage />} />
                             <Route path="/favorites" element={<FavoritesPage />} />
                             <Route path="/login" element={<LoginPage />} />
@@ -68,7 +67,6 @@ const App = () => {
                             <Route path="/" element={<HomePage />} />
                             <Route path="/favorites" element={<FavoritesPage />} />
                             <Route path="/profile" element={<Profile />} />
-                            <Route path="/products" element={<ProductListPage />} />
                             <Route path="/products/:productId" element={<ProductDetailPage />} />
                             <Route path="/favorites" element={<FavoritesPage />} />
                             <Route path="/login" element={<LoginPage />} />
@@ -92,7 +90,11 @@ const App = () => {
                     {/* Product Manager Routes */}
                     {userRole === 'product_manager' && (
                         <>
+                            
                             <Route path="/" element={<div>You are a Product Manager now.</div>} />
+                            <Route path="/manage-products" element={<ProductManagerProductPage />} />
+
+ 
                         </>
                     )}
 

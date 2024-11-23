@@ -34,7 +34,7 @@ const ProductManagerHeader = () => {
                 {/* Navigation Links (Fixed Sections) */}
                 <nav className="fixed-sections">
                     <Link to="/comments" className="header-button">Comments</Link>
-                    <Link to="/products" className="header-button">Products</Link>
+                    <Link to="/manage-products" className="header-button">Products</Link>
                     <Link to="/categories" className="header-button">Categories</Link>
                 </nav>
 
