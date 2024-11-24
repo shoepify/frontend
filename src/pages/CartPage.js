@@ -1,76 +1,64 @@
-import React, { useEffect, useState } from 'react';
-import '../styles/CartPage.css';
+import React, { useState, useEffect } from "react";
+import ProductCard from "../components/ProductCard"; // Import the ProductCard component
+import "../styles/CartPage.css";
 
-const CartPage = () => {
+const CartPage = ({ onAddToCart }) => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        fetch('http://localhost:8000/cart/')
-            .then((response) => {
-                if (!response.ok) throw new Error('Failed to fetch cart items');
-                return response.json();
-            })
-            .then((data) => {
-                setCartItems(data);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setError(err.message);
-                setLoading(false);
-            });
-    }, []);
+    const fetchCartItems = async () => {
+        const customerId = localStorage.getItem("userId") || "guest"; // Use guest if not logged in
 
-    const handleRemoveFromCart = (productId) => {
-        fetch('http://localhost:8000/cart/remove/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId }),
-        })
-            .then((response) => {
-                if (!response.ok) throw new Error('Failed to remove from cart');
-                setCartItems((prevItems) =>
-                    prevItems.filter((item) => item.product_id !== productId)
-                );
-            })
-            .catch((err) => alert(err.message));
+        try {
+            const response = await fetch(`http://localhost:8000/cart/${customerId}/`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch cart items.");
+            }
+
+            const data = await response.json();
+            setCartItems(data); // Update cart items state
+        } catch (error) {
+            console.error("Error fetching cart items:", error);
+            setError("Error fetching cart items. Please try again later.");
+        } finally {
+            setLoading(false); // Stop loading regardless of success or failure
+        }
     };
 
-    if (loading) return <div>Loading your cart...</div>;
-    if (error) return <div>Error: {error}</div>;
+    useEffect(() => {
+        fetchCartItems();
+    }, []);
+
+    if (loading) {
+        return <p>Loading cart items...</p>;
+    }
+
+    if (error) {
+        return <p>{error}</p>;
+    }
 
     return (
         <div className="cart-page">
-            <h2 className="cart-title">Shopping Cart</h2>
+            <h1>Your Cart</h1>
             {cartItems.length > 0 ? (
-                <div className="cart-grid">
-                    {cartItems.map((item) => (
-                        <div key={item.product_id} className="cart-item">
-                            <img
-                                src={item.image_url || 'https://via.placeholder.com/150'}
-                                alt={item.model}
-                                className="cart-item-image"
-                            />
-                            <div className="cart-item-info">
-                                <h3>{item.model}</h3>
-                                <p><strong>Price:</strong> ${parseFloat(item.price).toFixed(2)}</p>
-                                <p><strong>Quantity:</strong> {item.quantity}</p>
-                            </div>
-                            <button
-                                className="btn btn-remove"
-                                onClick={() => handleRemoveFromCart(item.product_id)}
-                            >
-                                Remove
-                            </button>
-                        </div>
+                <div className="cart-list">
+                    {cartItems.map((product) => (
+                        <ProductCard
+                            key={product.product_id}
+                            product={product}
+                            onAddToCart={onAddToCart} // Optionally allow adding more of the same item
+                        />
                     ))}
                 </div>
             ) : (
-                <p className="empty-cart">Your cart is empty.</p>
-            )}
-            {cartItems.length > 0 && (
-                <button className="btn btn-checkout">Proceed to Checkout</button>
+                <p>Your cart is empty. Start adding products!</p>
             )}
         </div>
     );

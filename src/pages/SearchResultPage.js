@@ -5,6 +5,7 @@ import '../styles/SearchResultPage.css';
 
 const SearchResultPage = () => {
     const [products, setProducts] = useState([]);
+    const [sortedProducts, setSortedProducts] = useState([]); // State for sorted products
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -22,6 +23,7 @@ const SearchResultPage = () => {
                 })
                 .then((data) => {
                     setProducts(data);
+                    setSortedProducts(data); // Default sorted products are the same as fetched products
                     setLoading(false);
                 })
                 .catch((err) => {
@@ -31,6 +33,18 @@ const SearchResultPage = () => {
                 });
         }
     }, [query]);
+
+    const handleSort = (key) => {
+        const sorted = [...products].sort((a, b) => {
+            if (key === 'popularity_score') {
+                return b.popularity_score - a.popularity_score || b.price - a.price; // Sort by popularity descending, price as tiebreaker
+            } else if (key === 'price') {
+                return b.price - a.price || b.popularity_score - a.popularity_score; // Sort by price descending, popularity as tiebreaker
+            }
+            return 0;
+        });
+        setSortedProducts(sorted);
+    };
 
     const handleAddToCart = (productId) => {
         console.log(`Product ${productId} added to cart`);
@@ -47,10 +61,17 @@ const SearchResultPage = () => {
 
     return (
         <div className="search-results-page">
-            <h1>Search Results</h1>
-            {products.length > 0 ? (
+            <h1>Search Results for "{query}"</h1>
+
+            {/* Sort Buttons */}
+            <div className="sort-buttons">
+                <button onClick={() => handleSort('popularity_score')}>Sort by Popularity</button>
+                <button onClick={() => handleSort('price')}>Sort by Price</button>
+            </div>
+
+            {sortedProducts.length > 0 ? (
                 <div className="product-grid">
-                    {products.map((product) => (
+                    {sortedProducts.map((product) => (
                         <ProductCard
                             key={product.product_id}
                             product={product}

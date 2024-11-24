@@ -163,6 +163,35 @@
     resize: none;
     transition: border-color 0.3s ease;
 }
+/* Center stars */
+.stars-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+/* Default star style */
+.star {
+    font-size: 35px;
+    color: #d3d3d3; /* Default grey for unselected stars */
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+/* Star hover effect */
+.star:hover {
+    color: #ffcc00; /* Gold on hover */
+    transform: scale(1.2); /* Slightly enlarge on hover */
+}
+
+/* Selected stars */
+.star.selected {
+    color: #ffc107; /* Highlight color for selected stars */
+    transform: scale(1.1); /* Slightly enlarge selected stars */
+}
+
 
 .comments-section textarea:focus {
     border-color: #4a90e2;
