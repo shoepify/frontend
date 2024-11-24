@@ -18,6 +18,7 @@ import CategoryPage from './CategoryPage';
 import '../styles/App.css';
 import { useUser } from '../context/UserContext';
 import ProductManagerProductPage from "./ProductManagerProductPage";
+import AddProductPage from "./AddProductPage";
 
 const App = () => {
     const { userRole } = useUser(); // Get the current role
@@ -93,6 +94,7 @@ const App = () => {
                             
                             <Route path="/" element={<div>You are a Product Manager now.</div>} />
                             <Route path="/manage-products" element={<ProductManagerProductPage />} />
+                            <Route path="/manage-products/add" element={<AddProductPage />} />
 
  
                         </>
