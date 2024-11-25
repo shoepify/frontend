@@ -1,71 +1,103 @@
-/* Customer Header Specific Styles */
+/* Customer Header */
 .customer-header {
-    background: #f8f9fa;
-    color: #343a40;
-    padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: #ffffff; /* White background */
+    color: #343a40; /* Neutral dark text */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    padding: 1.5rem 0; /* More padding for modern spacing */
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
 }
 
-.header-container {
+.customer-header .header-container {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #007bff;
+/* Logo Styling */
+.customer-header .logo {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem; /* Bigger for emphasis */
+    font-weight: 700;
+    color: #343a40; /* Darker for better contrast */
     text-decoration: none;
 }
 
-.header-right {
-    display: flex;
-    gap: 15px;
-    align-items: center;
+.customer-header .logo span {
+    color: #ff7f50; /* Accent color for part of the logo (e.g., icon or name) */
 }
 
-.icon-button {
-    color: #343a40;
+.customer-header .logo:hover {
+    text-decoration: none;
+    color: #007bff; /* Subtle blue hover */
+}
+
+/* Navigation Menu */
+.customer-header .nav-buttons {
+    display: flex;
+    gap: 30px; /* More space between buttons for cleaner layout */
+}
+
+.customer-header .nav-buttons .nav-button {
     font-size: 1rem;
+    font-weight: 500;
+    color: #343a40; /* Neutral text */
     text-decoration: none;
+    padding: 8px 15px; /* Uniform padding */
+    border-bottom: 2px solid transparent; /* Underline hover effect */
+    transition: border-bottom 0.3s ease, color 0.3s ease;
+}
+
+.customer-header .nav-buttons .nav-button:hover {
+    color: #007bff;
+    border-bottom: 2px solid #007bff; /* Underline hover */
+}
+
+/* Action Buttons (e.g., Logout, Profile) */
+.customer-header .action-buttons {
     display: flex;
     align-items: center;
-    gap: 5px;
-    transition: color 0.3s ease;
+    gap: 15px; /* Space between profile and logout buttons */
 }
 
-.icon-button:hover {
-    color: #007bff;
-}
-
-.profile-button {
-    background: #17a2b8;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
+.customer-header .action-button {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 25px;
     text-decoration: none;
-    font-size: 0.9rem;
+    color: #ffffff;
+    background: #007bff; /* Blue button */
+    border: none;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.profile-button:hover {
-    background: #138496;
-    transform: scale(1.05);
+.customer-header .action-button:hover {
+    background: #0056b3; /* Darker blue */
+    transform: scale(1.05); /* Slight zoom on hover */
 }
 
-.logout-button {
-    background: #dc3545;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
+/* Responsive Design */
+@media (max-width: 768px) {
+    .customer-header .header-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem; /* Space between sections on mobile */
+    }
 
-.logout-button:hover {
-    background: #c82333;
-    transform: scale(1.05);
+    .customer-header .nav-buttons {
+        flex-direction: column;
+        gap: 15px; /* Space between navigation links */
+    }
+
+    .customer-header .action-buttons {
+        flex-direction: column;
+        gap: 10px; /* Stack action buttons */
+    }
 }

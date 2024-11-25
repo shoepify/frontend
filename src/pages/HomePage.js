@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import ProductCard from '../components/ProductCard';
 import '../styles/HomePage.css';
 
 const HomePage = () => {
     const [products, setProducts] = useState([]);
+    const [sortedProducts, setSortedProducts] = useState([]); // Sıralanmış ürünler
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const sliderRef = useRef(null);
 
-    // Fetch products from the backend
+    // Fetch all products from the backend
     useEffect(() => {
         fetch('http://localhost:8000/products/')
             .then((response) => {
@@ -16,7 +16,8 @@ const HomePage = () => {
                 return response.json();
             })
             .then((data) => {
-                setProducts(data.slice(0, 10)); // Limit to 10 products
+                setProducts(data);
+                setSortedProducts(data); // Default unsorted state
                 setLoading(false);
             })
             .catch((error) => {
@@ -25,44 +26,17 @@ const HomePage = () => {
             });
     }, []);
 
-    const handleAddToCart = (productId) => {
-        fetch('http://localhost:8000/cart/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId }),
-        })
-            .then((response) => {
-                if (!response.ok) throw new Error('Failed to add to cart');
-                alert('Added to cart!');
-            })
-            .catch((error) => alert(error.message));
-    };
-
-    const handleAddToFavorites = (productId) => {
-        fetch('http://localhost:8000/favorites/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId }),
-        })
-            .then((response) => {
-                if (!response.ok) throw new Error('Failed to add to favorites');
-                alert('Added to favorites!');
-            })
-            .catch((error) => alert(error.message));
-    };
-
-    const handleMouseEnter = () => {
-        // Stop animation when user interacts
-        if (sliderRef.current) {
-            sliderRef.current.style.animationPlayState = 'paused';
-        }
-    };
-
-    const handleMouseLeave = () => {
-        // Resume animation when user stops interacting
-        if (sliderRef.current) {
-            sliderRef.current.style.animationPlayState = 'running';
-        }
+    // Sort products based on selected key
+    const handleSort = (key) => {
+        const sorted = [...products].sort((a, b) => {
+            if (key === 'popularity_score') {
+                return b.popularity_score - a.popularity_score || b.price - a.price; // Popularity descending, price descending if equal
+            } else if (key === 'price') {
+                return b.price - a.price || b.popularity_score - a.popularity_score; // Price descending, popularity descending if equal
+            }
+            return 0;
+        });
+        setSortedProducts(sorted);
     };
 
     if (loading) return <div>Loading...</div>;
@@ -71,22 +45,20 @@ const HomePage = () => {
     return (
         <div className="container">
             <h1>Featured Products</h1>
-            <div
-                className="slider-container"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-            >
-                <div className="slider" ref={sliderRef}>
-                    {products.map((product) => (
-                        <div key={product.product_id} className="slider-item">
-                            <ProductCard
-                                product={product}
-                                onAddToCart={handleAddToCart}
-                                onAddToFavorites={handleAddToFavorites}
-                            />
-                        </div>
-                    ))}
-                </div>
+
+            {/* Sort Buttons */}
+            <div className="sort-buttons">
+                <button onClick={() => handleSort('popularity_score')}>Sort by Popularity</button>
+                <button onClick={() => handleSort('price')}>Sort by Price</button>
+            </div>
+
+            {/* Product Grid */}
+            <div className="product-grid">
+                {sortedProducts.map((product) => (
+                    <div key={product.product_id} className="product-card">
+                        <ProductCard product={product} />
+                    </div>
+                ))}
             </div>
         </div>
     );

@@ -7,6 +7,7 @@ const CategoryPage = () => {
     const { category } = useParams();
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
+    const [sortedProducts, setSortedProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -17,8 +18,10 @@ const CategoryPage = () => {
                 return response.json();
             })
             .then((data) => {
+                const categoryProducts = data.filter((product) => product.category === category);
                 setProducts(data);
-                setFilteredProducts(data.filter((product) => product.category === category));
+                setFilteredProducts(categoryProducts);
+                setSortedProducts(categoryProducts); // Default is unsorted
                 setLoading(false);
             })
             .catch((error) => {
@@ -27,15 +30,34 @@ const CategoryPage = () => {
             });
     }, [category]);
 
+    const handleSort = (key) => {
+        const sorted = [...filteredProducts].sort((a, b) => {
+            if (key === "popularity_score") {
+                return b.popularity_score - a.popularity_score || b.price - a.price; // Popularity descending, tiebreaker price
+            } else if (key === "price") {
+                return b.price - a.price || b.popularity_score - a.popularity_score; // Price descending, tiebreaker popularity
+            }
+            return 0;
+        });
+        setSortedProducts(sorted);
+    };
+
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
     return (
         <div className="container">
             <h1>Products in {category}</h1>
-            {filteredProducts.length > 0 ? (
+
+            {/* Sort Buttons */}
+            <div className="sort-buttons">
+                <button onClick={() => handleSort("popularity_score")}>Sort by Popularity</button>
+                <button onClick={() => handleSort("price")}>Sort by Price</button>
+            </div>
+
+            {sortedProducts.length > 0 ? (
                 <div className="product-grid">
-                    {filteredProducts.map((product) => (
+                    {sortedProducts.map((product) => (
                         <ProductCard
                             key={product.product_id}
                             product={product}
