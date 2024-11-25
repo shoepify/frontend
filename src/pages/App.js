@@ -1,5 +1,5 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 import GuestHeader from "../components/headers/GuestHeader";
 import CustomerHeader from "../components/headers/CustomerHeader";
 import SalesManagerHeader from "../components/headers/SalesManagerHeader";
@@ -23,6 +23,60 @@ import AddProductPage from "./AddProductPage";
 
 const App = () => {
     const { userRole } = useUser(); // Get the current role
+    const [loading, setLoading] = useState(true); // Loading state for session handling
+
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            localStorage.clear(); // Clear all data in localStorage
+        };
+
+        // Add the event listener
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        // Cleanup the event listener when the component unmounts
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, []);
+    
+    useEffect(() => {
+        const fetchSessionId = async () => {
+            try {
+                const response = await fetch("http://localhost:8000/session-id/", {
+                    method: "GET",
+                    credentials: "include", // Include cookies with the request
+                });
+    
+                if (!response.ok) {
+                    throw new Error("Failed to fetch session ID");
+                }
+    
+                const data = await response.json();
+                console.log("Session Response:", data);
+    
+                // Store the session ID if available
+                if (data.session_id) {
+                    localStorage.setItem("session_id", data.session_id);
+                    console.log("Session ID stored:", data.session_id);
+                } else {
+                    console.warn("Session ID not found in response");
+                }
+            } catch (error) {
+                console.error("Error fetching session ID:", error);
+            } finally {
+                // Ensure loading is set to false in all cases
+                setLoading(false);
+            }
+        };
+    
+        fetchSessionId();
+    }, []);
+    
+
+    // Render loading screen while fetching session ID
+    if (loading) {
+        return <div>Loading session...</div>;
+    }
 
     // Select the appropriate header based on the user role
     const renderHeader = () => {
@@ -94,9 +148,6 @@ const App = () => {
                             <Route path="/" element={<div>You are a Product Manager now.</div>} />
                             <Route path="/manage-products" element={<ProductManagerProductPage />} />
                             <Route path="/manage-products/add" element={<AddProductPage />} />
-
-
-
                         </>
                     )}
 
