@@ -9,6 +9,8 @@ const ProductDetailPage = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState('');
 
     const handleAddToFavorites = () => {
         const token = localStorage.getItem("token");
@@ -39,6 +41,54 @@ const ProductDetailPage = () => {
             .catch((err) => alert(err.message));
     };
 
+    const fetchComments = () => {
+        fetch(`http://127.0.0.1:8000/products/${productId}/comments/`)
+            .then((response) => {
+                if (!response.ok) throw new Error('Failed to fetch comments');
+                return response.json();
+            })
+            .then((data) => {
+                // Filter and display only approved comments
+                const approvedComments = data.filter(comment => comment.approval_status === 'approved');
+                setComments(approvedComments);
+            })
+            .catch((err) => console.error('Error fetching comments:', err));
+    };
+
+    const handleAddComment = () => {
+        const userId = localStorage.getItem('userId');
+        const customerId = userId ? userId : null;
+
+        if (!customerId) {
+            alert("Please log in to submit a comment.");
+            return;
+        }
+
+        fetch(`http://localhost:8000/products/${productId}/add_comment/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                comment: newComment,
+                customer_id: customerId,
+            }),
+        })
+            .then((response) => {
+                if (!response.ok) throw new Error('Failed to submit comment');
+                return response.json();
+            })
+            .then(() => {
+                alert('Comment submitted successfully!');
+                setNewComment(''); // Clear the comment input
+                fetchComments(); // Refresh the list of comments
+            })
+            .catch((error) => {
+                console.error('Error submitting comment:', error);
+                alert('Failed to submit comment. Please try again.');
+            });
+    };
+
     useEffect(() => {
         fetch(`http://localhost:8000/products/${productId}/`)
             .then((response) => {
@@ -53,6 +103,8 @@ const ProductDetailPage = () => {
                 setError(err);
                 setLoading(false);
             });
+
+        fetchComments(); // Fetch comments when the page loads
     }, [productId]);
 
     if (loading) return <div>Loading...</div>;
@@ -81,6 +133,29 @@ const ProductDetailPage = () => {
                     <button className="btn btn-outline-primary" onClick={handleAddToFavorites}>
                         Add to Favorites
                     </button>
+
+                    {/* Comments Section */}
+                    <div className="comments-section">
+                        <h2>Comments</h2>
+                        {comments.length > 0 ? (
+                            comments.map((comment) => (
+                                <p key={comment.comment_id}>
+                                    <strong>{comment.customer?.name || 'Anonymous'}:</strong> {comment.comment}
+                                </p>
+                            ))
+                        ) : (
+                            <p>No comments yet. Be the first to comment!</p>
+                        )}
+                        <textarea
+                            value={newComment}
+                            onChange={(e) => setNewComment(e.target.value)}
+                            placeholder="Write a comment..."
+                            className="comment-input"
+                        ></textarea>
+                        <button className="btn btn-outline-success" onClick={handleAddComment}>
+                            Submit Comment
+                        </button>
+                    </div>
                 </>
             )}
         </div>
