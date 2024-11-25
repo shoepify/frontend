@@ -1,54 +1,102 @@
 import React, { useState } from "react";
-import "../styles/SignUpPage.css"; // Add this line to include the new CSS
+import "../styles/SignUpPage.css"; // Import CSS
 
 const SignupPage = () => {
     const [role, setRole] = useState(""); // Selected role
-    const [formData, setFormData] = useState({});
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
+    const [formData, setFormData] = useState({}); // Form data
+    const [error, setError] = useState(null); // Error state
+    const [success, setSuccess] = useState(false); // Success state
+    const [loading, setLoading] = useState(false); // Loading state
 
+    // Role-specific endpoints
+    const roleEndpoints = {
+        customer: "http://localhost:8000/signup/customer/",
+        sales_manager: "http://localhost:8000/signup/sales_manager/",
+        product_manager: "http://localhost:8000/signup/product_manager/",
+    };
+
+    // Handle role change
     const handleRoleChange = (e) => {
         setRole(e.target.value);
-        setFormData({}); // Reset form data when role changes
-        setError(null); // Clear any previous errors
-        setSuccess(false); // Clear success message
+        setFormData({}); // Reset form data
+        setError(null); // Clear errors
+        setSuccess(false); // Clear success state
     };
 
+    // Handle input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData((prevData) => ({ ...prevData, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    // Handle form submission
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setError(null); // Clear previous errors
+        setLoading(true); // Set loading state
 
-        const endpoint =
-            role === "customer"
-                ? "http://localhost:8000/signup/customer/"
-                : role === "sales_manager"
-                ? "http://localhost:8000/signup/sales_manager/"
-                : "http://localhost:8000/signup/product_manager/";
+        try {
+            const endpoint = roleEndpoints[role];
+            if (!endpoint) throw new Error("Invalid role selected.");
 
-        fetch(endpoint, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    return response.json().then((data) => {
-                        throw new Error(data.error || "Signup failed");
-                    });
-                }
-                return response.json();
-            })
-            .then(() => {
-                setSuccess(true);
-                setError(null);
-            })
-            .catch((err) => setError(err.message));
+            // Construct the payload
+            let payload = {};
+            if (role === "customer") {
+                payload = {
+                    user: {
+                        email: formData.email,
+                        password: formData.password,
+                        role: "customer",
+                    },
+                    tax_id: formData.tax_id,
+                    home_address: formData.home_address,
+                };
+            } else if (role === "sales_manager") {
+                payload = {
+                    user: {
+                        email: formData.email,
+                        password: formData.password,
+                        role: "sales_manager",
+                    },
+                    region: formData.region,
+                };
+            } else if (role === "product_manager") {
+                payload = {
+                    user: {
+                        email: formData.email,
+                        password: formData.password,
+                        role: "product_manager",
+                    },
+                    department: formData.department,
+                };
+            }
+
+            // Send the signup request
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Signup failed");
+            }
+
+            const data = await response.json();
+
+            // Store tokens and role in localStorage
+            localStorage.setItem("accessToken", data.token);
+            localStorage.setItem("userEmail", data.email);
+           
+
+            setSuccess(true);
+            setError(null);
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -85,47 +133,37 @@ const SignupPage = () => {
                                 >
                                     Change Role
                                 </button>
+                                <label>
+                                    Email:
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email || ""}
+                                        onChange={handleChange}
+                                        required
+                                        className="signup-input"
+                                    />
+                                </label>
+                                <label>
+                                    Password:
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        value={formData.password || ""}
+                                        onChange={handleChange}
+                                        required
+                                        className="signup-input"
+                                    />
+                                </label>
+
                                 {role === "customer" && (
                                     <>
-                                        <label>
-                                            Name:
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                value={formData.name || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
                                         <label>
                                             Tax ID:
                                             <input
                                                 type="text"
                                                 name="tax_id"
                                                 value={formData.tax_id || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                        <label>
-                                            Email:
-                                            <input
-                                                type="email"
-                                                name="email"
-                                                value={formData.email || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                        <label>
-                                            Password:
-                                            <input
-                                                type="password"
-                                                name="password"
-                                                value={formData.password || ""}
                                                 onChange={handleChange}
                                                 required
                                                 className="signup-input"
@@ -144,46 +182,38 @@ const SignupPage = () => {
                                         </label>
                                     </>
                                 )}
-                                {(role === "sales_manager" ||
-                                    role === "product_manager") && (
-                                    <>
-                                        <label>
-                                            Name:
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                value={formData.name || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                        <label>
-                                            Email:
-                                            <input
-                                                type="email"
-                                                name="email"
-                                                value={formData.email || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                        <label>
-                                            Password:
-                                            <input
-                                                type="password"
-                                                name="password"
-                                                value={formData.password || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                    </>
+                                {role === "sales_manager" && (
+                                    <label>
+                                        Region:
+                                        <input
+                                            type="text"
+                                            name="region"
+                                            value={formData.region || ""}
+                                            onChange={handleChange}
+                                            required
+                                            className="signup-input"
+                                        />
+                                    </label>
                                 )}
-                                <button type="submit" className="signup-button">
-                                    Sign Up
+                                {role === "product_manager" && (
+                                    <label>
+                                        Department:
+                                        <input
+                                            type="text"
+                                            name="department"
+                                            value={formData.department || ""}
+                                            onChange={handleChange}
+                                            required
+                                            className="signup-input"
+                                        />
+                                    </label>
+                                )}
+                                <button
+                                    type="submit"
+                                    className="signup-button"
+                                    disabled={loading}
+                                >
+                                    {loading ? "Signing up..." : "Sign Up"}
                                 </button>
                             </form>
                         )}
