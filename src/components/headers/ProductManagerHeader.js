@@ -1,15 +1,11 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
 import '../../styles/ProductManagerHeader.css';
 import { useUser } from "../../context/UserContext";
 
-
 const ProductManagerHeader = () => {
     const navigate = useNavigate();
-    const { setUserRole } = useUser(); // Ensure this works
-
+    const { setUserRole } = useUser();
 
     const handleLogout = () => {
         // Clear localStorage
@@ -18,33 +14,30 @@ const ProductManagerHeader = () => {
         localStorage.removeItem("userId");
         setUserRole("guest");
 
-
         // Navigate to homepage or login page
         navigate("/");
     };
 
-
     return (
         <header className="product-manager-header">
             <div className="header-container">
-              
                 {/* Logo */}
                 <Link to="/" className="logo">My Shoe Store</Link>
 
-                {/* Navigation Links (Fixed Sections) */}
-                <nav className="fixed-sections">
-                    <Link to="/comments" className="header-button">Comments</Link>
-                    <Link to="/manage-products" className="header-button">View Products</Link>
-                    <Link to="/manage-products/add" className="header-button">Add Products</Link>
-                    <Link to="/categories" className="header-button">Categories</Link>
-                    
+                {/* Navigation Links */}
+                <nav className="nav-buttons">
+                    <Link to="/comments" className="nav-button">Comments</Link>
+                    <div className="divider" />
+                    <Link to="/manage-products" className="nav-button">View Products</Link>
+                    <div className="divider" />
+                    <Link to="/manage-products/add" className="nav-button">Add Products</Link>
+                    <div className="divider" />
+                    <Link to="/categories" className="nav-button">Categories</Link>
                 </nav>
 
-                {/* Logout Button */}
-                <div className="header-right">
-                    <button onClick={handleLogout} className="header-button logout-button">
-                        Logout
-                    </button>
+                {/* Action Buttons */}
+                <div className="action-buttons">
+                    <button onClick={handleLogout} className="action-button">Logout</button>
                 </div>
             </div>
         </header>
@@ -52,6 +45,3 @@ const ProductManagerHeader = () => {
 };
 
 export default ProductManagerHeader;
-
-
-

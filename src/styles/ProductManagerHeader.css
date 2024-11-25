@@ -1,9 +1,9 @@
-/* General Header Styles */
+/* Product Manager Header */
 .product-manager-header {
     background: #ffffff; /* White background */
-    color: #343a40; /* Dark gray text */
+    color: #343a40; /* Neutral dark text */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    padding: 1rem 0;
+    padding: 1.5rem 0; /* Modern padding */
     position: fixed;
     top: 0;
     width: 100%;
@@ -17,66 +17,75 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
-    box-sizing: border-box;
 }
 
 /* Logo Styling */
 .product-manager-header .logo {
     font-family: 'Poppins', sans-serif;
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 700;
-    color: #000000; /* Black for better visibility */
+    color: #007bff; /* Entire logo in blue */
     text-decoration: none;
 }
 
 .product-manager-header .logo:hover {
-    color: #007bff; /* Blue hover effect for logo */
+    color: #0056b3; /* Slightly darker blue on hover */
     text-decoration: none;
 }
 
-/* Navigation Buttons */
+/* Navigation Menu */
 .product-manager-header .nav-buttons {
     display: flex;
-    gap: 20px;
+    align-items: center;
+    gap: 20px; /* Space between items */
 }
 
 .product-manager-header .nav-buttons .nav-button {
     font-size: 1rem;
     font-weight: 500;
-    color: #343a40; /* Neutral gray for links */
+    color: #343a40; /* Neutral dark text */
     text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 5px; /* Slightly rounded corners */
-    transition: background-color 0.3s ease, transform 0.2s ease, color 0.2s ease;
+    padding: 8px 15px;
+    border-bottom: 2px solid transparent; /* Underline hover effect */
+    transition: border-bottom 0.3s ease, color 0.3s ease;
 }
 
 .product-manager-header .nav-buttons .nav-button:hover {
-    background: #007bff; /* Blue background on hover */
-    color: #ffffff; /* White text on hover */
-    transform: scale(1.05); /* Slight zoom effect */
+    color: #007bff; /* Blue hover effect */
+    border-bottom: 2px solid #007bff;
 }
 
-/* Call-to-Actions (Profile and Logout) */
+/* Divider Styling */
+.product-manager-header .nav-buttons .divider {
+    width: 1px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.1); /* Subtle gray divider */
+    margin: 0 10px;
+}
+
+/* Action Buttons */
 .product-manager-header .action-buttons {
     display: flex;
-    gap: 15px;
+    align-items: center;
+    gap: 15px; /* Space between buttons */
 }
 
-.product-manager-header .logout-button {
+.product-manager-header .action-buttons .action-button {
     font-size: 0.9rem;
-    font-weight: 600;
-    color: #ffffff;
+    font-weight: 500;
     padding: 10px 20px;
     border-radius: 25px;
-    background: #dc3545; /* Red background */
+    text-decoration: none;
+    color: #ffffff;
+    background: #007bff; /* Blue button */
     border: none;
     cursor: pointer;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.product-manager-header .logout-button:hover {
-    background: #c82333; /* Darker red on hover */
-    transform: scale(1.05);
+.product-manager-header .action-buttons .action-button:hover {
+    background: #0056b3; /* Darker blue on hover */
+    transform: scale(1.05); /* Slight zoom */
 }
 
 /* Responsive Design */
@@ -84,17 +93,16 @@
     .product-manager-header .header-container {
         flex-direction: column;
         align-items: center;
-        padding: 0;
+        gap: 1rem;
     }
 
     .product-manager-header .nav-buttons {
         flex-direction: column;
         gap: 10px;
-        margin-top: 1rem;
     }
 
     .product-manager-header .action-buttons {
         flex-direction: column;
-        margin-top: 1rem;
+        gap: 10px;
     }
 }

@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom';
 import '../styles/ProductCard.css';
 
 const ProductCard = ({ product }) => {
-    const [averageRating, setAverageRating] = useState(product.avg_rating || 0); // Fetch directly from the product object
+    const [averageRating, setAverageRating] = useState(product.avg_rating || 0);
     const [userRating, setUserRating] = useState(0);
-    const [popularityScore, setPopularityScore] = useState(product.popularity_score || 0); // Use initial value from the product object
+    const [popularityScore, setPopularityScore] = useState(product.popularity_score || 0);
+    const [quantity, setQuantity] = useState(1); // Manage quantity state
 
     useEffect(() => {
-        // Fetch the updated popularity score (if needed)
+        // Fetch updated popularity score
         fetch(`http://localhost:8000/products/${product.product_id}/popularity/`)
             .then((response) => response.json())
             .then((data) => setPopularityScore(data.popularity_score || 0))
@@ -17,9 +18,7 @@ const ProductCard = ({ product }) => {
 
     const handleAddRating = (rating) => {
         const userId = localStorage.getItem('userId');
-        const customerId = userId ? userId : null;
-
-        if (!customerId) {
+        if (!userId) {
             alert("Please log in to submit a rating.");
             return;
         }
@@ -31,13 +30,11 @@ const ProductCard = ({ product }) => {
             },
             body: JSON.stringify({
                 rating_value: rating,
-                customer_id: customerId,
+                customer_id: userId,
             }),
         })
             .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Failed to submit rating');
-                }
+                if (!response.ok) throw new Error('Failed to submit rating');
                 return response.json();
             })
             .then(() => {
@@ -49,6 +46,48 @@ const ProductCard = ({ product }) => {
                 alert('Failed to submit rating. Please try again.');
             });
     };
+
+    const handleAddToCart = () => {
+        let userId = localStorage.getItem('userId'); // Retrieve userId from localStorage
+        let guestId = localStorage.getItem('guestId'); // Retrieve guestId from localStorage
+    
+        if (!userId && !guestId) {
+            // Generate a guestId if it doesn't exist
+            guestId = `guest_${Date.now()}`;
+            localStorage.setItem('guestId', guestId); // Store the guestId in localStorage
+        }
+    
+        let url;
+    
+        if (userId) {
+            // Logged-in customer
+            url = `http://localhost:8000/add_to_cart_customer/${userId}/${product.product_id}/${quantity}/`;
+        } else {
+            // Guest user
+            url = `http://localhost:8000/add_to_cart_guest/${guestId}/${product.product_id}/${quantity}/`;
+        }
+    
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then((response) => {
+                if (!response.ok) throw new Error('Failed to add to cart');
+                return response.json();
+            })
+            .then(() => {
+                alert('Product successfully added to cart!');
+            })
+            .catch((error) => {
+                console.error('Error adding to cart:', error);
+                alert('Failed to add product to cart. Please try again.');
+            });
+    };
+    
+    const incrementQuantity = () => setQuantity((prev) => prev + 1);
+    const decrementQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
     return (
         <div className="product-card">
@@ -77,11 +116,17 @@ const ProductCard = ({ product }) => {
                 </div>
             </div>
             <div className="product-actions">
-                <button className="btn btn-outline-primary">
+                <div className="quantity-selector">
+                    <button className="quantity-btn" onClick={decrementQuantity}>
+                        -
+                    </button>
+                    <span className="quantity-display">{quantity}</span>
+                    <button className="quantity-btn" onClick={incrementQuantity}>
+                        +
+                    </button>
+                </div>
+                <button className="btn btn-outline-primary" onClick={handleAddToCart}>
                     Add to Cart
-                </button>
-                <button className="btn btn-outline-success">
-                    Add to Favorites
                 </button>
                 <Link to={`/products/${product.product_id}`} className="btn btn-outline-info">
                     View Details

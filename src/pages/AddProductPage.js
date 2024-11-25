@@ -19,6 +19,7 @@ const AddProductPage = () => {
         const { name, value } = e.target;
         setProductData({ ...productData, [name]: value });
     };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         fetch("http://localhost:8000/products/create/", {
@@ -54,105 +55,120 @@ const AddProductPage = () => {
     };
 
     return (
-        <div>
-            <h1>Add New Product</h1>
-            {message && <p>{message}</p>}
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Model:</label>
-                    <input
-                        type="text"
-                        name="model"
-                        value={productData.model}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Serial Number:</label>
-                    <input
-                        type="text"
-                        name="serial_number"
-                        value={productData.serial_number}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Stock:</label>
-                    <input
-                        type="number"
-                        name="stock"
-                        value={productData.stock}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Warranty Status:</label>
-                    <input
-                        type="text"
-                        name="warranty_status"
-                        value={productData.warranty_status}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Distributor Info:</label>
-                    <input
-                        type="text"
-                        name="distributor_info"
-                        value={productData.distributor_info}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Description:</label>
-                    <textarea
-                        name="description"
-                        value={productData.description}
-                        onChange={handleInputChange}
-                        required
-                    ></textarea>
-                </div>
-                <div>
-                    <label>Base Price:</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        name="base_price"
-                        value={productData.base_price}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Price:</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        name="price"
-                        value={productData.price}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Category:</label>
-                    <input
-                        type="text"
-                        name="category"
-                        value={productData.category}
-                        onChange={handleInputChange}
-                        required
-                    />
-                </div>
-                <button type="submit">Add Product</button>
+        <div style={styles.container}>
+            <h1 style={styles.heading}>Add New Product</h1>
+            {message && <p style={styles.message}>{message}</p>}
+            <form onSubmit={handleSubmit} style={styles.form}>
+                {[
+                    { label: "Model", type: "text", name: "model" },
+                    { label: "Serial Number", type: "text", name: "serial_number" },
+                    { label: "Stock", type: "number", name: "stock" },
+                    { label: "Warranty Status", type: "text", name: "warranty_status" },
+                    { label: "Distributor Info", type: "text", name: "distributor_info" },
+                    { label: "Description", type: "textarea", name: "description" },
+                    { label: "Base Price", type: "number", name: "base_price", step: "0.01" },
+                    { label: "Price", type: "number", name: "price", step: "0.01" },
+                    { label: "Category", type: "text", name: "category" },
+                ].map((input) => (
+                    <div key={input.name} style={styles.inputContainer}>
+                        <label style={styles.label}>{input.label}:</label>
+                        {input.type === "textarea" ? (
+                            <textarea
+                                name={input.name}
+                                value={productData[input.name]}
+                                onChange={handleInputChange}
+                                style={styles.textarea}
+                                required
+                            ></textarea>
+                        ) : (
+                            <input
+                                type={input.type}
+                                name={input.name}
+                                value={productData[input.name]}
+                                onChange={handleInputChange}
+                                style={styles.input}
+                                required
+                                step={input.step}
+                            />
+                        )}
+                    </div>
+                ))}
+                <button type="submit" style={styles.button}>
+                    Add Product
+                </button>
             </form>
         </div>
     );
+};
+
+const styles = {
+    container: {
+        maxWidth: "600px",
+        margin: "50px auto",
+        padding: "20px",
+        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+        borderRadius: "10px",
+        backgroundColor: "#fff",
+    },
+    heading: {
+        textAlign: "center",
+        color: "#333",
+        marginBottom: "20px",
+        fontFamily: "'Poppins', sans-serif",
+    },
+    message: {
+        textAlign: "center",
+        color: "green",
+        marginBottom: "20px",
+        fontFamily: "'Poppins', sans-serif",
+    },
+    form: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "15px",
+    },
+    inputContainer: {
+        display: "flex",
+        flexDirection: "column",
+    },
+    label: {
+        fontSize: "14px",
+        color: "#555",
+        marginBottom: "5px",
+        fontFamily: "'Poppins', sans-serif",
+    },
+    input: {
+        padding: "10px",
+        fontSize: "14px",
+        border: "1px solid #ddd",
+        borderRadius: "5px",
+        outline: "none",
+        transition: "border-color 0.3s",
+    },
+    textarea: {
+        padding: "10px",
+        fontSize: "14px",
+        border: "1px solid #ddd",
+        borderRadius: "5px",
+        outline: "none",
+        resize: "vertical",
+        height: "100px",
+    },
+    button: {
+        padding: "12px 20px",
+        fontSize: "16px",
+        backgroundColor: "#007bff",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        cursor: "pointer",
+        fontFamily: "'Poppins', sans-serif",
+        textAlign: "center",
+        marginTop: "10px",
+    },
+    inputFocus: {
+        borderColor: "#007bff",
+    },
 };
 
 export default AddProductPage;
