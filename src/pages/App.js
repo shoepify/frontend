@@ -20,6 +20,8 @@ import "../styles/App.css";
 import { useUser } from "../context/UserContext";
 import ProductManagerProductPage from "./ProductManagerProductPage";
 import AddProductPage from "./AddProductPage";
+import ProductManagerComments from "./ProductManagerComments";
+import ApprovedComments from "./ApprovedComments";
 
 const App = () => {
     const { userRole } = useUser(); // Get the current role
@@ -51,6 +53,7 @@ const App = () => {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/search" element={<SearchResultPage />} />
             <Route path="/categories/:category" element={<CategoryPage />} />
+            <Route path="/products/:productId/comments" element={<ApprovedComments />} /> 
             <Route path="/footer/*" element={<FooterRoutes />} />
             <Route path="*" element={<Navigate to="/" />} />
         </>
@@ -94,6 +97,7 @@ const App = () => {
                             <Route path="/" element={<div>You are a Product Manager now.</div>} />
                             <Route path="/manage-products" element={<ProductManagerProductPage />} />
                             <Route path="/manage-products/add" element={<AddProductPage />} />
+                            <Route path="/comments" element={<ProductManagerComments />} /> {/* New Route */}
 
 
 

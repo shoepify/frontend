@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import 'react-lazy-load-image-component/src/effects/blur.css'; // Optional blur effect
 import { decodeToken } from '../utils/auth'; // Import the utility function
 
 const ProductDetailPage = () => {
     const { productId } = useParams();
+    const navigate = useNavigate(); // Use navigate for routing
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -156,6 +157,15 @@ const ProductDetailPage = () => {
                             Submit Comment
                         </button>
                     </div>
+
+                    {/* See All Comments Button */}
+                    <button
+                        className="btn btn-outline-secondary"
+                        style={{ marginTop: '20px' }}
+                        onClick={() => navigate(`/products/${productId}/comments`)} // Navigate to ApprovedComment.js
+                    >
+                        See All Comments
+                    </button>
                 </>
             )}
         </div>

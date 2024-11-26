@@ -10,7 +10,6 @@ const AddProductPage = () => {
         description: "",
         base_price: "",
         price: "",
-        category: "",
     });
 
     const [message, setMessage] = useState(""); // To display success or error messages
@@ -44,7 +43,6 @@ const AddProductPage = () => {
                         description: "",
                         base_price: "",
                         price: "",
-                        category: "",
                     });
                 }
             })
@@ -68,7 +66,6 @@ const AddProductPage = () => {
                     { label: "Description", type: "textarea", name: "description" },
                     { label: "Base Price", type: "number", name: "base_price", step: "0.01" },
                     { label: "Price", type: "number", name: "price", step: "0.01" },
-                    { label: "Category", type: "text", name: "category" },
                 ].map((input) => (
                     <div key={input.name} style={styles.inputContainer}>
                         <label style={styles.label}>{input.label}:</label>
