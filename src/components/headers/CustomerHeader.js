@@ -43,16 +43,35 @@ const CustomerHeader = () => {
 
    
     const handleLogout = () => {
-        // Clear localStorage
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("userId");
+        // Clear user-specific session data
+        sessionStorage.clear();
+    
+        // Reset the role in context
         setUserRole("guest");
-
-
-        // Navigate to homepage or login page
-        navigate("/");
+    
+        // Fetch new guest session data
+        fetch("http://127.0.0.1:8000/")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Failed to fetch guest info");
+                }
+                return response.json();
+            })
+            .then((data) => {
+                // Store new guest info in session storage
+                sessionStorage.setItem("guest_id", data.guest_id);
+                sessionStorage.setItem("session_id", data.session_id);
+                sessionStorage.setItem("created_at", data.created_at);
+    
+                // Navigate to the homepage or guest-specific page
+                navigate("/");
+            })
+            .catch((error) => {
+                console.error("Error fetching guest info:", error);
+                // Optionally, handle errors (e.g., display an error message)
+            });
     };
+    
 
     return (
         <header className="main-header">

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import '../styles/CartPage.css';
+import React, { useState, useEffect } from "react";
 
 const Cart = () => {
     const [cartItems, setCartItems] = useState([]); // State to hold cart items
@@ -8,18 +7,35 @@ const Cart = () => {
     const [totalPrice, setTotalPrice] = useState(0); // State for total price
 
     useEffect(() => {
-        const userId = localStorage.getItem('userId'); // Retrieve userId from localStorage
-        const url = `http://localhost:8000/cart_customer/${userId}/`; // Endpoint for customer cart
+        const guestId = sessionStorage.getItem("guest_id"); // Retrieve guestId from sessionStorage
+        const customerId = sessionStorage.getItem("customerId"); // Retrieve customerId from sessionStorage
+
+        let userId;
+        let url;
+
+        if (customerId) {
+            // Customer view cart URL
+            userId = customerId;
+            url = `http://localhost:8000/cart_customer/${userId}/`;
+        } else if (guestId) {
+            // Guest view cart URL
+            userId = guestId;
+            url = `http://localhost:8000/cart_guest/${userId}/`;
+        } else {
+            setError("Unable to determine user type for viewing the cart.");
+            setLoading(false);
+            return;
+        }
 
         fetch(url, {
-            method: 'GET',
+            method: "GET",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
         })
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error('Failed to fetch cart data');
+                    throw new Error("Failed to fetch cart data");
                 }
                 return response.json();
             })
@@ -27,24 +43,20 @@ const Cart = () => {
                 const cartItems = data.cart_items || [];
                 return Promise.all(
                     cartItems.map((item) => {
-                        // Validate product existence and product_id
-                        if (!item.product || !item.product.product_id) {
-                            console.error('Invalid item structure:', item);
-                            throw new Error('Cart item is missing product or product_id');
-                        }
-
-                        const productId = item.product.product_id;
+                        const productId = item.product_id;
 
                         // Fetch product details by product_id
                         return fetch(`http://localhost:8000/products/${productId}/`, {
-                            method: 'GET',
+                            method: "GET",
                             headers: {
-                                'Content-Type': 'application/json',
+                                "Content-Type": "application/json",
                             },
                         })
                             .then((response) => {
                                 if (!response.ok) {
-                                    throw new Error(`Failed to fetch product data for product_id: ${productId}`);
+                                    throw new Error(
+                                        `Failed to fetch product data for product_id: ${productId}`
+                                    );
                                 }
                                 return response.json();
                             })
@@ -58,7 +70,9 @@ const Cart = () => {
             })
             .then((products) => {
                 setCartItems(products);
-                setTotalPrice(products.reduce((sum, item) => sum + item.total_price, 0)); // Calculate total cart price
+                setTotalPrice(
+                    products.reduce((sum, item) => sum + item.total_price, 0)
+                ); // Calculate total cart price
                 setLoading(false);
             })
             .catch((error) => {
@@ -87,13 +101,12 @@ const Cart = () => {
                         {cartItems.map((item) => (
                             <div key={item.product_id} className="cart-item">
                                 <img
-                                    src={item.image_url || 'https://via.placeholder.com/150'}
+                                    src={item.image_url || "https://via.placeholder.com/150"}
                                     alt={item.model}
                                     className="cart-item-image"
                                 />
                                 <div className="cart-item-details">
                                     <h3>{item.model}</h3>
-                                    <p>Serial Number: {item.serial_number}</p>
                                     <p>Price: ${parseFloat(item.price).toFixed(2)}</p>
                                     <p>Quantity: {item.product_quantity}</p>
                                     <p>Total: ${parseFloat(item.total_price).toFixed(2)}</p>

@@ -48,25 +48,29 @@ const ProductCard = ({ product }) => {
     };
 
     const handleAddToCart = () => {
-        let userId = localStorage.getItem('userId'); // Retrieve userId from localStorage
-        let guestId = localStorage.getItem('guestId'); // Retrieve guestId from localStorage
+        // Retrieve guestId and customerId from sessionStorage
+        const guestId = sessionStorage.getItem('guest_id');
+        const customerId = sessionStorage.getItem('customerId');
     
-        if (!userId && !guestId) {
-            // Generate a guestId if it doesn't exist
-            guestId = `guest_${Date.now()}`;
-            localStorage.setItem('guestId', guestId); // Store the guestId in localStorage
-        }
-    
+        // Determine the appropriate URL and user ID
         let url;
+        let userId;
     
-        if (userId) {
-            // Logged-in customer
+        if (customerId) {
+            // Customer URL
+            userId = customerId;
             url = `http://localhost:8000/add_to_cart_customer/${userId}/${product.product_id}/${quantity}/`;
+        } else if (guestId) {
+            // Guest URL
+            userId = guestId;
+            url = `http://localhost:8000/add_to_cart_guest/${userId}/${product.product_id}/${quantity}/`;
         } else {
-            // Guest user
-            url = `http://localhost:8000/add_to_cart_guest/${guestId}/${product.product_id}/${quantity}/`;
+            console.error("User must be either a guest or a customer to add to cart.");
+            alert("Error: Unable to determine user type.");
+            return;
         }
     
+        // Perform the fetch to add to the cart
         fetch(url, {
             method: 'POST',
             headers: {
@@ -85,6 +89,7 @@ const ProductCard = ({ product }) => {
                 alert('Failed to add product to cart. Please try again.');
             });
     };
+    
     
     const incrementQuantity = () => setQuantity((prev) => prev + 1);
     const decrementQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
