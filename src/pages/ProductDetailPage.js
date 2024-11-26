@@ -1,64 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useParams } from 'react-router-dom';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css'; // Optional blur effect
-import { decodeToken } from '../utils/auth'; // Import the utility function
+import 'react-lazy-load-image-component/src/effects/blur.css';
+import ApprovedComments from './ApprovedComments'; // Import ApprovedComments
 
 const ProductDetailPage = () => {
     const { productId } = useParams();
-    const navigate = useNavigate(); // Use navigate for routing
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
-
-    const handleAddToFavorites = () => {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-            alert("You must be logged in to add favorites.");
-            return;
-        }
-
-        const decoded = decodeToken(token);
-        if (!decoded || !decoded.user_id) {
-            alert("Invalid token. Please log in again.");
-            return;
-        }
-
-        fetch("http://localhost:8000/favorites/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`, // Include the token
-            },
-            body: JSON.stringify({ product_id: productId }),
-        })
-            .then((response) => {
-                if (!response.ok) throw new Error("Failed to add to favorites");
-                alert("Product added to favorites!");
-            })
-            .catch((err) => alert(err.message));
-    };
-
-    const fetchComments = () => {
-        fetch(`http://127.0.0.1:8000/products/${productId}/comments/`)
-            .then((response) => {
-                if (!response.ok) throw new Error('Failed to fetch comments');
-                return response.json();
-            })
-            .then((data) => {
-                // Filter and display only approved comments
-                const approvedComments = data.filter(comment => comment.approval_status === 'approved');
-                setComments(approvedComments);
-            })
-            .catch((err) => console.error('Error fetching comments:', err));
-    };
 
     const handleAddComment = () => {
         const userId = localStorage.getItem('userId');
-        const customerId = userId ? userId : null;
+        const customerId = userId || null;
 
         if (!customerId) {
             alert("Please log in to submit a comment.");
@@ -67,13 +22,8 @@ const ProductDetailPage = () => {
 
         fetch(`http://localhost:8000/products/${productId}/add_comment/`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                comment: newComment,
-                customer_id: customerId,
-            }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comment: newComment, customer_id: customerId }),
         })
             .then((response) => {
                 if (!response.ok) throw new Error('Failed to submit comment');
@@ -81,8 +31,7 @@ const ProductDetailPage = () => {
             })
             .then(() => {
                 alert('Comment submitted successfully!');
-                setNewComment(''); // Clear the comment input
-                fetchComments(); // Refresh the list of comments
+                setNewComment('');
             })
             .catch((error) => {
                 console.error('Error submitting comment:', error);
@@ -101,18 +50,16 @@ const ProductDetailPage = () => {
                 setLoading(false);
             })
             .catch((err) => {
-                setError(err);
+                setError(err.message);
                 setLoading(false);
             });
-
-        fetchComments(); // Fetch comments when the page loads
     }, [productId]);
 
     if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className="product-details">
+        <div className="product-details" style={styles.container}>
             {product && (
                 <>
                     <h1>{product.model}</h1>
@@ -121,6 +68,7 @@ const ProductDetailPage = () => {
                         alt={product.model}
                         effect="blur"
                         className="product-image"
+                        style={styles.productImage}
                     />
                     <p><strong>Serial Number:</strong> {product.serial_number}</p>
                     <p><strong>Stock:</strong> {product.stock}</p>
@@ -130,46 +78,63 @@ const ProductDetailPage = () => {
                     <p><strong>Base Price:</strong> ${parseFloat(product.base_price).toFixed(2)}</p>
                     <p><strong>Price:</strong> ${parseFloat(product.price).toFixed(2)}</p>
 
-                    {/* Add to Favorites Button */}
-                    <button className="btn btn-outline-primary" onClick={handleAddToFavorites}>
-                        Add to Favorites
-                    </button>
-
-                    {/* Comments Section */}
-                    <div className="comments-section">
-                        <h2>Comments</h2>
-                        {comments.length > 0 ? (
-                            comments.map((comment) => (
-                                <p key={comment.comment_id}>
-                                    <strong>{comment.customer?.name || 'Anonymous'}:</strong> {comment.comment}
-                                </p>
-                            ))
-                        ) : (
-                            <p>No comments yet. Be the first to comment!</p>
-                        )}
+                    {/* Add Comment Section */}
+                    <div style={styles.commentsSection}>
+                        <h2>Leave a Comment</h2>
                         <textarea
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
-                            placeholder="Write a comment..."
-                            className="comment-input"
-                        ></textarea>
-                        <button className="btn btn-outline-success" onClick={handleAddComment}>
-                            Submit Comment
-                        </button>
+                            placeholder="Write your comment..."
+                            style={styles.textarea}
+                        />
+                        <button onClick={handleAddComment} style={styles.button}>Submit Comment</button>
                     </div>
 
-                    {/* See All Comments Button */}
-                    <button
-                        className="btn btn-outline-secondary"
-                        style={{ marginTop: '20px' }}
-                        onClick={() => navigate(`/products/${productId}/comments`)} // Navigate to ApprovedComment.js
-                    >
-                        See All Comments
-                    </button>
+                    {/* Approved Comments Slider */}
+                    <div style={styles.approvedComments}>
+                        <ApprovedComments /> {/* Render the ApprovedComments component */}
+                    </div>
                 </>
             )}
         </div>
     );
+};
+
+const styles = {
+    container: {
+        maxWidth: "800px",
+        margin: "0 auto",
+        padding: "20px",
+        fontFamily: "Arial, sans-serif",
+    },
+    productImage: {
+        width: "100%",
+        maxWidth: "400px",
+        display: "block",
+        margin: "0 auto",
+    },
+    commentsSection: {
+        marginTop: "20px",
+    },
+    textarea: {
+        width: "100%",
+        height: "80px",
+        marginBottom: "10px",
+        padding: "10px",
+        border: "1px solid #ddd",
+        borderRadius: "5px",
+    },
+    button: {
+        padding: "10px 20px",
+        backgroundColor: "#007BFF",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        cursor: "pointer",
+    },
+    approvedComments: {
+        marginTop: "40px",
+    },
 };
 
 export default ProductDetailPage;

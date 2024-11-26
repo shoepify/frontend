@@ -1,81 +1,111 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const ApprovedComments = () => {
-    const { productId } = useParams(); // Extract product ID from route
-    const [comments, setComments] = useState([]); // State for comments
-    const [loading, setLoading] = useState(true); // State for loading
-    const [error, setError] = useState(null); // State for error handling
+    const { productId } = useParams();
+    const [comments, setComments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         fetch(`http://127.0.0.1:8000/products/${productId}/comments/`, {
-            method: 'GET',
+            method: "GET",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
         })
             .then((response) => {
                 if (response.status === 404) {
-                    // Backend returns 404 for no comments
-                    setComments([]); // Treat as no comments found
+                    setComments([]);
                     setLoading(false);
                     return [];
                 }
                 if (!response.ok) {
-                    throw new Error('Unexpected error while fetching comments.');
+                    throw new Error("Unexpected error while fetching comments.");
                 }
                 return response.json();
             })
             .then((data) => {
                 if (Array.isArray(data)) {
-                    setComments(data); // If the response is an array
+                    setComments(data);
                 } else if (data.comments) {
-                    setComments(data.comments); // If the response has `comments` key
+                    setComments(data.comments);
                 } else {
-                    setComments([]); // Fallback to an empty array
+                    setComments([]);
                 }
                 setLoading(false);
             })
             .catch((err) => {
-                setComments([]); // Fallback to empty comments if error occurs
+                setError(err.message);
                 setLoading(false);
             });
     }, [productId]);
 
     if (loading) {
-        return <p>Loading approved comments...</p>;
+        return <p>Loading comments...</p>;
+    }
+
+    if (error) {
+        return <p>Error: {error}</p>;
     }
 
     if (comments.length === 0) {
-        return <p>No approved comments found for this product.</p>;
+        return <p>No comments found for this product.</p>;
     }
 
     return (
-        <div>
-            <h1>Approved Comments</h1>
-            <div>
-                {comments.map((comment) => (
-                    <div key={comment.comment_id} style={styles.commentCard}>
-                        <p>
-                            <strong>Customer ID:</strong> {comment.customer_id}
-                        </p>
-                        <p>
-                            <strong>Comment:</strong> {comment.comment}
-                        </p>
+        <div style={styles.container}>
+            <h2 style={styles.heading}>Comments</h2>
+            {comments.map((comment) => (
+                <div key={comment.comment_id} style={styles.commentCard}>
+                    <div style={styles.formGroup}>
+                        <label style={styles.label}>Customer ID:</label>
+                        <div style={styles.value}>{comment.customer_id}</div>
                     </div>
-                ))}
-            </div>
+                    <div style={styles.formGroup}>
+                        <label style={styles.label}>Comment:</label>
+                        <div style={styles.value}>{comment.comment}</div>
+                    </div>
+                </div>
+            ))}
         </div>
     );
 };
 
 const styles = {
+    container: {
+        maxWidth: "800px",
+        margin: "0 auto",
+        padding: "20px",
+        backgroundColor: "#f9f9f9",
+        borderRadius: "10px",
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    },
+    heading: {
+        textAlign: "center",
+        marginBottom: "20px",
+        color: "#333",
+        fontFamily: "'Poppins', sans-serif",
+    },
     commentCard: {
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        padding: '16px',
-        marginBottom: '16px',
-        backgroundColor: '#f9f9f9',
+        border: "1px solid #ddd",
+        borderRadius: "8px",
+        padding: "16px",
+        marginBottom: "16px",
+        backgroundColor: "#fff",
+    },
+    formGroup: {
+        display: "flex",
+        marginBottom: "10px",
+    },
+    label: {
+        flex: "1",
+        fontWeight: "bold",
+        color: "#555",
+    },
+    value: {
+        flex: "2",
+        color: "#333",
     },
 };
 
