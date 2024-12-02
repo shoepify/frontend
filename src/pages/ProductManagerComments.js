@@ -57,25 +57,27 @@ const ProductManagerPage = () => {
             });
     };
 
-    const handleDelete = (productId, commentId) => {
-        fetch(`http://localhost:8000/products/${productId}/delete_comment/${commentId}/`, {
-            method: 'DELETE',
+    const handleDisapprove = (commentId) => {
+        fetch(`http://localhost:8000/disapprove_comment/${commentId}/`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
         })
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error('Failed to delete the comment');
+                    throw new Error('Failed to disapprove the comment');
                 }
+                // Remove the comment from the list after disapproval
                 setPendingComments((prevComments) =>
                     prevComments.filter((comment) => comment.comment_id !== commentId)
                 );
             })
             .catch((err) => {
-                alert('Error deleting comment: ' + err.message);
+                alert('Error disapproving comment: ' + err.message);
             });
     };
+    
 
     if (loading) {
         return <p>Loading pending comments...</p>;
@@ -108,9 +110,9 @@ const ProductManagerPage = () => {
                         </button>
                         <button
                             style={styles.deleteButton}
-                            onClick={() => handleDelete(comment.product.product_id, comment.comment_id)}
+                            onClick={() => handleDisapprove(comment.comment_id)}
                         >
-                            Delete
+                            Disapprove
                         </button>
                     </div>
                 </div>

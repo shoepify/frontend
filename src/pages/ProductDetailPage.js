@@ -12,32 +12,57 @@ const ProductDetailPage = () => {
     const [newComment, setNewComment] = useState('');
 
     const handleAddComment = () => {
-        const userId = localStorage.getItem('userId');
-        const customerId = userId || null;
-
-        if (!customerId) {
-            alert("Please log in to submit a comment.");
+        // Retrieve guestId and customerId from sessionStorage
+        const guestId = sessionStorage.getItem('guest_id');
+        const customerId = sessionStorage.getItem('customerId');
+    
+        // Determine the appropriate URL and user ID
+        let url;
+        let userId;
+    
+        if (customerId) {
+            // Customer URL
+            userId = customerId;
+            url = `http://localhost:8000/products/${productId}/add_comment_customer/`;
+        } else if (guestId) {
+            // Guest URL
+            userId = guestId;
+            url = `http://localhost:8000/products/${productId}/add_comment_guest/`;
+        } else {
+            console.error("User must be either a guest or a customer to submit a comment.");
+            alert("Error: Unable to determine user type.");
             return;
         }
-
-        fetch(`http://localhost:8000/products/${productId}/add_comment/`, {
+    
+        // Prepare the request body
+        const requestBody = {
+            comment: newComment,
+            user_id: userId, // Unified key for guest or customer
+        };
+    
+        // Perform the fetch to submit the comment
+        fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ comment: newComment, customer_id: customerId }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
         })
             .then((response) => {
                 if (!response.ok) throw new Error('Failed to submit comment');
                 return response.json();
             })
             .then(() => {
-                alert('Comment submitted successfully!');
-                setNewComment('');
+                alert('Comment successfully submitted!');
+                setNewComment(''); // Clear the comment field
             })
             .catch((error) => {
                 console.error('Error submitting comment:', error);
                 alert('Failed to submit comment. Please try again.');
             });
     };
+    
+    
 
     useEffect(() => {
         fetch(`http://localhost:8000/products/${productId}/`)

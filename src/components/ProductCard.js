@@ -17,7 +17,7 @@ const ProductCard = ({ product }) => {
     }, [product.product_id]);
 
     const handleAddRating = (rating) => {
-        const userId = localStorage.getItem('userId');
+        const userId = sessionStorage.getItem('userId');
         if (!userId) {
             alert("Please log in to submit a rating.");
             return;
@@ -48,20 +48,16 @@ const ProductCard = ({ product }) => {
     };
 
     const handleAddToCart = () => {
-        // Retrieve guestId and customerId from sessionStorage
         const guestId = sessionStorage.getItem('guest_id');
         const customerId = sessionStorage.getItem('customerId');
-    
-        // Determine the appropriate URL and user ID
+
         let url;
         let userId;
-    
+
         if (customerId) {
-            // Customer URL
             userId = customerId;
             url = `http://localhost:8000/add_to_cart_customer/${userId}/${product.product_id}/${quantity}/`;
         } else if (guestId) {
-            // Guest URL
             userId = guestId;
             url = `http://localhost:8000/add_to_cart_guest/${userId}/${product.product_id}/${quantity}/`;
         } else {
@@ -69,8 +65,7 @@ const ProductCard = ({ product }) => {
             alert("Error: Unable to determine user type.");
             return;
         }
-    
-        // Perform the fetch to add to the cart
+
         fetch(url, {
             method: 'POST',
             headers: {
@@ -89,8 +84,7 @@ const ProductCard = ({ product }) => {
                 alert('Failed to add product to cart. Please try again.');
             });
     };
-    
-    
+
     const incrementQuantity = () => setQuantity((prev) => prev + 1);
     const decrementQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
@@ -104,6 +98,7 @@ const ProductCard = ({ product }) => {
             <div className="product-info">
                 <h3>{product.model}</h3>
                 <p>Price: ${parseFloat(product.price).toFixed(2)}</p>
+                <p>Stock: {product.stock > 0 ? product.stock : 'Out of stock'}</p>
                 <p>Average Rating: {averageRating} / 5</p>
                 <p>Popularity: {popularityScore}</p>
                 <div className="rating-section">
@@ -122,15 +117,27 @@ const ProductCard = ({ product }) => {
             </div>
             <div className="product-actions">
                 <div className="quantity-selector">
-                    <button className="quantity-btn" onClick={decrementQuantity}>
+                    <button
+                        className="quantity-btn"
+                        onClick={decrementQuantity}
+                        disabled={product.stock <= 0}
+                    >
                         -
                     </button>
                     <span className="quantity-display">{quantity}</span>
-                    <button className="quantity-btn" onClick={incrementQuantity}>
+                    <button
+                        className="quantity-btn"
+                        onClick={incrementQuantity}
+                        disabled={product.stock <= 0}
+                    >
                         +
                     </button>
                 </div>
-                <button className="btn btn-outline-primary" onClick={handleAddToCart}>
+                <button
+                    className="btn btn-outline-primary"
+                    onClick={handleAddToCart}
+                    disabled={product.stock <= 0}
+                >
                     Add to Cart
                 </button>
                 <Link to={`/products/${product.product_id}`} className="btn btn-outline-info">
