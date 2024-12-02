@@ -30,12 +30,12 @@ const LoginPage = () => {
         }
     
         // Retrieve session_id from sessionStorage (only used for customer login)
-        const sessionId = sessionStorage.getItem("session_id");
+        //const session_id = sessionStorage.getItem("session_id");
     
         // Define the login endpoint dynamically based on role
         const endpoint =
             role === "customer"
-                ? `http://127.0.0.1:8000/login/customer/?session_id=${sessionId}`
+                ? `http://127.0.0.1:8000/login/customer/`
                 : role === "sales_manager"
                 ? "http://127.0.0.1:8000/login/sales_manager/"
                 : "http://127.0.0.1:8000/login/product_manager/";
@@ -64,11 +64,17 @@ const LoginPage = () => {
     
                 // Handle role-specific data
                 if (role === "customer") {
+                    sessionStorage.clear();
                     sessionStorage.setItem("customerId", data.user.id);
+                    
                 } else if (role === "product_manager") {
+                    sessionStorage.clear();
                     sessionStorage.setItem("productManagerId", data.user.manager_id);
+                    
                 } else if (role === "sales_manager") {
+                    sessionStorage.clear();
                     sessionStorage.setItem("salesManagerId", data.user.manager_id);
+                    
                 }
     
                 // Update role in context

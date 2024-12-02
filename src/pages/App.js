@@ -24,6 +24,7 @@ import ProductManagerComments from "./ProductManagerComments";
 import ApprovedComments from "./ApprovedComments";
 import ProfileDetails from "./ProfileDetail"; // Import the ProfileDetails component
 import GetOrders from "./GetOrders"; // Import the GetOrders component
+import ProductManagerOrders from "./ProductManagerOrders";
 
 const App = () => {
     const { userRole } = useUser(); // Get the current role
@@ -102,6 +103,7 @@ const App = () => {
                             <Route path="/manage-products" element={<ProductManagerProductPage />} />
                             <Route path="/manage-products/add" element={<AddProductPage />} />
                             <Route path="/comments" element={<ProductManagerComments />} />
+                            <Route path="/product_manager/orders" element={<ProductManagerOrders />} />
                         </>
                     )}
 

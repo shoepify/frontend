@@ -7,20 +7,21 @@ const Cart = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [totalPrice, setTotalPrice] = useState(0);
+    const [mockPaymentVisible, setMockPaymentVisible] = useState(false); // For payment confirmation modal
+    const [userId, setUserId] = useState(null); // Store user ID
 
     useEffect(() => {
         const guestId = sessionStorage.getItem("guest_id");
         const customerId = sessionStorage.getItem("customerId");
 
-        let userId;
         let url;
 
         if (customerId) {
-            userId = customerId;
-            url = `http://localhost:8000/cart_customer/${userId}/`;
+            setUserId(customerId);
+            url = `http://localhost:8000/cart_customer/${customerId}/`;
         } else if (guestId) {
-            userId = guestId;
-            url = `http://localhost:8000/cart_guest/${userId}/`;
+            setUserId(guestId);
+            url = `http://localhost:8000/cart_guest/${guestId}/`;
         } else {
             setError("Unable to determine user type for viewing the cart.");
             setLoading(false);
@@ -80,9 +81,9 @@ const Cart = () => {
         let url;
 
         if (customerId) {
-            url = `http://localhost:8000/customer/${customerId}/remove/${productId}/`;
+            url = `http://127.0.0.1:8000/customer/${customerId}/remove/${productId}/`;
         } else if (guestId) {
-            url = `http://localhost:8000/guest/${guestId}/remove/${productId}/`;
+            url = `http://127.0.0.1:8000/guest/${guestId}/remove/${productId}/`;
         } else {
             alert("Unable to determine user type for removing the product.");
             return;
@@ -104,6 +105,49 @@ const Cart = () => {
                 console.error(error.message);
                 alert("Error removing item from cart: " + error.message);
             });
+    };
+
+    // Handle Proceed to Payment
+    const handleProceedToPayment = () => {
+        fetch(`http://127.0.0.1:8000/check_cart/${userId}/`)
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.error) {
+                    alert(data.error); // Show error if cart is invalid
+                } else {
+                    setMockPaymentVisible(true); // Show payment modal if cart is valid
+                }
+            })
+            .catch((error) => {
+                console.error("Error checking cart:", error);
+                alert("Error checking cart.");
+            });
+    };
+
+    // Confirm Payment
+    const handleConfirmPayment = () => {
+        fetch(`http://127.0.0.1:8000/order/place/${userId}/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert(`Order placed successfully! Order ID: ${data.order_id}`);
+                }
+                setMockPaymentVisible(false); // Hide modal
+            })
+            .catch((error) => {
+                console.error("Error placing order:", error);
+                alert("Error placing order.");
+            });
+    };
+
+    // Cancel Payment
+    const handleCancelPayment = () => {
+        setMockPaymentVisible(false); // Hide modal
     };
 
     if (loading) return <p>Loading cart items...</p>;
@@ -152,8 +196,17 @@ const Cart = () => {
                             <strong>Total</strong>
                             <strong>${totalPrice.toFixed(2)}</strong>
                         </div>
-                        <button style={styles.checkoutButton}>Proceed to Payment</button>
+                        <button style={styles.checkoutButton} onClick={handleProceedToPayment}>
+                            Proceed to Payment
+                        </button>
                     </div>
+                </div>
+            )}
+            {mockPaymentVisible && (
+                <div style={styles.modal}>
+                    <p>Do you want to confirm the payment?</p>
+                    <button onClick={handleConfirmPayment}>Yes</button>
+                    <button onClick={handleCancelPayment}>No</button>
                 </div>
             )}
         </div>
@@ -161,85 +214,17 @@ const Cart = () => {
 };
 
 const styles = {
-    container: {
-        maxWidth: "1200px",
-        margin: "50px auto",
+    // Add your styles here
+    modal: {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        backgroundColor: "#fff",
         padding: "20px",
         borderRadius: "10px",
-        backgroundColor: "#f9f9f9",
-        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-    },
-    heading: {
+        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
         textAlign: "center",
-        marginBottom: "20px",
-        color: "#333",
-        fontFamily: "'Poppins', sans-serif",
-    },
-    cart: {
-        display: "flex",
-        justifyContent: "space-between",
-        gap: "20px",
-    },
-    cartItems: {
-        flex: "2",
-        display: "flex",
-        flexDirection: "column",
-        gap: "15px",
-    },
-    cartItem: {
-        display: "flex",
-        gap: "15px",
-        backgroundColor: "#fff",
-        padding: "15px",
-        borderRadius: "5px",
-        border: "1px solid #ddd",
-    },
-    itemImage: {
-        width: "100px",
-        height: "100px",
-        borderRadius: "5px",
-        objectFit: "cover",
-    },
-    itemDetails: {
-        flex: "1",
-    },
-    cartSummary: {
-        flex: "1",
-        backgroundColor: "#fff",
-        padding: "20px",
-        borderRadius: "5px",
-        border: "1px solid #ddd",
-    },
-    summaryItem: {
-        display: "flex",
-        justifyContent: "space-between",
-        marginBottom: "10px",
-    },
-    total: {
-        display: "flex",
-        justifyContent: "space-between",
-        marginTop: "20px",
-        fontSize: "18px",
-    },
-    removeButton: {
-        marginTop: "10px",
-        padding: "8px",
-        fontSize: "14px",
-        color: "#fff",
-        backgroundColor: "#dc3545",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-    },
-    checkoutButton: {
-        marginTop: "20px",
-        padding: "10px",
-        fontSize: "16px",
-        color: "#fff",
-        backgroundColor: "#007bff",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
     },
 };
 
