@@ -10,47 +10,117 @@ const AddProductPage = () => {
         description: "",
         base_price: "",
         price: "",
+        image_url: "", // New field to store the uploaded image URL
     });
 
     const [message, setMessage] = useState(""); // To display success or error messages
+    const [selectedFile, setSelectedFile] = useState(null); // Store the selected image file
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setProductData({ ...productData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        fetch("http://localhost:8000/products/create/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(productData),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.error) {
-                    setMessage(data.error); // Display error from backend
-                } else {
-                    setMessage("Product added successfully!");
-                    setProductData({
-                        model: "",
-                        serial_number: "",
-                        stock: "",
-                        warranty_status: "",
-                        distributor_info: "",
-                        description: "",
-                        base_price: "",
-                        price: "",
-                    });
-                }
-            })
-            .catch((error) => {
-                console.error("Error:", error);
-                setMessage("Failed to add product. Please try again.");
-            });
+    const handleFileChange = (e) => {
+        setSelectedFile(e.target.files[0]); // Store the selected file
     };
+
+  
+    const uploadImageToS3 = async () => {
+        if (!selectedFile) {
+            setMessage("Please select an image to upload.");
+            return null;
+        }
+    
+        try {
+            console.log("Requesting pre-signed URL...");
+            const fileName = selectedFile.name;
+            const fileType = selectedFile.type;
+    
+            const presignedUrlResponse = await fetch(
+                `http://localhost:8000/generate-upload-url/?file_name=${fileName}&file_type=${fileType}`
+            );
+    
+            if (!presignedUrlResponse.ok) {
+                throw new Error("Failed to fetch pre-signed URL.");
+            }
+    
+            const { url } = await presignedUrlResponse.json();
+            console.log("Pre-signed URL received:", url);
+    
+            console.log("Uploading file to S3...");
+            const uploadResponse = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": fileType, // Ensure Content-Type matches file type
+                },
+                body: selectedFile,
+            });
+    
+            console.log("S3 Upload Response Status:", uploadResponse.status);
+    
+            if (!uploadResponse.ok) {
+                const errorDetails = await uploadResponse.text();
+                console.error("S3 Upload Error Details:", errorDetails);
+                throw new Error("Image upload to S3 failed.");
+            }
+    
+            console.log("File uploaded successfully!");
+            return url.split("?")[0]; // Return S3 file URL without query params
+        } catch (error) {
+            console.error("Error during image upload:", error);
+            setMessage("Failed to upload image. Please try again.");
+            return null;
+        }
+    };
+    
+   
+    
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+    
+        // Step 1: Upload the image to S3
+        const imageUrl = await uploadImageToS3();
+        if (!imageUrl) return; // Stop if image upload fails
+    
+        // Step 2: Add the image URL to the product data
+        const productWithImage = { ...productData, image_url: imageUrl };
+    
+        // Step 3: Submit product data to the backend
+        try {
+            const response = await fetch("http://localhost:8000/products/create/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(productWithImage),
+            });
+    
+            const data = await response.json();
+            if (data.error) {
+                setMessage(data.error); // Handle backend error
+            } else {
+                setMessage("Product added successfully!");
+                setProductData({
+                    model: "",
+                    serial_number: "",
+                    stock: "",
+                    warranty_status: "",
+                    distributor_info: "",
+                    description: "",
+                    base_price: "",
+                    price: "",
+                    image_url: "",
+                });
+                setSelectedFile(null); // Reset file input
+            }
+        } catch (error) {
+            console.error("Error adding product:", error);
+            setMessage("Failed to add product. Please try again.");
+        }
+    };
+    
 
     return (
         <div style={styles.container}>
@@ -90,6 +160,16 @@ const AddProductPage = () => {
                         )}
                     </div>
                 ))}
+                <div style={styles.inputContainer}>
+                    <label style={styles.label}>Image:</label>
+                    <input
+                        type="file"
+                       
+                        onChange={handleFileChange}
+                        style={styles.input}
+                        required
+                    />
+                </div>
                 <button type="submit" style={styles.button}>
                     Add Product
                 </button>
@@ -99,6 +179,7 @@ const AddProductPage = () => {
 };
 
 const styles = {
+    // Styles remain the same
     container: {
         maxWidth: "600px",
         margin: "50px auto",
@@ -162,9 +243,6 @@ const styles = {
         fontFamily: "'Poppins', sans-serif",
         textAlign: "center",
         marginTop: "10px",
-    },
-    inputFocus: {
-        borderColor: "#007bff",
     },
 };
 

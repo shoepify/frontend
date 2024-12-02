@@ -12,7 +12,7 @@ const ProductDetailPage = () => {
     const [newComment, setNewComment] = useState('');
 
     const handleAddComment = () => {
-        const userId = localStorage.getItem('userId');
+        const userId = sessionStorage.getItem('customerId');
         const customerId = userId || null;
 
         if (!customerId) {
