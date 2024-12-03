@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Table, Spin, Alert, Typography } from "antd";
+import { Table, Spin, Alert, Typography, Button, Modal } from "antd";
+import OrderProductCard from "../components/OrderProductCard";
 
 const { Title } = Typography;
 
@@ -9,6 +10,8 @@ const GetOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [selectedOrderItems, setSelectedOrderItems] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     useEffect(() => {
         fetch(`http://localhost:8000/get_orders/${customerId}/`, {
@@ -36,6 +39,18 @@ const GetOrders = () => {
             });
     }, [customerId]);
 
+    // Handle viewing products in a modal
+    const handleViewProducts = (items) => {
+        setSelectedOrderItems(items);
+        setIsModalVisible(true);
+    };
+
+    // Handle viewing invoice
+    const handleViewInvoice = (invoiceId) => {
+        const url = `http://localhost:8000/invoice/${invoiceId}/create-pdf/`;
+        window.open(url, "_blank"); // Open the invoice URL in a new tab
+    };
+
     if (loading) {
         return (
             <div className="loading-container">
@@ -52,13 +67,6 @@ const GetOrders = () => {
         );
     }
 
-    // Custom render for items
-    const renderItems = (items) => {
-        return items
-            .map((item) => `${item.product_model} (x${item.quantity})`)
-            .join(", ");
-    };
-
     return (
         <div className="orders-container" style={{ padding: "20px" }}>
             <Title level={3} style={{ textAlign: "center", marginBottom: "20px" }}>
@@ -74,15 +82,41 @@ const GetOrders = () => {
                     { title: "Payment Status", dataIndex: "payment_status", key: "payment_status" },
                     { title: "Order Status", dataIndex: "status", key: "status" },
                     {
-                        title: "Items",
-                        dataIndex: "items",
-                        key: "items",
-                        render: (items) => renderItems(items), // Custom render function for items
+                        title: "Actions",
+                        key: "actions",
+                        render: (_, record) => (
+                            <div style={{ display: "flex", gap: "10px" }}>
+                                <Button
+                                    type="primary"
+                                    onClick={() => handleViewProducts(record.items)}
+                                >
+                                    View Products
+                                </Button>
+                                <Button
+                                    type="default"
+                                    onClick={() => handleViewInvoice(record.order_id)}
+                                >
+                                    View Invoice
+                                </Button>
+                            </div>
+                        ),
                     },
                 ]}
                 rowKey="order_id"
                 pagination={{ pageSize: 5 }}
             />
+
+            {/* Modal for viewing products */}
+            <Modal
+                title="Order Products"
+                visible={isModalVisible}
+                onCancel={() => setIsModalVisible(false)}
+                footer={null}
+            >
+                {selectedOrderItems.map((item) => (
+                    <OrderProductCard key={item.product_id} product={item} />
+                ))}
+            </Modal>
         </div>
     );
 };

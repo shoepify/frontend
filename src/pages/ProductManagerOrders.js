@@ -4,8 +4,6 @@ const ProductManagerOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [showInvoice, setShowInvoice] = useState(false);
-    const [invoiceUrl, setInvoiceUrl] = useState('');
 
     useEffect(() => {
         fetch('http://localhost:8000/get_all_orders/')
@@ -49,17 +47,6 @@ const ProductManagerOrders = () => {
             });
     };
 
-    const viewInvoice = (invoiceId) => {
-        const pdfUrl = `http://localhost:8000/invoice/${invoiceId}/create-pdf/`;
-        setInvoiceUrl(pdfUrl);
-        setShowInvoice(true);
-    };
-
-    const closeInvoicePopup = () => {
-        setInvoiceUrl('');
-        setShowInvoice(false);
-    };
-
     if (loading) return <p>Loading orders...</p>;
     if (error) return <p>Error: {error}</p>;
 
@@ -75,7 +62,6 @@ const ProductManagerOrders = () => {
                         <th>Customer</th>
                         <th>Status</th>
                         <th>Actions</th>
-                        <th>Invoice</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -106,75 +92,10 @@ const ProductManagerOrders = () => {
                                     Delivered
                                 </button>
                             </td>
-                            <td>
-                                <button onClick={() => viewInvoice(order.order_id)}>View Invoice</button>
-                            </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-
-            {/* Modal for Invoice */}
-            {showInvoice && (
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <div
-                        style={{
-                            backgroundColor: 'white',
-                            padding: '20px',
-                            borderRadius: '5px',
-                            width: '80%',
-                            height: '80%',
-                            position: 'relative',
-                        }}
-                    >
-                        <button
-                            onClick={closeInvoicePopup}
-                            style={{
-                                position: 'absolute',
-                                top: '10px',
-                                right: '10px',
-                                background: 'red',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '5px',
-                                padding: '5px 10px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            Close
-                        </button>
-                        <object
-                            data={invoiceUrl}
-                            type="application/pdf"
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                border: 'none',
-                            }}
-                        >
-                            <p>
-                                It appears your browser does not support PDF viewing. You can{' '}
-                                <a href={invoiceUrl} target="_blank" rel="noopener noreferrer">
-                                    download the invoice
-                                </a>
-                                .
-                            </p>
-                        </object>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

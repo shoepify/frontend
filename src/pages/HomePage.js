@@ -4,7 +4,7 @@ import '../styles/HomePage.css';
 
 const HomePage = () => {
     const [products, setProducts] = useState([]);
-    const [sortedProducts, setSortedProducts] = useState([]); // Sıralanmış ürünler
+    const [sortedProducts, setSortedProducts] = useState([]); // ordered products
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 

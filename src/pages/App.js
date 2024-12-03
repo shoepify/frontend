@@ -4,6 +4,7 @@ import GuestHeader from "../components/headers/GuestHeader";
 import CustomerHeader from "../components/headers/CustomerHeader";
 import SalesManagerHeader from "../components/headers/SalesManagerHeader";
 import ProductManagerHeader from "../components/headers/ProductManagerHeader";
+import OrderProductCard from "../components/OrderProductCard"
 import AdminHeader from "../components/headers/AdminHeader";
 import Footer from "../components/Footer";
 import HomePage from "./HomePage";
@@ -83,8 +84,10 @@ const App = () => {
                         <>
                             {commonRoutes}
                             <Route path="/profile" element={<Profile />} />
+
                             <Route path="/profile/:customerId" element={<ProfileDetails />} /> {/* ProfileDetails route for customers */}
                             <Route path="/orders/:customerId" element={<GetOrders />} /> {/* Orders route */}
+                            <Route path="/customer_order_products" element={<OrderProductCard />} />
                         </>
                     )}
 
