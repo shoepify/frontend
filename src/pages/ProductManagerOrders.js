@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { Table, Button, Tag, Alert, Spin, Typography } from 'antd';
+
+const { Title } = Typography;
 
 const ProductManagerOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -16,7 +19,6 @@ const ProductManagerOrders = () => {
                 setLoading(false);
             })
             .catch((err) => {
-                console.error('Error:', err.message);
                 setError(err.message);
                 setLoading(false);
             });
@@ -47,55 +49,105 @@ const ProductManagerOrders = () => {
             });
     };
 
-    if (loading) return <p>Loading orders...</p>;
-    if (error) return <p>Error: {error}</p>;
+    const columns = [
+        {
+            title: 'Order ID',
+            dataIndex: 'order_id',
+            key: 'order_id',
+        },
+        {
+            title: 'Order Date',
+            dataIndex: 'order_date',
+            key: 'order_date',
+        },
+        {
+            title: 'Total Amount',
+            dataIndex: 'total_amount',
+            key: 'total_amount',
+            render: (total_amount) => `$${parseFloat(total_amount).toFixed(2)}`,
+        },
+        {
+            title: 'Customer',
+            dataIndex: 'customer_name',
+            key: 'customer_name',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            render: (status) => {
+                let color;
+                if (status === 'Processing') color = 'blue';
+                else if (status === 'In-Transit') color = 'orange';
+                else if (status === 'Delivered') color = 'green';
+                else color = 'gray';
+                return <Tag color={color}>{status}</Tag>;
+            },
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, record) => (
+                <>
+                    <Button
+                        type="primary"
+                        size="small"
+                        disabled={record.status === 'Processing'}
+                        onClick={() => updateOrderStatus(record.order_id, 'Processing')}
+                        style={{ marginRight: 8 }}
+                    >
+                        Processing
+                    </Button>
+                    <Button
+                        type="default"
+                        size="small"
+                        disabled={record.status === 'In-Transit'}
+                        onClick={() => updateOrderStatus(record.order_id, 'In-Transit')}
+                        style={{ marginRight: 8 }}
+                    >
+                        In-Transit
+                    </Button>
+                    <Button
+                        type="success"
+                        size="small"
+                        disabled={record.status === 'Delivered'}
+                        onClick={() => updateOrderStatus(record.order_id, 'Delivered')}
+                    >
+                        Delivered
+                    </Button>
+                </>
+            ),
+        },
+    ];
+
+    if (loading) {
+        return <Spin tip="Loading orders..." style={{ marginTop: '50px' }} />;
+    }
+
+    if (error) {
+        return (
+            <Alert
+                message="Error"
+                description={error}
+                type="error"
+                showIcon
+                style={{ marginTop: '50px' }}
+            />
+        );
+    }
 
     return (
-        <div>
-            <h1>All Orders</h1>
-            <table border="1" style={{ width: '100%', textAlign: 'left' }}>
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Order Date</th>
-                        <th>Total Amount</th>
-                        <th>Customer</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {orders.map((order) => (
-                        <tr key={order.order_id}>
-                            <td>{order.order_id}</td>
-                            <td>{order.order_date}</td>
-                            <td>${parseFloat(order.total_amount).toFixed(2)}</td>
-                            <td>{order.customer_name}</td>
-                            <td>{order.status}</td>
-                            <td>
-                                <button
-                                    onClick={() => updateOrderStatus(order.order_id, 'Processing')}
-                                    disabled={order.status === 'Processing'}
-                                >
-                                    Processing
-                                </button>
-                                <button
-                                    onClick={() => updateOrderStatus(order.order_id, 'In-Transit')}
-                                    disabled={order.status === 'In-Transit'}
-                                >
-                                    In-Transit
-                                </button>
-                                <button
-                                    onClick={() => updateOrderStatus(order.order_id, 'Delivered')}
-                                    disabled={order.status === 'Delivered'}
-                                >
-                                    Delivered
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+        <div style={{ padding: '20px' }}>
+            <Title level={2} style={{ marginBottom: '20px' }}>
+                All Orders
+            </Title>
+            <Table
+                dataSource={orders}
+                columns={columns}
+                rowKey="order_id"
+                bordered
+                pagination={{ pageSize: 5 }}
+            />
         </div>
     );
 };

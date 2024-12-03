@@ -79,8 +79,8 @@ const GetOrders = () => {
                     { title: "Order Date", dataIndex: "order_date", key: "order_date" },
                     { title: "Total Amount", dataIndex: "total_amount", key: "total_amount" },
                     { title: "Discount", dataIndex: "discount_applied", key: "discount_applied" },
-                    { title: "Payment Status", dataIndex: "payment_status", key: "payment_status" },
-                    { title: "Order Status", dataIndex: "status", key: "status" },
+                    { title: "Purchase Status", dataIndex: "payment_status", key: "payment_status" },
+                    { title: "Delivery Status", dataIndex: "status", key: "status" },
                     {
                         title: "Actions",
                         key: "actions",

@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Card, Button, Spin, Alert, Typography, Space } from 'antd';
+
+const { Title, Text } = Typography;
 
 const ProductManagerPage = () => {
-    const [pendingComments, setPendingComments] = useState([]); // State for pending comments
-    const [loading, setLoading] = useState(true);               // State for loading
-    const [error, setError] = useState(null);                   // State for error handling
+    const [pendingComments, setPendingComments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Fetch pending comments from the backend
     useEffect(() => {
@@ -20,11 +23,10 @@ const ProductManagerPage = () => {
                 return response.json();
             })
             .then((data) => {
-                console.log('Backend Response:', data); // Log the response
                 if (Array.isArray(data)) {
-                    setPendingComments(data); // If it's an array
+                    setPendingComments(data);
                 } else if (data.comments) {
-                    setPendingComments(data.comments); // If it's an object with `comments` key
+                    setPendingComments(data.comments);
                 } else {
                     throw new Error('Unexpected response format');
                 }
@@ -68,7 +70,6 @@ const ProductManagerPage = () => {
                 if (!response.ok) {
                     throw new Error('Failed to disapprove the comment');
                 }
-                // Remove the comment from the list after disapproval
                 setPendingComments((prevComments) =>
                     prevComments.filter((comment) => comment.comment_id !== commentId)
                 );
@@ -77,78 +78,72 @@ const ProductManagerPage = () => {
                 alert('Error disapproving comment: ' + err.message);
             });
     };
-    
 
     if (loading) {
-        return <p>Loading pending comments...</p>;
+        return <Spin tip="Loading pending comments..." style={{ marginTop: 50 }} />;
     }
 
     if (error) {
-        return <p>Error: {error}</p>;
+        return (
+            <Alert
+                message="Error"
+                description={error}
+                type="error"
+                showIcon
+                style={{ marginTop: 50 }}
+            />
+        );
     }
 
     if (pendingComments.length === 0) {
-        return <p>No pending comments found.</p>;
+        return (
+            <Alert
+                message="No Pending Comments"
+                description="There are currently no pending comments for approval."
+                type="info"
+                showIcon
+                style={{ marginTop: 50 }}
+            />
+        );
     }
 
     return (
-        <div>
-            <h1>Pending Comments</h1>
+        <div style={{ padding: '20px' }}>
+            <Title level={2} style={{ marginBottom: '20px' }}>
+                Pending Comments
+            </Title>
             {pendingComments.map((comment) => (
-                <div key={comment.comment_id} style={styles.commentCard}>
-                    <p>
-                        <strong>Customer ID:</strong>{' '}
-                        {comment.customer_id}
-                    </p>
-                    <p><strong>Comment:</strong> {comment.comment}</p>
-                    <div style={styles.buttonContainer}>
-                        <button
-                            style={styles.approveButton}
-                            onClick={() => handleApprove(comment.comment_id)}
-                        >
-                            Approve
-                        </button>
-                        <button
-                            style={styles.deleteButton}
-                            onClick={() => handleDisapprove(comment.comment_id)}
-                        >
-                            Disapprove
-                        </button>
-                    </div>
-                </div>
+                <Card
+                    key={comment.comment_id}
+                    style={{ marginBottom: '20px' }}
+                    bordered
+                >
+                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                        <Text>
+                            <strong>Customer ID:</strong> {comment.customer_id}
+                        </Text>
+                        <Text>
+                            <strong>Comment:</strong> {comment.comment}
+                        </Text>
+                        <Space>
+                            <Button
+                                type="primary"
+                                onClick={() => handleApprove(comment.comment_id)}
+                            >
+                                Approve
+                            </Button>
+                            <Button
+                                danger
+                                onClick={() => handleDisapprove(comment.comment_id)}
+                            >
+                                Disapprove
+                            </Button>
+                        </Space>
+                    </Space>
+                </Card>
             ))}
         </div>
     );
-};
-
-const styles = {
-    commentCard: {
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        padding: '16px',
-        marginBottom: '16px',
-        backgroundColor: '#f9f9f9',
-    },
-    buttonContainer: {
-        display: 'flex',
-        gap: '10px',
-    },
-    approveButton: {
-        padding: '8px 16px',
-        backgroundColor: '#28a745',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-    },
-    deleteButton: {
-        padding: '8px 16px',
-        backgroundColor: '#dc3545',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-    },
 };
 
 export default ProductManagerPage;

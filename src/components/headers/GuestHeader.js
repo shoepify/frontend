@@ -1,34 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart, faShoppingCart, faBars } from "@fortawesome/free-solid-svg-icons";
-import '../../styles/GuestHeader.css';
+import { Layout, Menu, Input, Dropdown, Button } from "antd";
+import { MenuOutlined, ShoppingCartOutlined, HeartOutlined, UserAddOutlined, LoginOutlined } from "@ant-design/icons";
 
+const { Header } = Layout;
 
-const Header = () => {
+const HeaderComponent = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [showCategories, setShowCategories] = useState(false);
     const [categories, setCategories] = useState([]);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
 
     const toggleCategories = () => setShowCategories(!showCategories);
 
     // Fetch categories from the backend
     useEffect(() => {
-        fetch('http://localhost:8000/products/')
+        fetch("http://localhost:8000/products/")
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error('Failed to fetch categories');
+                    throw new Error("Failed to fetch categories");
                 }
                 return response.json();
             })
             .then((data) => {
-                // Extract unique categories
                 const uniqueCategories = [...new Set(data.map((product) => product.category))];
                 setCategories(uniqueCategories);
             })
-            .catch((error) => console.error('Error fetching categories:', error));
+            .catch((error) => console.error("Error fetching categories:", error));
     }, []);
 
     const handleSearch = (e) => {
@@ -38,77 +37,76 @@ const Header = () => {
         }
     };
 
+    const menu = (
+        <Menu>
+            {categories.map((category, index) => (
+                <Menu.Item key={index}>
+                    <Link to={`/categories/${encodeURIComponent(category)}`}>{category}</Link>
+                </Menu.Item>
+            ))}
+        </Menu>
+    );
+
     return (
-        <header className="main-header">
-            <div className="header-container">
-                {/* Menu Button */}
-                <button className="nav-toggle" onClick={toggleCategories}>
-                    <FontAwesomeIcon icon={faBars} /> Menu
-                </button>
+        <Header
+            style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                backgroundColor: "#fff",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                padding: "10px 20px",
+            }}
+        >
+            <div style={{ display: "flex", alignItems: "center" }}>
+                <Dropdown overlay={menu} visible={showCategories} onVisibleChange={toggleCategories} trigger={["click"]}>
+                    <Button icon={<MenuOutlined />} style={{ marginRight: 15 }} />
+                </Dropdown>
+                <Link to="/" style={{ fontSize: "1.5rem", fontWeight: "bold", textDecoration: "none", color: "#000" }}>
+                    My Shoe Store
+                </Link>
+            </div>
 
-                {/* Logo */}
-                <Link to="/" className="logo">My Shoe Store</Link>
-
-                {/* Search Bar */}
-                <form onSubmit={handleSearch} className="search-bar">
-                    <input
-                        type="text"
+            <div style={{ display: "flex", alignItems: "center", flex: 1, marginLeft: 20 }}>
+                <form onSubmit={handleSearch} style={{ flex: 1, display: "flex", marginRight: 20, maxWidth: "50%" }}>
+                    <Input
                         placeholder="Search"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="search-input"
+                        prefix={<HeartOutlined />}
+                        style={{ width: "100%", marginRight: 10 }}
                     />
-                    <button type="submit" className="search-button">
+                    <Button type="primary" htmlType="submit">
                         Search
-                    </button>
+                    </Button>
                 </form>
-
-                {/* Right Section */}
-                <div className="header-right">
-                    <Link to="/favorites" className="icon-button">
-                        <FontAwesomeIcon icon={faHeart} />
-                    </Link>
-                    <Link to="/cart" className="icon-button">
-                        <FontAwesomeIcon icon={faShoppingCart} />
-                    </Link>
-
-                    {!isLoggedIn ? (
-                        <>
-                            <Link to="/signup" className="header-button signup-button">
-                                Sign Up
-                            </Link>
-                            <Link to="/login" className="header-button login-button">
-                                Login
-                            </Link>
-                        </>
-                    ) : (
-                        <button
-                            onClick={() => setIsLoggedIn(false)}
-                            className="header-button logout-button"
-                        >
-                            Logout
-                        </button>
-                    )}
-                </div>
             </div>
 
-            {/* Dropdown Categories */}
-            {showCategories && (
-                <div className={`dropdown-categories ${showCategories ? 'show' : ''}`}>
-                    <ul className="categories-list">
-                        {categories.map((category, index) => (
-                            <li key={index}>
-                                <Link to={`/categories/${encodeURIComponent(category)}`}>
-                                    {category}
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-        </header>
+            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                <Link to="/cart">
+                    <Button icon={<ShoppingCartOutlined />} type="text" />
+                </Link>
+                {!isLoggedIn ? (
+                    <>
+                        <Link to="/signup">
+                            <Button icon={<UserAddOutlined />} type="text">
+                                Sign Up
+                            </Button>
+                        </Link>
+                        <Link to="/login">
+                            <Button icon={<LoginOutlined />} type="text">
+                                Login
+                            </Button>
+                        </Link>
+                    </>
+                ) : (
+                    <Button onClick={() => setIsLoggedIn(false)} type="text" danger>
+                        Logout
+                    </Button>
+                )}
+            </div>
+        </Header>
     );
 };
 
-export default Header;
-
+export default HeaderComponent;

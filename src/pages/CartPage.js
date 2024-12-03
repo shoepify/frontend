@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShoppingCart, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
+import { Table, Button, Modal, Image, Typography, Alert, Spin, Card } from "antd";
+import { ShoppingCartOutlined, DeleteOutlined } from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 const Cart = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [totalPrice, setTotalPrice] = useState(0);
-    const [mockPaymentVisible, setMockPaymentVisible] = useState(false); // Payment modal
+    const [mockPaymentVisible, setMockPaymentVisible] = useState(false);
     const [userId, setUserId] = useState(null);
+    const [isGuest, setIsGuest] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const guestId = sessionStorage.getItem("guest_id");
@@ -19,9 +24,11 @@ const Cart = () => {
         if (customerId) {
             setUserId(customerId);
             url = `http://localhost:8000/cart_customer/${customerId}/`;
+            setIsGuest(false);
         } else if (guestId) {
             setUserId(guestId);
             url = `http://localhost:8000/cart_guest/${guestId}/`;
+            setIsGuest(true);
         } else {
             setError("Unable to determine user type for viewing the cart.");
             setLoading(false);
@@ -67,7 +74,6 @@ const Cart = () => {
                 setLoading(false);
             })
             .catch((error) => {
-                console.error(error.message);
                 setError(error.message);
                 setLoading(false);
             });
@@ -94,7 +100,6 @@ const Cart = () => {
         })
             .then((response) => {
                 if (!response.ok) throw new Error("Failed to remove item from cart");
-                alert("Item removed from the cart.");
                 setCartItems((prevItems) => prevItems.filter((item) => item.product_id !== productId));
                 setTotalPrice((prevTotal) =>
                     prevTotal - cartItems.find((item) => item.product_id === productId).total_price
@@ -123,6 +128,12 @@ const Cart = () => {
     };
 
     const handleConfirmPayment = () => {
+        if (isGuest) {
+            alert("You need to sign up or log in to complete the payment.");
+            navigate("/login");
+            return;
+        }
+
         fetch(`http://127.0.0.1:8000/order/place/${userId}/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -134,9 +145,8 @@ const Cart = () => {
                 } else {
                     alert(`Order placed successfully! Order ID: ${data.order_id}`);
 
-                    // Open the invoice directly as a PDF
                     const invoiceUrl = `http://localhost:8000/invoice/${data.order_id}/create-pdf/`;
-                    window.open(invoiceUrl, "_blank"); // Open the invoice in a new tab
+                    window.open(invoiceUrl, "_blank");
                 }
                 setMockPaymentVisible(false);
             })
@@ -146,187 +156,75 @@ const Cart = () => {
             });
     };
 
-    const handleCancelPayment = () => {
-        setMockPaymentVisible(false);
-    };
+    const columns = [
+        {
+            title: "Product",
+            dataIndex: "model",
+            key: "model",
+        },
+        {
+            title: "Image",
+            dataIndex: "image_url",
+            key: "image_url",
+            render: (text) => <Image src={text || "https://via.placeholder.com/150"} width={50} />,
+        },
+        {
+            title: "Quantity",
+            dataIndex: "product_quantity",
+            key: "product_quantity",
+        },
+        {
+            title: "Price",
+            dataIndex: "price",
+            key: "price",
+            render: (price) => `$${Number(price).toFixed(2)}`,
+        },
+        {
+            title: "Actions",
+            key: "actions",
+            render: (_, record) => (
+                <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleRemoveFromCart(record.product_id)}
+                >
+                    Remove
+                </Button>
+            ),
+        },
+    ];
 
-    if (loading) return <p style={styles.message}>Loading cart items...</p>;
-    if (error) return <p style={styles.error}>Error: {error}</p>;
+    if (loading) return <Spin tip="Loading cart items..." />;
+    if (error) return <Alert message="Error" description={error} type="error" showIcon />;
 
     return (
-        <div style={styles.container}>
-            <h1 style={styles.heading}>
-                <FontAwesomeIcon icon={faShoppingCart} /> Your Cart
-            </h1>
-            {cartItems.length === 0 ? (
-                <p style={styles.message}>Your cart is empty.</p>
-            ) : (
-                <div style={styles.cart}>
-                    <div style={styles.cartItems}>
-                        {cartItems.map((item) => (
-                            <div key={item.product_id} style={styles.cartItem}>
-                                <img
-                                    src={item.image_url || "https://via.placeholder.com/150"}
-                                    alt={item.model}
-                                    style={styles.itemImage}
-                                />
-                                <div style={styles.itemDetails}>
-                                    <h3>{item.model}</h3>
-                                    <p>{item.description || "No description available"}</p>
-                                    <p>Quantity: {item.product_quantity}</p>
-                                    <button
-                                        style={styles.removeButton}
-                                        onClick={() => handleRemoveFromCart(item.product_id)}
-                                    >
-                                        <FontAwesomeIcon icon={faTrashAlt} /> Remove
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div style={styles.cartSummary}>
-                        <h2>Order Summary</h2>
-                        {cartItems.map((item) => (
-                            <div key={item.product_id} style={styles.summaryItem}>
-                                <span>{item.model}</span>
-                                <span>${item.total_price.toFixed(2)}</span>
-                            </div>
-                        ))}
-                        <div style={styles.total}>
-                            <strong>Total</strong>
-                            <strong>${totalPrice.toFixed(2)}</strong>
-                        </div>
-                        <button style={styles.checkoutButton} onClick={handleProceedToPayment}>
-                            Proceed to Payment
-                        </button>
-                    </div>
-                </div>
-            )}
-            {mockPaymentVisible && (
-                <div style={styles.modal}>
-                    <p>Do you want to confirm the payment?</p>
-                    <button onClick={handleConfirmPayment} style={styles.confirmButton}>
-                        Yes
-                    </button>
-                    <button onClick={handleCancelPayment} style={styles.cancelButton}>
-                        No
-                    </button>
-                </div>
-            )}
-        </div>
+        <Card style={{ margin: "20px", padding: "20px" }}>
+            <Title level={2}>
+                <ShoppingCartOutlined /> Your Cart
+            </Title>
+            <Table
+                dataSource={cartItems}
+                columns={columns}
+                rowKey="product_id"
+                pagination={false}
+                style={{ marginBottom: "20px" }}
+            />
+            <div style={{ textAlign: "right", marginBottom: "20px" }}>
+                <Title level={4}>Total: ${totalPrice.toFixed(2)}</Title>
+            </div>
+            <Button type="primary" onClick={handleProceedToPayment}>
+                Proceed to Payment
+            </Button>
+            <Modal
+                visible={mockPaymentVisible}
+                onOk={handleConfirmPayment}
+                onCancel={() => setMockPaymentVisible(false)}
+                title="Confirm Payment"
+            >
+                <p>Do you want to confirm the payment?</p>
+            </Modal>
+        </Card>
     );
-};
-
-const styles = {
-    container: {
-        padding: "20px",
-        fontFamily: "Arial, sans-serif",
-        color: "#333",
-    },
-    heading: {
-        textAlign: "center",
-        marginBottom: "20px",
-        color: "#444",
-    },
-    cart: {
-        display: "flex",
-        justifyContent: "space-between",
-    },
-    cartItems: {
-        width: "60%",
-    },
-    cartItem: {
-        display: "flex",
-        alignItems: "center",
-        marginBottom: "15px",
-        padding: "10px",
-        border: "1px solid #ddd",
-        borderRadius: "5px",
-    },
-    itemImage: {
-        width: "100px",
-        height: "100px",
-        marginRight: "15px",
-        borderRadius: "5px",
-    },
-    itemDetails: {
-        flex: 1,
-    },
-    removeButton: {
-        backgroundColor: "#ff4d4d",
-        color: "white",
-        border: "none",
-        padding: "8px 12px",
-        borderRadius: "5px",
-        cursor: "pointer",
-    },
-    cartSummary: {
-        width: "35%",
-        padding: "15px",
-        border: "1px solid #ddd",
-        borderRadius: "5px",
-        backgroundColor: "#f9f9f9",
-    },
-    summaryItem: {
-        display: "flex",
-        justifyContent: "space-between",
-        marginBottom: "10px",
-    },
-    total: {
-        display: "flex",
-        justifyContent: "space-between",
-        marginTop: "20px",
-        fontSize: "1.2em",
-        fontWeight: "bold",
-    },
-    checkoutButton: {
-        width: "100%",
-        backgroundColor: "#4CAF50",
-        color: "white",
-        border: "none",
-        padding: "10px",
-        marginTop: "15px",
-        borderRadius: "5px",
-        cursor: "pointer",
-        fontSize: "1em",
-    },
-    modal: {
-        position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        backgroundColor: "white",
-        padding: "20px",
-        borderRadius: "10px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-    },
-    confirmButton: {
-        backgroundColor: "#4CAF50",
-        color: "white",
-        border: "none",
-        padding: "10px 15px",
-        marginRight: "10px",
-        borderRadius: "5px",
-        cursor: "pointer",
-    },
-    cancelButton: {
-        backgroundColor: "#ff4d4d",
-        color: "white",
-        border: "none",
-        padding: "10px 15px",
-        borderRadius: "5px",
-        cursor: "pointer",
-    },
-    message: {
-        textAlign: "center",
-        fontSize: "1.2em",
-        color: "#666",
-    },
-    error: {
-        textAlign: "center",
-        fontSize: "1.2em",
-        color: "#d9534f",
-    },
 };
 
 export default Cart;

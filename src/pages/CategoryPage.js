@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Typography, Spin, Alert, Row, Col, Button, Space } from "antd";
 import ProductCard from "../components/ProductCard"; // Assuming you have a ProductCard component
-import "../styles/CategoryPage.css";
+
+const { Title } = Typography;
 
 const CategoryPage = () => {
     const { category } = useParams();
@@ -42,32 +44,58 @@ const CategoryPage = () => {
         setSortedProducts(sorted);
     };
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (loading) {
+        return <Spin tip="Loading products..." style={{ display: "block", marginTop: 50 }} />;
+    }
+
+    if (error) {
+        return (
+            <Alert
+                message="Error"
+                description={error}
+                type="error"
+                showIcon
+                style={{ marginTop: 50 }}
+            />
+        );
+    }
 
     return (
-        <div className="container">
-            <h1>Products in {category}</h1>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
+            <Title level={2}>Products in "{category}"</Title>
 
             {/* Sort Buttons */}
-            <div className="sort-buttons">
-                <button onClick={() => handleSort("popularity_score")}>Sort by Popularity</button>
-                <button onClick={() => handleSort("price")}>Sort by Price</button>
-            </div>
+            <Space style={{ marginBottom: "20px" }}>
+                <Button type="primary" onClick={() => handleSort("popularity_score")}>
+                    Sort by Popularity
+                </Button>
+                <Button type="primary" onClick={() => handleSort("price")}>
+                    Sort by Price
+                </Button>
+            </Space>
 
             {sortedProducts.length > 0 ? (
-                <div className="product-grid">
+                <Row gutter={[16, 16]}>
                     {sortedProducts.map((product) => (
-                        <ProductCard
-                            key={product.product_id}
-                            product={product}
-                            onAddToCart={(productId) => console.log(`Add to cart: ${productId}`)}
-                            onAddToFavorites={(productId) => console.log(`Add to favorites: ${productId}`)}
-                        />
+                        <Col xs={24} sm={12} md={8} lg={6} key={product.product_id}>
+                            <ProductCard
+                                product={product}
+                                onAddToCart={(productId) => console.log(`Add to cart: ${productId}`)}
+                                onAddToFavorites={(productId) =>
+                                    console.log(`Add to favorites: ${productId}`)
+                                }
+                            />
+                        </Col>
                     ))}
-                </div>
+                </Row>
             ) : (
-                <p className="empty-category">No products found in this category.</p>
+                <Alert
+                    message="No Products Found"
+                    description="There are no products available in this category."
+                    type="info"
+                    showIcon
+                    style={{ marginTop: 20 }}
+                />
             )}
         </div>
     );

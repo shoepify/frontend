@@ -1,68 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css';
-import ApprovedComments from './ApprovedComments'; // Import ApprovedComments
+import { Typography, Card, Image, Alert, Spin, Row, Col } from 'antd';
+import ApprovedComments from './ApprovedComments';
+
+const { Title, Text } = Typography;
 
 const ProductDetailPage = () => {
     const { productId } = useParams();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [newComment, setNewComment] = useState('');
-
-    const handleAddComment = () => {
-        // Retrieve guestId and customerId from sessionStorage
-        const guestId = sessionStorage.getItem('guest_id');
-        const customerId = sessionStorage.getItem('customerId');
-    
-        // Determine the appropriate URL and user ID
-        let url;
-        let userId;
-    
-        if (customerId) {
-            // Customer URL
-            userId = customerId;
-            url = `http://localhost:8000/products/${productId}/add_comment_customer/`;
-        } else if (guestId) {
-            // Guest URL
-            userId = guestId;
-            url = `http://localhost:8000/products/${productId}/add_comment_guest/`;
-        } else {
-            console.error("User must be either a guest or a customer to submit a comment.");
-            alert("Error: Unable to determine user type.");
-            return;
-        }
-    
-        // Prepare the request body
-        const requestBody = {
-            comment: newComment,
-            user_id: userId, // Unified key for guest or customer
-        };
-    
-        // Perform the fetch to submit the comment
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-        })
-            .then((response) => {
-                if (!response.ok) throw new Error('Failed to submit comment');
-                return response.json();
-            })
-            .then(() => {
-                alert('Comment successfully submitted!');
-                setNewComment(''); // Clear the comment field
-            })
-            .catch((error) => {
-                console.error('Error submitting comment:', error);
-                alert('Failed to submit comment. Please try again.');
-            });
-    };
-    
-    
 
     useEffect(() => {
         fetch(`http://localhost:8000/products/${productId}/`)
@@ -80,86 +27,54 @@ const ProductDetailPage = () => {
             });
     }, [productId]);
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (loading) {
+        return <Spin tip="Loading product details..." style={{ marginTop: 50 }} />;
+    }
+
+    if (error) {
+        return <Alert message="Error" description={error} type="error" showIcon style={{ marginTop: 50 }} />;
+    }
 
     return (
-        <div className="product-details" style={styles.container}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
             {product && (
-                <>
-                    <h1>{product.model}</h1>
-                    <LazyLoadImage
-                        src={product.image_url || 'https://via.placeholder.com/150'}
-                        alt={product.model}
-                        effect="blur"
-                        className="product-image"
-                        style={styles.productImage}
-                    />
-                    <p><strong>Serial Number:</strong> {product.serial_number}</p>
-                    <p><strong>Stock:</strong> {product.stock}</p>
-                    <p><strong>Warranty Status:</strong> {product.warranty_status}</p>
-                    <p><strong>Distributor Info:</strong> {product.distributor_info}</p>
-                    <p><strong>Description:</strong> {product.description}</p>
-                    <p><strong>Base Price:</strong> ${parseFloat(product.base_price).toFixed(2)}</p>
-                    <p><strong>Price:</strong> ${parseFloat(product.price).toFixed(2)}</p>
-
-                    {/* Add Comment Section */}
-                    <div style={styles.commentsSection}>
-                        <h2>Leave a Comment</h2>
-                        <textarea
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            placeholder="Write your comment..."
-                            style={styles.textarea}
-                        />
-                        <button onClick={handleAddComment} style={styles.button}>Submit Comment</button>
+                <Card bordered style={{ padding: '20px' }}>
+                    <Row gutter={[16, 16]}>
+                        <Col xs={24} sm={12}>
+                            <Image
+                                src={product.image_url || 'https://via.placeholder.com/150'}
+                                alt={product.model}
+                                width="100%"
+                            />
+                        </Col>
+                        <Col xs={24} sm={12}>
+                            <Title level={3}>{product.model}</Title>
+                            <Text><strong>Serial Number:</strong> {product.serial_number}</Text>
+                            <br />
+                            <Text>
+                                <strong>Stock:</strong> {product.stock > 0 ? product.stock : 'Out of stock'}
+                            </Text>
+                            <br />
+                            <Text><strong>Warranty Status:</strong> {product.warranty_status}</Text>
+                            <br />
+                            <Text><strong>Product Id:</strong> {product.product_id}</Text>
+                            <br />
+                            <Text><strong>Distributor Info:</strong> {product.distributor_info}</Text>
+                            <br />
+                            <Text><strong>Description:</strong> {product.description}</Text>
+                            <br />
+                            <Text><strong>Base Price:</strong> ${parseFloat(product.base_price).toFixed(2)}</Text>
+                            <br />
+                            <Text><strong>Price:</strong> ${parseFloat(product.price).toFixed(2)}</Text>
+                        </Col>
+                    </Row>
+                    <div style={{ marginTop: '40px' }}>
+                        <ApprovedComments />
                     </div>
-
-                    {/* Approved Comments Slider */}
-                    <div style={styles.approvedComments}>
-                        <ApprovedComments /> {/* Render the ApprovedComments component */}
-                    </div>
-                </>
+                </Card>
             )}
         </div>
     );
-};
-
-const styles = {
-    container: {
-        maxWidth: "800px",
-        margin: "0 auto",
-        padding: "20px",
-        fontFamily: "Arial, sans-serif",
-    },
-    productImage: {
-        width: "100%",
-        maxWidth: "400px",
-        display: "block",
-        margin: "0 auto",
-    },
-    commentsSection: {
-        marginTop: "20px",
-    },
-    textarea: {
-        width: "100%",
-        height: "80px",
-        marginBottom: "10px",
-        padding: "10px",
-        border: "1px solid #ddd",
-        borderRadius: "5px",
-    },
-    button: {
-        padding: "10px 20px",
-        backgroundColor: "#007BFF",
-        color: "#fff",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-    },
-    approvedComments: {
-        marginTop: "40px",
-    },
 };
 
 export default ProductDetailPage;

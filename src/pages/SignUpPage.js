@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import "../styles/SignUpPage.css"; // Add this line to include the new CSS
+import { Form, Input, Button, Select, Typography, Alert } from "antd";
+import { UserOutlined, LockOutlined, HomeOutlined, IdcardOutlined, MailOutlined } from "@ant-design/icons";
+
+const { Title } = Typography;
+const { Option } = Select;
 
 const SignupPage = () => {
     const [role, setRole] = useState(""); // Selected role
@@ -7,11 +11,11 @@ const SignupPage = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
 
-    const handleRoleChange = (e) => {
-        setRole(e.target.value);
-        setFormData({}); // Reset form data when role changes
-        setError(null); // Clear any previous errors
-        setSuccess(false); // Clear success message
+    const handleRoleChange = (value) => {
+        setRole(value);
+        setFormData({});
+        setError(null);
+        setSuccess(false);
     };
 
     const handleChange = (e) => {
@@ -19,9 +23,7 @@ const SignupPage = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
+    const handleSubmit = () => {
         const endpoint =
             role === "customer"
                 ? "http://localhost:8000/signup/customer/"
@@ -52,145 +54,158 @@ const SignupPage = () => {
     };
 
     return (
-        <div className="signup-page">
-            <div className="signup-container">
-                <h1 className="signup-title">Create an Account</h1>
+        <div style={{ maxWidth: 500, margin: "50px auto", padding: 20, background: "#fff", borderRadius: 8, boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+            <Title level={2} style={{ textAlign: "center", marginBottom: 20 }}>Create an Account</Title>
 
-                {!role ? (
-                    <div className="role-selection">
-                        <h2>Select Your Role</h2>
-                        <select
-                            value={role}
+            {!role ? (
+                <Form layout="vertical">
+                    <Form.Item label="Select Your Role">
+                        <Select
+                            placeholder="-- Select Role --"
                             onChange={handleRoleChange}
-                            className="role-dropdown"
+                            value={role}
                         >
-                            <option value="">-- Select Role --</option>
-                            <option value="customer">Customer</option>
-                            <option value="sales_manager">Sales Manager</option>
-                            <option value="product_manager">Product Manager</option>
-                        </select>
-                    </div>
-                ) : (
-                    <>
-                        {success ? (
-                            <p className="success-message">
-                                Signup successful! You can now log in.
-                            </p>
-                        ) : (
-                            <form onSubmit={handleSubmit} className="signup-form">
-                                <button
-                                    type="button"
-                                    onClick={() => setRole("")}
-                                    className="change-role-button"
-                                >
-                                    Change Role
-                                </button>
-                                {role === "customer" && (
-                                    <>
-                                        <label>
-                                            Name:
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                value={formData.name || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                        <label>
-                                            Tax ID:
-                                            <input
-                                                type="text"
-                                                name="tax_id"
-                                                value={formData.tax_id || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                        <label>
-                                            Email:
-                                            <input
-                                                type="email"
-                                                name="email"
-                                                value={formData.email || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                        <label>
-                                            Password:
-                                            <input
-                                                type="password"
-                                                name="password"
-                                                value={formData.password || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                        <label>
-                                            Home Address:
-                                            <input
-                                                type="text"
-                                                name="home_address"
-                                                value={formData.home_address || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                    </>
-                                )}
-                                {(role === "sales_manager" ||
-                                    role === "product_manager") && (
-                                    <>
-                                        <label>
-                                            Name:
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                value={formData.name || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                        <label>
-                                            Email:
-                                            <input
-                                                type="email"
-                                                name="email"
-                                                value={formData.email || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                        <label>
-                                            Password:
-                                            <input
-                                                type="password"
-                                                name="password"
-                                                value={formData.password || ""}
-                                                onChange={handleChange}
-                                                required
-                                                className="signup-input"
-                                            />
-                                        </label>
-                                    </>
-                                )}
-                                <button type="submit" className="signup-button">
+                            <Option value="customer">Customer</Option>
+                            <Option value="sales_manager">Sales Manager</Option>
+                            <Option value="product_manager">Product Manager</Option>
+                        </Select>
+                    </Form.Item>
+                </Form>
+            ) : (
+                <>
+                    {success ? (
+                        <Alert message="Signup successful! You can now log in." type="success" showIcon style={{ marginBottom: 20 }} />
+                    ) : (
+                        <Form layout="vertical" onFinish={handleSubmit}>
+                            <Button type="link" onClick={() => setRole("")} style={{ marginBottom: 10 }}>
+                                Change Role
+                            </Button>
+
+                            {role === "customer" && (
+                                <>
+                                    <Form.Item
+                                        label="Name"
+                                        name="name"
+                                        rules={[{ required: true, message: "Please input your name!" }]}
+                                    >
+                                        <Input
+                                            prefix={<UserOutlined />}
+                                            placeholder="Enter your name"
+                                            name="name"
+                                            value={formData.name || ""}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item
+                                        label="Tax ID"
+                                        name="tax_id"
+                                        rules={[{ required: true, message: "Please input your tax ID!" }]}
+                                    >
+                                        <Input
+                                            prefix={<IdcardOutlined />}
+                                            placeholder="Enter your tax ID"
+                                            name="tax_id"
+                                            value={formData.tax_id || ""}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item
+                                        label="Email"
+                                        name="email"
+                                        rules={[{ required: true, type: "email", message: "Please input a valid email!" }]}
+                                    >
+                                        <Input
+                                            prefix={<MailOutlined />}
+                                            placeholder="Enter your email"
+                                            name="email"
+                                            value={formData.email || ""}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item
+                                        label="Password"
+                                        name="password"
+                                        rules={[{ required: true, message: "Please input your password!" }]}
+                                    >
+                                        <Input.Password
+                                            prefix={<LockOutlined />}
+                                            placeholder="Enter your password"
+                                            name="password"
+                                            value={formData.password || ""}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item
+                                        label="Home Address"
+                                        name="home_address"
+                                        rules={[{ required: true, message: "Please input your home address!" }]}
+                                    >
+                                        <Input
+                                            prefix={<HomeOutlined />}
+                                            placeholder="Enter your home address"
+                                            name="home_address"
+                                            value={formData.home_address || ""}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Item>
+                                </>
+                            )}
+
+                            {(role === "sales_manager" || role === "product_manager") && (
+                                <>
+                                    <Form.Item
+                                        label="Name"
+                                        name="name"
+                                        rules={[{ required: true, message: "Please input your name!" }]}
+                                    >
+                                        <Input
+                                            prefix={<UserOutlined />}
+                                            placeholder="Enter your name"
+                                            name="name"
+                                            value={formData.name || ""}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item
+                                        label="Email"
+                                        name="email"
+                                        rules={[{ required: true, type: "email", message: "Please input a valid email!" }]}
+                                    >
+                                        <Input
+                                            prefix={<MailOutlined />}
+                                            placeholder="Enter your email"
+                                            name="email"
+                                            value={formData.email || ""}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Item>
+                                    <Form.Item
+                                        label="Password"
+                                        name="password"
+                                        rules={[{ required: true, message: "Please input your password!" }]}
+                                    >
+                                        <Input.Password
+                                            prefix={<LockOutlined />}
+                                            placeholder="Enter your password"
+                                            name="password"
+                                            value={formData.password || ""}
+                                            onChange={handleChange}
+                                        />
+                                    </Form.Item>
+                                </>
+                            )}
+
+                            <Form.Item>
+                                <Button type="primary" htmlType="submit" block>
                                     Sign Up
-                                </button>
-                            </form>
-                        )}
-                        {error && <p className="error-message">{error}</p>}
-                    </>
-                )}
-            </div>
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                    )}
+
+                    {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 20 }} />}
+                </>
+            )}
         </div>
     );
 };

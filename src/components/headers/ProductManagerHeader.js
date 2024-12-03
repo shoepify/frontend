@@ -1,5 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Button, Space } from "antd";
+import { LogoutOutlined, AppstoreOutlined, ShoppingCartOutlined, CommentOutlined, OrderedListOutlined, SettingOutlined } from "@ant-design/icons";
 import "../../styles/ProductManagerHeader.css";
 import { useUser } from "../../context/UserContext";
 
@@ -45,32 +47,45 @@ const ProductManagerHeader = () => {
 
                 {/* Navigation Links */}
                 <nav className="nav-buttons">
-                    <Link to="/comments" className="nav-button">
-                        Comments
-                    </Link>
-                    <div className="divider" />
-                    <Link to="/manage-products" className="nav-button">
-                        Products
-                    </Link>
-                    <div className="divider" />
-                    <Link to="/manage-products/add" className="nav-button">
-                        Products
-                    </Link>
-                    <div className="divider" />
-                    <Link to="/product_manager/orders" className="nav-button">
-                        Orders
-                    </Link>
-                    <div className="divider" />
-                    <Link to="/manage_categories" className="nav-button">
-                        Categories
-                    </Link>
+                    <Space size="middle">
+                        <Link to="/comments">
+                            <Button type="text" icon={<CommentOutlined />}>
+                                Comments
+                            </Button>
+                        </Link>
+                        <Link to="/manage-products">
+                            <Button type="text" icon={<AppstoreOutlined />}>
+                                Products
+                            </Button>
+                        </Link>
+                        <Link to="/manage-products/add">
+                            <Button type="text" icon={<AppstoreOutlined />}>
+                                Add Product
+                            </Button>
+                        </Link>
+                        <Link to="/product_manager/orders">
+                            <Button type="text" icon={<OrderedListOutlined />}>
+                                Orders
+                            </Button>
+                        </Link>
+                        <Link to="/manage_categories">
+                            <Button type="text" icon={<SettingOutlined />}>
+                                Categories
+                            </Button>
+                        </Link>
+                    </Space>
                 </nav>
 
                 {/* Action Buttons */}
                 <div className="action-buttons">
-                    <button onClick={handleLogout} className="action-button">
+                    <Button
+                        type="primary"
+                        danger
+                        icon={<LogoutOutlined />}
+                        onClick={handleLogout}
+                    >
                         Logout
-                    </button>
+                    </Button>
                 </div>
             </div>
         </header>

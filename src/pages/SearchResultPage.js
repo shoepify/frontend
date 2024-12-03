@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Typography, Spin, Alert, Row, Col, Button, Space } from 'antd';
 import ProductCard from '../components/ProductCard';
-import '../styles/SearchResultPage.css';
+
+const { Title } = Typography;
 
 const SearchResultPage = () => {
     const [products, setProducts] = useState([]);
@@ -46,42 +48,52 @@ const SearchResultPage = () => {
         setSortedProducts(sorted);
     };
 
-    const handleAddToCart = (productId) => {
-        console.log(`Product ${productId} added to cart`);
-        // Implement cart addition logic here
-    };
+    if (loading) {
+        return <Spin tip="Loading search results..." style={{ display: 'block', marginTop: 50 }} />;
+    }
 
-    const handleAddToFavorites = (productId) => {
-        console.log(`Product ${productId} added to favorites`);
-        // Implement favorites addition logic here
-    };
-
-    if (loading) return <div>Loading search results...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+    if (error) {
+        return (
+            <Alert
+                message="Error"
+                description={error.message}
+                type="error"
+                showIcon
+                style={{ marginTop: 50 }}
+            />
+        );
+    }
 
     return (
-        <div className="search-results-page">
-            <h1>Search Results for "{query}"</h1>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
+            <Title level={2}>Search Results for "{query}"</Title>
 
             {/* Sort Buttons */}
-            <div className="sort-buttons">
-                <button onClick={() => handleSort('popularity_score')}>Sort by Popularity</button>
-                <button onClick={() => handleSort('price')}>Sort by Price</button>
-            </div>
+            <Space style={{ marginBottom: '20px' }}>
+                <Button type="primary" onClick={() => handleSort('popularity_score')}>
+                    Sort by Popularity
+                </Button>
+                <Button type="primary" onClick={() => handleSort('price')}>
+                    Sort by Price
+                </Button>
+            </Space>
 
             {sortedProducts.length > 0 ? (
-                <div className="product-grid">
+                <Row gutter={[16, 16]}>
                     {sortedProducts.map((product) => (
-                        <ProductCard
-                            key={product.product_id}
-                            product={product}
-                            onAddToCart={handleAddToCart}
-                            onAddToFavorites={handleAddToFavorites}
-                        />
+                        <Col xs={24} sm={12} md={8} lg={6} key={product.product_id}>
+                            <ProductCard product={product} />
+                        </Col>
                     ))}
-                </div>
+                </Row>
             ) : (
-                <p>No products found for "{query}"</p>
+                <Alert
+                    message="No products found"
+                    description={`No products match your search query: "${query}".`}
+                    type="info"
+                    showIcon
+                    style={{ marginTop: 20 }}
+                />
             )}
         </div>
     );

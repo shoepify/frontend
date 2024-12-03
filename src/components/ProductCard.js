@@ -1,55 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import '../styles/ProductCard.css';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Card, Button, InputNumber, Tag, Image } from "antd";
+import { ShoppingCartOutlined } from "@ant-design/icons";
+import "../styles/ProductCard.css";
 
 const ProductCard = ({ product }) => {
-    const [averageRating, setAverageRating] = useState(product.avg_rating || 0);
-    const [userRating, setUserRating] = useState(0);
     const [popularityScore, setPopularityScore] = useState(product.popularity_score || 0);
-    const [quantity, setQuantity] = useState(1); // Manage quantity state
+    const [averageRating, setAverageRating] = useState(product.avg_rating || 0);
+    const [quantity, setQuantity] = useState(1);
 
     useEffect(() => {
-        // Fetch updated popularity score
         fetch(`http://localhost:8000/products/${product.product_id}/popularity/`)
             .then((response) => response.json())
             .then((data) => setPopularityScore(data.popularity_score || 0))
-            .catch((error) => console.error('Error fetching popularity score:', error));
+            .catch((error) => console.error("Error fetching popularity score:", error));
     }, [product.product_id]);
 
-    const handleAddRating = (rating) => {
-        const userId = sessionStorage.getItem('userId');
-        if (!userId) {
-            alert("Please log in to submit a rating.");
-            return;
-        }
-
-        fetch(`http://localhost:8000/products/${product.product_id}/add_rating/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                rating_value: rating,
-                customer_id: userId,
-            }),
-        })
-            .then((response) => {
-                if (!response.ok) throw new Error('Failed to submit rating');
-                return response.json();
-            })
-            .then(() => {
-                setUserRating(rating);
-                alert(`You rated this product ${rating} stars!`);
-            })
-            .catch((error) => {
-                console.error('Error submitting rating:', error);
-                alert('Failed to submit rating. Please try again.');
-            });
-    };
+    useEffect(() => {
+        fetch(`http://localhost:8000/products/${product.product_id}/rating/`)
+            .then((response) => response.json())
+            .then((data) => setAverageRating(data.avg_rating || 0))
+            .catch((error) => console.error("Error fetching average rating:", error));
+    }, [product.product_id]);
 
     const handleAddToCart = () => {
-        const guestId = sessionStorage.getItem('guest_id');
-        const customerId = sessionStorage.getItem('customerId');
+        const guestId = sessionStorage.getItem("guest_id");
+        const customerId = sessionStorage.getItem("customerId");
 
         let url;
         let userId;
@@ -67,84 +43,74 @@ const ProductCard = ({ product }) => {
         }
 
         fetch(url, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
         })
             .then((response) => {
-                if (!response.ok) throw new Error('Failed to add to cart');
+                if (!response.ok) throw new Error("Failed to add to cart");
                 return response.json();
             })
             .then(() => {
-                alert('Product successfully added to cart!');
+                alert("Product successfully added to cart!");
             })
             .catch((error) => {
-                console.error('Error adding to cart:', error);
-                alert('Failed to add product to cart. Please try again.');
+                console.error("Error adding to cart:", error);
+                alert("Failed to add product to cart. Please try again.");
             });
     };
 
-    const incrementQuantity = () => setQuantity((prev) => prev + 1);
-    const decrementQuantity = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
-
     return (
-        <div className="product-card">
-            <img
-                src={product.image_url || 'https://via.placeholder.com/150'}
-                alt={product.model}
-                className="product-image"
-            />
-            <div className="product-info">
-                <h3>{product.model}</h3>
-                <p>Price: ${parseFloat(product.price).toFixed(2)}</p>
-                <p>Stock: {product.stock > 0 ? product.stock : 'Out of stock'}</p>
-                <p>Average Rating: {averageRating} / 5</p>
-                <p>Popularity: {popularityScore}</p>
-                <div className="rating-section">
-                    <div className="stars-container">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <span
-                                key={star}
-                                className={`star ${userRating >= star ? 'selected' : ''}`}
-                                onClick={() => handleAddRating(star)}
-                            >
-                                ★
-                            </span>
-                        ))}
-                    </div>
-                </div>
+        <Card
+            hoverable
+            title={product.model}
+            style={{ width: 300, margin: "20px" }}
+            cover={
+                <Image
+                    src={product.image_url || "https://via.placeholder.com/300"}
+                    alt={product.model}
+                    style={{ height: 200, objectFit: "cover" }}
+                />
+            }
+        >
+            <p>
+                <Tag color={product.stock > 0 ? "green" : "red"}>
+                    {product.stock > 0 ? `In Stock: ${product.stock}` : "Out of Stock"}
+                </Tag>
+            </p>
+            <p>
+                <Tag color="blue">Popularity: {popularityScore}</Tag>
+            </p>
+            <p>
+                <Tag color="gold">Average Rating: {averageRating} / 5</Tag>
+            </p>
+            <p>Price: ${parseFloat(product.price).toFixed(2)}</p>
+            <div style={{ marginBottom: "10px" }}>
+                Quantity:{" "}
+                <InputNumber
+                    min={1}
+                    max={product.stock}
+                    value={quantity}
+                    onChange={(value) => setQuantity(value || 1)}
+                    style={{ marginLeft: "10px" }}
+                />
             </div>
-            <div className="product-actions">
-                <div className="quantity-selector">
-                    <button
-                        className="quantity-btn"
-                        onClick={decrementQuantity}
-                        disabled={product.stock <= 0}
-                    >
-                        -
-                    </button>
-                    <span className="quantity-display">{quantity}</span>
-                    <button
-                        className="quantity-btn"
-                        onClick={incrementQuantity}
-                        disabled={product.stock <= 0}
-                    >
-                        +
-                    </button>
-                </div>
-                <button
-                    className="btn btn-outline-primary"
-                    onClick={handleAddToCart}
-                    disabled={product.stock <= 0}
-                >
-                    Add to Cart
-                </button>
-                <Link to={`/products/${product.product_id}`} className="btn btn-outline-info">
+            <Button
+                type="primary"
+                icon={<ShoppingCartOutlined />}
+                onClick={handleAddToCart}
+                disabled={product.stock <= 0}
+                style={{ marginBottom: "10px", width: "100%" }}
+            >
+                Add to Cart
+            </Button>
+            <Link to={`/products/${product.product_id}`}>
+                <Button type="default" style={{ width: "100%" }}>
                     View Details
-                </Link>
-            </div>
-        </div>
+                </Button>
+            </Link>
+        </Card>
     );
 };
 
