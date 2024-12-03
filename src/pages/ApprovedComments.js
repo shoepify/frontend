@@ -27,9 +27,11 @@ const ApprovedComments = () => {
             })
             .then((data) => {
                 if (Array.isArray(data)) {
-                    setComments(data);
+                    const approvedComments = data.filter(comment => comment.approval_status === "Approved");
+                    setComments(approvedComments);
                 } else if (data.comments) {
-                    setComments(data.comments);
+                    const approvedComments = data.comments.filter(comment => comment.approval_status === "Approved");
+                    setComments(approvedComments);
                 } else {
                     setComments([]);
                 }
@@ -50,12 +52,12 @@ const ApprovedComments = () => {
     }
 
     if (comments.length === 0) {
-        return <p>No comments found for this product.</p>;
+        return <p>No approved comments found for this product.</p>;
     }
 
     return (
         <div style={styles.container}>
-            <h2 style={styles.heading}>Comments</h2>
+            <h2 style={styles.heading}>Approved Comments</h2>
             {comments.map((comment) => (
                 <div key={comment.comment_id} style={styles.commentCard}>
                     <div style={styles.formGroup}>

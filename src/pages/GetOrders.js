@@ -47,7 +47,7 @@ const GetOrders = () => {
 
     // Handle viewing invoice
     const handleViewInvoice = (invoiceId) => {
-        const url = `http://localhost:8000/invoice/${invoiceId}/create-pdf/`;
+        const url = `http://localhost:8000/invoice/${invoiceId}/create-pdf-ozan/`;
         window.open(url, "_blank"); // Open the invoice URL in a new tab
     };
 

@@ -145,7 +145,7 @@ const Cart = () => {
                 } else {
                     alert(`Order placed successfully! Order ID: ${data.order_id}`);
 
-                    const invoiceUrl = `http://localhost:8000/invoice/${data.order_id}/create-pdf/`;
+                    const invoiceUrl = `http://localhost:8000/invoice/${data.order_id}/create-pdf-ozan/`;
                     window.open(invoiceUrl, "_blank");
                 }
                 setMockPaymentVisible(false);
