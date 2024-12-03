@@ -25,6 +25,7 @@ import ApprovedComments from "./ApprovedComments";
 import ProfileDetails from "./ProfileDetail"; // Import the ProfileDetails component
 import GetOrders from "./GetOrders"; // Import the GetOrders component
 import ProductManagerOrders from "./ProductManagerOrders";
+import ProductManagerCategories from "./ProductManagerCategories"
 
 const App = () => {
     const { userRole } = useUser(); // Get the current role
@@ -90,7 +91,6 @@ const App = () => {
                     {/* Sales Manager Routes */}
                     {userRole === "sales_manager" && (
                         <>
-                            {commonRoutes}
                             <Route path="/" element={<div>You are a Sales Manager now.</div>} />
                         </>
                     )}
@@ -98,19 +98,18 @@ const App = () => {
                     {/* Product Manager Routes */}
                     {userRole === "product_manager" && (
                         <>
-                            {commonRoutes}
                             <Route path="/" element={<div>You are a Product Manager now.</div>} />
                             <Route path="/manage-products" element={<ProductManagerProductPage />} />
                             <Route path="/manage-products/add" element={<AddProductPage />} />
                             <Route path="/comments" element={<ProductManagerComments />} />
                             <Route path="/product_manager/orders" element={<ProductManagerOrders />} />
+                            <Route path="/manage_categories" element = {<ProductManagerCategories />} />
                         </>
                     )}
 
                     {/* Admin Routes */}
                     {userRole === "admin" && (
                         <>
-                            {commonRoutes}
                             <Route path="/" element={<div>You are an Admin now.</div>} />
                         </>
                     )}

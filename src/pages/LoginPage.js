@@ -23,23 +23,23 @@ const LoginPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault(); // Prevent default form submission
-    
+
         if (!role) {
             setError("Please select a role."); // Error if no role selected
             return;
         }
-    
-        // Retrieve session_id from sessionStorage (only used for customer login)
-        //const session_id = sessionStorage.getItem("session_id");
-    
+
+        // Get guest_id from sessionStorage
+        const guestId = sessionStorage.getItem("guest_id");
+
         // Define the login endpoint dynamically based on role
         const endpoint =
             role === "customer"
-                ? `http://127.0.0.1:8000/login/customer/`
+                ? `http://127.0.0.1:8000/login/customer/${guestId ? `?guest_id=${guestId}` : ""}`
                 : role === "sales_manager"
                 ? "http://127.0.0.1:8000/login/sales_manager/"
                 : "http://127.0.0.1:8000/login/product_manager/";
-    
+
         fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -56,38 +56,30 @@ const LoginPage = () => {
             .then((data) => {
                 // Clear previous session data
                 sessionStorage.clear();
-    
+
                 // Extract tokens and role-specific IDs
                 const { refresh, access } = data.tokens;
                 sessionStorage.setItem("accessToken", access);
                 sessionStorage.setItem("refreshToken", refresh);
-    
+
                 // Handle role-specific data
                 if (role === "customer") {
-                    sessionStorage.clear();
                     sessionStorage.setItem("customerId", data.user.id);
-                    
                 } else if (role === "product_manager") {
-                    sessionStorage.clear();
                     sessionStorage.setItem("productManagerId", data.user.manager_id);
-                    
                 } else if (role === "sales_manager") {
-                    sessionStorage.clear();
                     sessionStorage.setItem("salesManagerId", data.user.manager_id);
-                    
                 }
-    
+
                 // Update role in context
                 setUserRole(role);
-    
+
                 // Navigate to the desired page
                 navigate("/");
             })
             .catch((err) => setError(err.message)); // Handle errors
     };
-    
-    
- 
+
     return (
         <div className="login-page">
             <div className="login-container">

@@ -7,8 +7,8 @@ const Cart = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [totalPrice, setTotalPrice] = useState(0);
-    const [mockPaymentVisible, setMockPaymentVisible] = useState(false); // For payment confirmation modal
-    const [userId, setUserId] = useState(null); // Store user ID
+    const [mockPaymentVisible, setMockPaymentVisible] = useState(false); // Payment modal
+    const [userId, setUserId] = useState(null);
 
     useEffect(() => {
         const guestId = sessionStorage.getItem("guest_id");
@@ -73,7 +73,6 @@ const Cart = () => {
             });
     }, []);
 
-    // Remove item from cart
     const handleRemoveFromCart = (productId) => {
         const guestId = sessionStorage.getItem("guest_id");
         const customerId = sessionStorage.getItem("customerId");
@@ -107,15 +106,14 @@ const Cart = () => {
             });
     };
 
-    // Handle Proceed to Payment
     const handleProceedToPayment = () => {
         fetch(`http://127.0.0.1:8000/check_cart/${userId}/`)
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
-                    alert(data.error); // Show error if cart is invalid
+                    alert(data.error);
                 } else {
-                    setMockPaymentVisible(true); // Show payment modal if cart is valid
+                    setMockPaymentVisible(true);
                 }
             })
             .catch((error) => {
@@ -124,7 +122,6 @@ const Cart = () => {
             });
     };
 
-    // Confirm Payment
     const handleConfirmPayment = () => {
         fetch(`http://127.0.0.1:8000/order/place/${userId}/`, {
             method: "POST",
@@ -136,8 +133,12 @@ const Cart = () => {
                     alert(data.error);
                 } else {
                     alert(`Order placed successfully! Order ID: ${data.order_id}`);
+
+                    // Open the invoice directly as a PDF
+                    const invoiceUrl = `http://localhost:8000/invoice/${data.order_id}/create-pdf/`;
+                    window.open(invoiceUrl, "_blank"); // Open the invoice in a new tab
                 }
-                setMockPaymentVisible(false); // Hide modal
+                setMockPaymentVisible(false);
             })
             .catch((error) => {
                 console.error("Error placing order:", error);
@@ -145,13 +146,12 @@ const Cart = () => {
             });
     };
 
-    // Cancel Payment
     const handleCancelPayment = () => {
-        setMockPaymentVisible(false); // Hide modal
+        setMockPaymentVisible(false);
     };
 
-    if (loading) return <p>Loading cart items...</p>;
-    if (error) return <p>Error: {error}</p>;
+    if (loading) return <p style={styles.message}>Loading cart items...</p>;
+    if (error) return <p style={styles.error}>Error: {error}</p>;
 
     return (
         <div style={styles.container}>
@@ -205,8 +205,12 @@ const Cart = () => {
             {mockPaymentVisible && (
                 <div style={styles.modal}>
                     <p>Do you want to confirm the payment?</p>
-                    <button onClick={handleConfirmPayment}>Yes</button>
-                    <button onClick={handleCancelPayment}>No</button>
+                    <button onClick={handleConfirmPayment} style={styles.confirmButton}>
+                        Yes
+                    </button>
+                    <button onClick={handleCancelPayment} style={styles.cancelButton}>
+                        No
+                    </button>
                 </div>
             )}
         </div>
@@ -214,17 +218,114 @@ const Cart = () => {
 };
 
 const styles = {
-    // Add your styles here
+    container: {
+        padding: "20px",
+        fontFamily: "Arial, sans-serif",
+        color: "#333",
+    },
+    heading: {
+        textAlign: "center",
+        marginBottom: "20px",
+        color: "#444",
+    },
+    cart: {
+        display: "flex",
+        justifyContent: "space-between",
+    },
+    cartItems: {
+        width: "60%",
+    },
+    cartItem: {
+        display: "flex",
+        alignItems: "center",
+        marginBottom: "15px",
+        padding: "10px",
+        border: "1px solid #ddd",
+        borderRadius: "5px",
+    },
+    itemImage: {
+        width: "100px",
+        height: "100px",
+        marginRight: "15px",
+        borderRadius: "5px",
+    },
+    itemDetails: {
+        flex: 1,
+    },
+    removeButton: {
+        backgroundColor: "#ff4d4d",
+        color: "white",
+        border: "none",
+        padding: "8px 12px",
+        borderRadius: "5px",
+        cursor: "pointer",
+    },
+    cartSummary: {
+        width: "35%",
+        padding: "15px",
+        border: "1px solid #ddd",
+        borderRadius: "5px",
+        backgroundColor: "#f9f9f9",
+    },
+    summaryItem: {
+        display: "flex",
+        justifyContent: "space-between",
+        marginBottom: "10px",
+    },
+    total: {
+        display: "flex",
+        justifyContent: "space-between",
+        marginTop: "20px",
+        fontSize: "1.2em",
+        fontWeight: "bold",
+    },
+    checkoutButton: {
+        width: "100%",
+        backgroundColor: "#4CAF50",
+        color: "white",
+        border: "none",
+        padding: "10px",
+        marginTop: "15px",
+        borderRadius: "5px",
+        cursor: "pointer",
+        fontSize: "1em",
+    },
     modal: {
         position: "fixed",
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
-        backgroundColor: "#fff",
+        backgroundColor: "white",
         padding: "20px",
         borderRadius: "10px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
+    },
+    confirmButton: {
+        backgroundColor: "#4CAF50",
+        color: "white",
+        border: "none",
+        padding: "10px 15px",
+        marginRight: "10px",
+        borderRadius: "5px",
+        cursor: "pointer",
+    },
+    cancelButton: {
+        backgroundColor: "#ff4d4d",
+        color: "white",
+        border: "none",
+        padding: "10px 15px",
+        borderRadius: "5px",
+        cursor: "pointer",
+    },
+    message: {
         textAlign: "center",
+        fontSize: "1.2em",
+        color: "#666",
+    },
+    error: {
+        textAlign: "center",
+        fontSize: "1.2em",
+        color: "#d9534f",
     },
 };
 

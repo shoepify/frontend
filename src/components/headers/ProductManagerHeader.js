@@ -40,25 +40,29 @@ const ProductManagerHeader = () => {
             <div className="header-container">
                 {/* Logo */}
                 <Link to="/" className="logo">
-                    My Shoe Store
+                    Store
                 </Link>
 
                 {/* Navigation Links */}
                 <nav className="nav-buttons">
                     <Link to="/comments" className="nav-button">
-                        Manage Comments
+                        Comments
                     </Link>
                     <div className="divider" />
                     <Link to="/manage-products" className="nav-button">
-                        View Products
+                        Products
                     </Link>
                     <div className="divider" />
                     <Link to="/manage-products/add" className="nav-button">
-                        Add Products
+                        Products
                     </Link>
                     <div className="divider" />
                     <Link to="/product_manager/orders" className="nav-button">
-                        Manage Orders
+                        Orders
+                    </Link>
+                    <div className="divider" />
+                    <Link to="/manage_categories" className="nav-button">
+                        Categories
                     </Link>
                 </nav>
 
