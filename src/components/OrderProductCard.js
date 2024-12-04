@@ -1,18 +1,39 @@
-import React, { useState } from "react";
-import '../styles/OrderProductCard.css';
+import React, { useState, useEffect } from "react";
+import "../styles/OrderProductCard.css";
 
 const OrderProductCard = ({ product }) => {
+    const [productDetails, setProductDetails] = useState(product);
     const [comment, setComment] = useState("");
     const [rating, setRating] = useState(0);
+    const [loading, setLoading] = useState(!product.price); // Fetch details only if price is missing
 
-    // Handle comment submission
+    useEffect(() => {
+        if (!product.price) {
+            fetch(`http://localhost:8000/products/${product.product_id}/`)
+                .then((response) => {
+                    if (!response.ok) throw new Error("Failed to fetch product details");
+                    return response.json();
+                })
+                .then((data) => {
+                    setProductDetails(data);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    console.error("Error fetching product details:", err);
+                    setLoading(false);
+                });
+        } else {
+            setLoading(false);
+        }
+    }, [product]);
+
     const handleAddComment = () => {
         if (!comment.trim()) {
             alert("Comment cannot be empty.");
             return;
         }
 
-        fetch(`http://localhost:8000/products/${product.product_id}/add_comment/`, {
+        fetch(`http://localhost:8000/products/${productDetails.product_id}/add_comment/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -28,7 +49,7 @@ const OrderProductCard = ({ product }) => {
             })
             .then(() => {
                 alert("Your comment has been submitted and is awaiting approval.");
-                setComment(""); // Clear comment field
+                setComment("");
             })
             .catch((error) => {
                 console.error("Error submitting comment:", error);
@@ -36,14 +57,13 @@ const OrderProductCard = ({ product }) => {
             });
     };
 
-    // Handle rating submission
     const handleAddRating = () => {
         if (rating < 1 || rating > 5) {
             alert("Please select a rating between 1 and 5.");
             return;
         }
 
-        fetch(`http://localhost:8000/products/${product.product_id}/add_rating/`, {
+        fetch(`http://localhost:8000/products/${productDetails.product_id}/add_rating/`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -59,7 +79,7 @@ const OrderProductCard = ({ product }) => {
             })
             .then(() => {
                 alert(`You rated this product ${rating} stars!`);
-                setRating(0); // Clear rating field
+                setRating(0);
             })
             .catch((error) => {
                 console.error("Error submitting rating:", error);
@@ -67,15 +87,22 @@ const OrderProductCard = ({ product }) => {
             });
     };
 
+    if (loading) return <div>Loading product details...</div>;
+
     return (
         <div className="order-product-card">
             <div className="order-product-info">
-                <h4>{product.product_model}</h4>
-                <p>Price: ${parseFloat(product.price).toFixed(2)}</p>
+                <img
+                    src={`/images/${productDetails.image_name}`}
+                    alt={productDetails.model}
+                    className="product-image"
+                    style={{ width: "150px", height: "150px", objectFit: "cover" }} // Image size adjustment
+                />
+                <h4>{productDetails.model}</h4>
+                <p>Price: ${parseFloat(productDetails.price).toFixed(2)}</p>
                 <p>Quantity: {product.quantity}</p>
             </div>
 
-            {/* Add Comment Section */}
             <div className="add-comment">
                 <textarea
                     value={comment}
@@ -88,7 +115,6 @@ const OrderProductCard = ({ product }) => {
                 </button>
             </div>
 
-            {/* Add Rating Section */}
             <div className="add-rating">
                 <label htmlFor="rating">Rate this product:</label>
                 <select
