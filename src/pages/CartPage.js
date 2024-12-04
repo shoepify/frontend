@@ -112,6 +112,11 @@ const Cart = () => {
     };
 
     const handleProceedToPayment = () => {
+        if (isGuest) {
+            alert("You need to sign up or log in to complete the payment.");
+            navigate("/login");
+            return;
+        }
         fetch(`http://127.0.0.1:8000/check_cart/${userId}/`)
             .then((response) => response.json())
             .then((data) => {
@@ -128,12 +133,7 @@ const Cart = () => {
     };
 
     const handleConfirmPayment = () => {
-        if (isGuest) {
-            alert("You need to sign up or log in to complete the payment.");
-            navigate("/login");
-            return;
-        }
-
+       
         fetch(`http://127.0.0.1:8000/order/place/${userId}/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
