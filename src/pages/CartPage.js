@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Table, Button, Modal, Image, Typography, Alert, Spin, Card } from "antd";
 import { ShoppingCartOutlined, DeleteOutlined } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const Cart = () => {
     const [cartItems, setCartItems] = useState([]);
@@ -164,9 +164,16 @@ const Cart = () => {
         },
         {
             title: "Image",
-            dataIndex: "image_url",
-            key: "image_url",
-            render: (text) => <Image src={text || "https://via.placeholder.com/150"} width={50} />,
+            dataIndex: "image_name",
+            key: "image_name",
+            render: (imageName) => (
+                <Image
+                    src={`/images/${imageName}`}
+                    alt={imageName}
+                    width={50}
+                    fallback="https://via.placeholder.com/50"
+                />
+            ),
         },
         {
             title: "Quantity",

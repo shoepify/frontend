@@ -63,7 +63,7 @@ const HeaderComponent = () => {
                     <Button icon={<MenuOutlined />} style={{ marginRight: 15 }} />
                 </Dropdown>
                 <Link to="/" style={{ fontSize: "1.5rem", fontWeight: "bold", textDecoration: "none", color: "#000" }}>
-                    My Shoe Store
+                    My Bag Store
                 </Link>
             </div>
 

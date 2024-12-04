@@ -42,9 +42,10 @@ const ProductDetailPage = () => {
                     <Row gutter={[16, 16]}>
                         <Col xs={24} sm={12}>
                             <Image
-                                src={product.image_url || 'https://via.placeholder.com/150'}
+                                src={`/images/${product.image_name}`} // Updated to fetch from public/images
                                 alt={product.model}
                                 width="100%"
+                                fallback="https://via.placeholder.com/150" // Fallback in case the image is missing
                             />
                         </Col>
                         <Col xs={24} sm={12}>

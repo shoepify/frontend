@@ -1,27 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
 import { Card, Button, InputNumber, Tag, Image } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 import "../styles/ProductCard.css";
 
 const ProductCard = ({ product }) => {
-    const [popularityScore, setPopularityScore] = useState(product.popularity_score || 0);
-    const [averageRating, setAverageRating] = useState(product.avg_rating || 0);
-    const [quantity, setQuantity] = useState(1);
-
-    useEffect(() => {
-        fetch(`http://localhost:8000/products/${product.product_id}/popularity/`)
-            .then((response) => response.json())
-            .then((data) => setPopularityScore(data.popularity_score || 0))
-            .catch((error) => console.error("Error fetching popularity score:", error));
-    }, [product.product_id]);
-
-    useEffect(() => {
-        fetch(`http://localhost:8000/products/${product.product_id}/rating/`)
-            .then((response) => response.json())
-            .then((data) => setAverageRating(data.avg_rating || 0))
-            .catch((error) => console.error("Error fetching average rating:", error));
-    }, [product.product_id]);
+    const [quantity, setQuantity] = React.useState(1);
 
     const handleAddToCart = () => {
         const guestId = sessionStorage.getItem("guest_id");
@@ -68,7 +52,7 @@ const ProductCard = ({ product }) => {
             style={{ width: 300, margin: "20px" }}
             cover={
                 <Image
-                    src={product.image_url || "https://via.placeholder.com/300"}
+                    src={`/images/${product.image_name}`} // public/images içinden doğrudan erişim
                     alt={product.model}
                     style={{ height: 200, objectFit: "cover" }}
                 />
@@ -80,10 +64,10 @@ const ProductCard = ({ product }) => {
                 </Tag>
             </p>
             <p>
-                <Tag color="blue">Popularity: {popularityScore}</Tag>
+                <Tag color="blue">Popularity: {parseFloat(product.popularity_score).toFixed(2)}</Tag>
             </p>
             <p>
-                <Tag color="gold">Average Rating: {averageRating} / 5</Tag>
+                <Tag color="gold">Average Rating: {parseFloat(product.avg_rating).toFixed(2)} / 5</Tag>
             </p>
             <p>Price: ${parseFloat(product.price).toFixed(2)}</p>
             <div style={{ marginBottom: "10px" }}>
