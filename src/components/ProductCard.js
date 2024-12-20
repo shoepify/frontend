@@ -1,11 +1,12 @@
 import React from "react";
 import { Card, Button, InputNumber, Tag, Image } from "antd";
-import { ShoppingCartOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { ShoppingCartOutlined, HeartOutlined } from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
 import "../styles/ProductCard.css";
 
 const ProductCard = ({ product }) => {
     const [quantity, setQuantity] = React.useState(1);
+    const navigate = useNavigate();
 
     const handleAddToCart = () => {
         const guestId = sessionStorage.getItem("guest_id");
@@ -42,6 +43,36 @@ const ProductCard = ({ product }) => {
             .catch((error) => {
                 console.error("Error adding to cart:", error);
                 alert("Failed to add product to cart. Please try again.");
+            });
+    };
+
+    const handleAddToWishlist = () => {
+        const customerId = sessionStorage.getItem("customerId");
+
+        if (!customerId) {
+            alert("You need to be logged in as a customer to add items to the wishlist.");
+            return;
+        }
+
+        const url = `http://localhost:8000/wishlist/${customerId}/add/${product.product_id}/`;
+
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => {
+                if (!response.ok) throw new Error("Failed to add to wishlist");
+                return response.json();
+            })
+            .then(() => {
+                alert("Product successfully added to wishlist!");
+            
+            })
+            .catch((error) => {
+                console.error("Error adding to wishlist:", error);
+                alert("Failed to add product to wishlist. Please try again.");
             });
     };
 
@@ -88,6 +119,14 @@ const ProductCard = ({ product }) => {
                 style={{ marginBottom: "10px", width: "100%" }}
             >
                 Add to Cart
+            </Button>
+            <Button
+                type="default"
+                icon={<HeartOutlined />}
+                onClick={handleAddToWishlist}
+                style={{ marginBottom: "10px", width: "100%" }}
+            >
+                Add to Wishlist
             </Button>
             <Link to={`/products/${product.product_id}`}>
                 <Button type="default" style={{ width: "100%" }}>

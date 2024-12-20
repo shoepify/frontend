@@ -4,7 +4,7 @@ import GuestHeader from "../components/headers/GuestHeader";
 import CustomerHeader from "../components/headers/CustomerHeader";
 import SalesManagerHeader from "../components/headers/SalesManagerHeader";
 import ProductManagerHeader from "../components/headers/ProductManagerHeader";
-import OrderProductCard from "../components/OrderProductCard"
+import OrderProductCard from "../components/OrderProductCard";
 import AdminHeader from "../components/headers/AdminHeader";
 import Footer from "../components/Footer";
 import HomePage from "./HomePage";
@@ -23,10 +23,10 @@ import ProductManagerProductPage from "./ProductManagerProductPage";
 import AddProductPage from "./AddProductPage";
 import ProductManagerComments from "./ProductManagerComments";
 import ApprovedComments from "./ApprovedComments";
-import ProfileDetails from "./ProfileDetail"; // Import the ProfileDetails component
-import GetOrders from "./GetOrders"; // Import the GetOrders component
+import ProfileDetails from "./ProfileDetail";
+import GetOrders from "./GetOrders";
 import ProductManagerOrders from "./ProductManagerOrders";
-import ProductManagerCategories from "./ProductManagerCategories"
+import ProductManagerCategories from "./ProductManagerCategories";
 
 const App = () => {
     const { userRole } = useUser(); // Get the current role
@@ -54,7 +54,7 @@ const App = () => {
         <>
             <Route path="/" element={<HomePage />} />
             <Route path="/products/:productId" element={<ProductDetailPage />} />
-            <Route path="/favorites" element={<FavoritesPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} /> {/* Favorites page route */}
             <Route path="/cart" element={<CartPage />} />
             <Route path="/search" element={<SearchResultPage />} />
             <Route path="/categories/:category" element={<CategoryPage />} />
@@ -84,7 +84,7 @@ const App = () => {
                         <>
                             {commonRoutes}
                             <Route path="/profile" element={<Profile />} />
-
+                            <Route path="/favorites" element={<FavoritesPage />} /> {/* Route for Favorites page */}
                             <Route path="/profile/:customerId" element={<ProfileDetails />} /> {/* ProfileDetails route for customers */}
                             <Route path="/orders/:customerId" element={<GetOrders />} /> {/* Orders route */}
                             <Route path="/customer_order_products" element={<OrderProductCard />} />
@@ -106,7 +106,7 @@ const App = () => {
                             <Route path="/manage-products/add" element={<AddProductPage />} />
                             <Route path="/comments" element={<ProductManagerComments />} />
                             <Route path="/product_manager/orders" element={<ProductManagerOrders />} />
-                            <Route path="/manage_categories" element = {<ProductManagerCategories />} />
+                            <Route path="/manage_categories" element={<ProductManagerCategories />} />
                         </>
                     )}
 

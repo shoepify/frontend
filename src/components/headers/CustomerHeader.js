@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Layout, Menu, Input, Dropdown, Button } from "antd";
-import { SearchOutlined, ShoppingCartOutlined, UserOutlined, MenuOutlined } from "@ant-design/icons";
+import { SearchOutlined, ShoppingCartOutlined, UserOutlined, MenuOutlined, HeartOutlined } from "@ant-design/icons";
 import { useUser } from "../../context/UserContext";
 
 const { Header } = Layout;
@@ -105,6 +105,13 @@ const CustomerHeader = () => {
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                <Link to="/favorites">
+                    <Button 
+                        icon={<HeartOutlined />} 
+                        type="text" 
+                        style={{ fontSize: '18px', color: '#000' }} 
+                    />
+                </Link>
                 <Link to="/cart">
                     <Button icon={<ShoppingCartOutlined />} type="text" />
                 </Link>

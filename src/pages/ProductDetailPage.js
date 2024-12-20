@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Card, Image, Alert, Spin, Row, Col } from 'antd';
+import { Typography, Card, Image, Alert, Spin, Row, Col, Space } from 'antd';
+import {
+    BarcodeOutlined,
+    InboxOutlined,
+    SafetyCertificateOutlined,
+    IdcardOutlined,
+    ShopOutlined,
+    FileTextOutlined,
+    DollarOutlined,
+    TagOutlined,
+} from '@ant-design/icons';
 import ApprovedComments from './ApprovedComments';
 
 const { Title, Text } = Typography;
@@ -42,31 +52,40 @@ const ProductDetailPage = () => {
                     <Row gutter={[16, 16]}>
                         <Col xs={24} sm={12}>
                             <Image
-                                src={`/images/${product.image_name}`} // Updated to fetch from public/images
+                                src={`/images/${product.image_name}`}
                                 alt={product.model}
                                 width="100%"
-                                fallback="https://via.placeholder.com/150" // Fallback in case the image is missing
+                                fallback="https://via.placeholder.com/150"
                             />
                         </Col>
                         <Col xs={24} sm={12}>
                             <Title level={3}>{product.model}</Title>
-                            <Text><strong>Serial Number:</strong> {product.serial_number}</Text>
-                            <br />
-                            <Text>
-                                <strong>Stock:</strong> {product.stock > 0 ? product.stock : 'Out of stock'}
-                            </Text>
-                            <br />
-                            <Text><strong>Warranty Status:</strong> {product.warranty_status}</Text>
-                            <br />
-                            <Text><strong>Product Id:</strong> {product.product_id}</Text>
-                            <br />
-                            <Text><strong>Distributor Info:</strong> {product.distributor_info}</Text>
-                            <br />
-                            <Text><strong>Description:</strong> {product.description}</Text>
-                            <br />
-                            <Text><strong>Base Price:</strong> ${parseFloat(product.base_price).toFixed(2)}</Text>
-                            <br />
-                            <Text><strong>Price:</strong> ${parseFloat(product.price).toFixed(2)}</Text>
+                            <Space direction="vertical" size="middle">
+                                <Text>
+                                    <BarcodeOutlined /> <strong>Serial Number:</strong> {product.serial_number}
+                                </Text>
+                                <Text>
+                                    <InboxOutlined /> <strong>Stock:</strong> {product.stock > 0 ? product.stock : 'Out of stock'}
+                                </Text>
+                                <Text>
+                                    <SafetyCertificateOutlined /> <strong>Warranty Status:</strong> {product.warranty_status}
+                                </Text>
+                                <Text>
+                                    <IdcardOutlined /> <strong>Product Id:</strong> {product.product_id}
+                                </Text>
+                                <Text>
+                                    <ShopOutlined /> <strong>Distributor Info:</strong> {product.distributor_info}
+                                </Text>
+                                <Text>
+                                    <FileTextOutlined /> <strong>Description:</strong> {product.description}
+                                </Text>
+                                <Text>
+                                    <DollarOutlined /> <strong>Base Price:</strong> ${parseFloat(product.base_price).toFixed(2)}
+                                </Text>
+                                <Text>
+                                    <TagOutlined /> <strong>Price:</strong> ${parseFloat(product.price).toFixed(2)}
+                                </Text>
+                            </Space>
                         </Col>
                     </Row>
                     <div style={{ marginTop: '40px' }}>
