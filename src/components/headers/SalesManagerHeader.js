@@ -1,23 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShoppingCart, faBars } from "@fortawesome/free-solid-svg-icons";
+import { Layout, Button } from "antd";
+import { MenuOutlined } from "@ant-design/icons";
 import '../../styles/SalesManagerHeader.css';
 import { useUser } from "../../context/UserContext";
 
+const { Header } = Layout;
 
 const SalesManagerHeader = () => {
     const navigate = useNavigate();
-    const { setUserRole } = useUser(); // Ensure this works
+    const { setUserRole } = useUser();
 
     const handleLogout = () => {
-        // Clear user-specific session data
         sessionStorage.clear();
-    
-        // Reset the role in context
         setUserRole("guest");
-    
-        // Fetch new guest session data
+
         fetch("http://127.0.0.1:8000/")
             .then((response) => {
                 if (!response.ok) {
@@ -26,52 +23,54 @@ const SalesManagerHeader = () => {
                 return response.json();
             })
             .then((data) => {
-                // Store new guest info in session storage
                 sessionStorage.setItem("guest_id", data.guest_id);
                 sessionStorage.setItem("session_id", data.session_id);
                 sessionStorage.setItem("created_at", data.created_at);
-    
-                // Navigate to the homepage or guest-specific page
                 navigate("/");
             })
             .catch((error) => {
                 console.error("Error fetching guest info:", error);
-                // Optionally, handle errors (e.g., display an error message)
             });
     };
-    
-
 
     return (
-        <header className="main-header">
-            <div className="header-container">
-                {/* Menu Button */}
-                <button className="nav-toggle">
-                    <FontAwesomeIcon icon={faBars} /> Menu
-                </button>
-
-                {/* Logo */}
-                <Link to="/" className="logo">My Shoe Store</Link>
-
-                {/* Navigation Links (Fixed Sections) */}
-                <nav className="fixed-sections">
-                    <Link to="/header" className="header-button">Header</Link>
-                    <Link to="/products" className="header-button">Products</Link>
-                    <Link to="/discounts" className="header-button">Discounts</Link>
-                    <Link to="/invoices" className="header-button">Invoices</Link>
-                </nav>
-
-                {/* Right Section */}
-                <div className="header-right">
-                    <Link to="/cart" className="icon-button">
-                        <FontAwesomeIcon icon={faShoppingCart} />
-                    </Link>
-                    <button onClick={handleLogout} className="header-button logout-button">
-                        Logout
-                    </button>
-                </div>
+        <Header
+            style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                backgroundColor: "#fff",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                padding: "10px 20px",
+            }}
+        >
+            <div style={{ display: "flex", alignItems: "center" }}>
+                <Button icon={<MenuOutlined />} style={{ marginRight: 15 }} />
+                <Link to="/" style={{ fontSize: "1.5rem", fontWeight: "bold", textDecoration: "none", color: "#000" }}>
+                    Sales Manager
+                </Link>
             </div>
-        </header>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                <Button 
+                    type="primary" 
+                    onClick={() => navigate('/mydiscounts')} 
+                    style={{ fontSize: '16px', fontWeight: 'bold' }}
+                >
+                    My Discounts
+                </Button>
+                <Button 
+                    type="primary" 
+                    onClick={() => navigate('/refunds')} 
+                    style={{ fontSize: '16px', fontWeight: 'bold' }}
+                >
+                    Refunds
+                </Button>
+                <Button onClick={handleLogout} type="text" danger>
+                    Logout
+                </Button>
+            </div>
+        </Header>
     );
 };
 

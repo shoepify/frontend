@@ -27,6 +27,8 @@ import ProfileDetails from "./ProfileDetail";
 import GetOrders from "./GetOrders";
 import ProductManagerOrders from "./ProductManagerOrders";
 import ProductManagerCategories from "./ProductManagerCategories";
+import DiscountPage from "./DiscountPage";
+import RefundPage from "./RefundPage";
 
 const App = () => {
     const { userRole } = useUser(); // Get the current role
@@ -91,12 +93,16 @@ const App = () => {
                         </>
                     )}
 
+                    
                     {/* Sales Manager Routes */}
                     {userRole === "sales_manager" && (
-                        <>
-                            <Route path="/" element={<div>You are a Sales Manager now.</div>} />
-                        </>
+                         <>
+                        <Route path="/" element={<div>You are a Sales Manager now.</div>} />
+                        <Route path="/mydiscounts" element={<DiscountPage />} /> {/* My Discounts Route */}
+                        <Route path="/refunds" element={<RefundPage />} /> {/* My Discounts Route */}
+                         </>
                     )}
+
 
                     {/* Product Manager Routes */}
                     {userRole === "product_manager" && (

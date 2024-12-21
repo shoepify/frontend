@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Table, Spin, Alert, Typography, Button, Modal } from "antd";
+import { Table, Spin, Alert, Typography, Button, Modal, message } from "antd";
 import OrderProductCard from "../components/OrderProductCard";
 
 const { Title } = Typography;
@@ -51,6 +51,27 @@ const GetOrders = () => {
         window.open(url, "_blank"); // Open the invoice URL in a new tab
     };
 
+    // Handle refund request
+    const handleRefundRequest = (orderItemId) => {
+        fetch(`http://localhost:8000/refund/request/${orderItemId}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.status === "success") {
+                    message.success(data.message);
+                } else {
+                    message.error(data.message || "Refund request failed.");
+                }
+            })
+            .catch(() => {
+                message.error("Failed to submit refund request.");
+            });
+    };
+
     if (loading) {
         return (
             <div className="loading-container">
@@ -97,6 +118,19 @@ const GetOrders = () => {
                                     onClick={() => handleViewInvoice(record.order_id)}
                                 >
                                     View Invoice
+                                </Button>
+                                <Button
+                                    type="primary"
+                                    danger
+                                    style={{
+                                        backgroundColor: "#ff4d4f",
+                                        borderColor: "#ff4d4f",
+                                        color: "#fff",
+                                        fontWeight: "bold",
+                                    }}
+                                    onClick={() => handleRefundRequest(record.order_id)}
+                                >
+                                    Request Refund
                                 </Button>
                             </div>
                         ),
