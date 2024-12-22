@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Button, Spin, Alert, Row, Col, Typography, Space, Select } from "antd";
+import { Button, Spin, Alert, Row, Col, Typography, Space, Checkbox, Slider, Carousel } from "antd";
 import ProductCard from "../components/ProductCard";
 
 const { Title } = Typography;
-const { Option } = Select;
 
 const HomePage = () => {
     const [products, setProducts] = useState([]);
@@ -11,7 +10,9 @@ const HomePage = () => {
     const [filteredProducts, setFilteredProducts] = useState([]); // Filtered products
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedCategory, setSelectedCategory] = useState("All"); // Category filter
+    const [priceRange, setPriceRange] = useState([0, 1000]); // Default price range
+    const [starRange, setStarRange] = useState([0, 5]); // Default star range
+    const [selectedCategories, setSelectedCategories] = useState([]); // Selected categories
 
     // Fetch all products from the backend
     useEffect(() => {
@@ -45,55 +46,128 @@ const HomePage = () => {
         setSortedProducts(sorted);
     };
 
-    // Filter products by category
-    const handleFilterByCategory = (category) => {
-        setSelectedCategory(category);
-        if (category === "All") {
-            setFilteredProducts(products);
-            setSortedProducts(products);
-        } else {
-            const filtered = products.filter((product) => product.category === category);
-            setFilteredProducts(filtered);
-            setSortedProducts(filtered);
+    // Handle price range filter
+    const handlePriceRangeChange = (value) => {
+        setPriceRange(value);
+        filterProducts(value, starRange, selectedCategories);
+    };
+
+    // Handle star rating range filter
+    const handleStarRangeChange = (value) => {
+        setStarRange(value);
+        filterProducts(priceRange, value, selectedCategories);
+    };
+
+    // Handle category filter
+    const handleCategoryChange = (checkedValues) => {
+        setSelectedCategories(checkedValues);
+        filterProducts(priceRange, starRange, checkedValues);
+    };
+
+    // Apply all filters
+    const filterProducts = (price, stars, categories) => {
+        let filtered = products;
+
+        // Filter by price range
+        filtered = filtered.filter((product) => product.price >= price[0] && product.price <= price[1]);
+
+        // Filter by star rating range
+        filtered = filtered.filter(
+            (product) => product.popularity_score >= stars[0] && product.popularity_score <= stars[1]
+        );
+
+        // Filter by selected categories
+        if (categories.length > 0) {
+            filtered = filtered.filter((product) => categories.includes(product.category));
         }
+
+        setFilteredProducts(filtered);
+        setSortedProducts(filtered);
     };
 
     if (loading) return <Spin tip="Loading products..." style={{ display: "block", margin: "20px auto" }} />;
     if (error) return <Alert message="Error" description={error.message} type="error" showIcon style={{ margin: "20px" }} />;
 
     // Extract unique categories
-    const categories = ["All", ...new Set(products.map((product) => product.category))];
+    const categories = [...new Set(products.map((product) => product.category))];
+
+    // Determine min and max values for price and stars
+    const maxPrice = Math.max(...products.map((product) => product.price), 1000);
+    const minStars = 0;
+    const maxStars = 5;
+
+    const bannerImages = [
+        "/images/banner1.jpg",
+        "/images/banner2.jpg",
+        "/images/banner3.jpg",
+        "/images/banner4.jpg",
+        "/images/banner5.jpg",
+    ];
 
     return (
         <div style={{ padding: "20px" }}>
-            <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
-                Featured Products
-            </Title>
+            {/* Banner */}
+            <Carousel autoplay>
+                {bannerImages.map((src, index) => (
+                    <div key={index}>
+                        <img src={src} alt={`Banner ${index + 1}`} style={{ width: "100%", height: "400px", objectFit: "cover" }} />
+                    </div>
+                ))}
+            </Carousel>
 
-            {/* Sort and Filter Options */}
-            <Space style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }} wrap>
-                <Select
-                    value={selectedCategory}
-                    onChange={handleFilterByCategory}
-                    style={{ width: "200px" }}
-                    placeholder="Filter by Category"
-                >
-                    {categories.map((category) => (
-                        <Option key={category} value={category}>
-                            {category}
-                        </Option>
-                    ))}
-                </Select>
-                <Button type="primary" onClick={() => handleSort("popularity_score")}>
-                    Sort by Popularity
-                </Button>
-                <Button type="primary" onClick={() => handleSort("price")}>
-                    Sort by Price
-                </Button>
+            {/* Filters and Sorting */}
+            <Space direction="vertical" size="small" style={{ display: "block", margin: "20px 0" }}>
+                {/* Category Filters */}
+                <Checkbox.Group
+                    options={categories.map((category) => ({ label: category, value: category }))}
+                    onChange={handleCategoryChange}
+                    style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}
+                />
+
+                {/* Price and Star Range Filters */}
+                <Space style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    {/* Price Range */}
+                    <div style={{ flex: 1, marginRight: "10px" }}>
+                        <Title level={5}>Price Range</Title>
+                        <Slider
+                            range
+                            min={0}
+                            max={maxPrice}
+                            value={priceRange}
+                            onChange={handlePriceRangeChange}
+                            tooltip={{ formatter: (value) => `$${value}` }}
+                            style={{ height: "30px" }}
+                        />
+                    </div>
+
+                    {/* Star Range */}
+                    <div style={{ flex: 1 }}>
+                        <Title level={5}>Star Rating</Title>
+                        <Slider
+                            range
+                            min={minStars}
+                            max={maxStars}
+                            value={starRange}
+                            onChange={handleStarRangeChange}
+                            tooltip={{ formatter: (value) => `${value} Stars` }}
+                            style={{ height: "30px" }}
+                        />
+                    </div>
+                </Space>
+
+                {/* Sort Options */}
+                <Space>
+                    <Button type="primary" onClick={() => handleSort("popularity_score")}>
+                        Sort by Popularity
+                    </Button>
+                    <Button type="primary" onClick={() => handleSort("price")}>
+                        Sort by Price
+                    </Button>
+                </Space>
             </Space>
 
             {/* Product Grid */}
-            <Row gutter={[24, 24]}>
+            <Row gutter={[16, 16]}>
                 {sortedProducts.map((product) => (
                     <Col key={product.product_id} xs={24} sm={12} md={8} lg={6}>
                         <ProductCard product={product} />

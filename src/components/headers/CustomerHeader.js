@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Layout, Menu, Input, Dropdown, Button } from "antd";
-import { SearchOutlined, ShoppingCartOutlined, UserOutlined, MenuOutlined, HeartOutlined } from "@ant-design/icons";
+import { Layout, Menu, Input, Dropdown, Button, Space } from "antd";
+import { SearchOutlined, ShoppingCartOutlined, UserOutlined, MenuOutlined, HeartOutlined, PhoneOutlined, FacebookOutlined, InstagramOutlined } from "@ant-design/icons";
 import { useUser } from "../../context/UserContext";
+import { useTranslation } from "react-i18next";
 
 const { Header } = Layout;
 
 const CustomerHeader = () => {
+    const { t, i18n } = useTranslation(); // useTranslation hook
     const [showCategories, setShowCategories] = useState(false);
     const [categories, setCategories] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -57,6 +59,10 @@ const CustomerHeader = () => {
             .catch((error) => console.error("Error fetching guest info:", error));
     };
 
+    const changeLanguage = (lang) => {
+        i18n.changeLanguage(lang); // Change language
+    };
+
     const menu = (
         <Menu>
             {categories.map((category, index) => (
@@ -77,51 +83,96 @@ const CustomerHeader = () => {
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                 padding: "10px 20px",
                 position: "relative",
-                top: "-10px", // Adjust header slightly upwards
             }}
         >
+            {/* Logo Section */}
             <div style={{ display: "flex", alignItems: "center" }}>
                 <Dropdown overlay={menu} visible={showCategories} onVisibleChange={toggleCategories} trigger={["click"]}>
                     <Button icon={<MenuOutlined />} style={{ marginRight: 15 }} />
                 </Dropdown>
-                <Link to="/" style={{ fontSize: "1.5rem", fontWeight: "bold", textDecoration: "none", color: "#000" }}>
-                    My Bag Store
+                <Link to="/">
+                    <img
+                        src="/images/logo1.jpg"
+                        alt="Bag Store Logo"
+                        style={{ height: "80px", objectFit: "contain" }} // Enlarged logo size
+                    />
                 </Link>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", flex: 1, marginLeft: 20 }}>
-                <form onSubmit={handleSearch} style={{ flex: 1, display: "flex", marginRight: 20, maxWidth: "50%" }}>
+            {/* Search Bar */}
+            <div style={{ flex: 1, marginLeft: 20, marginRight: 20 }}>
+                <form onSubmit={handleSearch} style={{ display: "flex", alignItems: "center" }}>
                     <Input
-                        placeholder="Search"
+                        placeholder={t("searchPlaceholder")} // Dynamic translation
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{
+                            borderRadius: "15px",
+                            border: "1px solid #ccc",
+                            padding: "5px 10px",
+                            flex: 1,
+                            marginRight: "10px",
+                            maxWidth: "300px", // Compact search bar width
+                        }}
                         prefix={<SearchOutlined />}
-                        style={{ width: "100%", marginRight: 10 }}
                     />
-                    <Button type="primary" htmlType="submit">
-                        Search
+                    <Button type="primary" htmlType="submit" style={{ borderRadius: "15px" }}>
+                        {t("search")} {/* Translate button */}
                     </Button>
                 </form>
             </div>
 
+            {/* Contact, Language, Social Media, and Actions */}
             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                {/* Phone Number */}
+                <Space style={{ marginRight: 20, fontSize: "16px" }}>
+                    <PhoneOutlined />
+                    <span>+123 456 789</span>
+                </Space>
+
+                {/* Language Selector */}
+                <Space>
+                    <Button type="link" onClick={() => changeLanguage("tr")} style={{ padding: "0 10px", fontSize: "16px" }}>
+                        TR
+                    </Button>
+                    <Button type="link" onClick={() => changeLanguage("en")} style={{ padding: "0 10px", fontSize: "16px" }}>
+                        EN
+                    </Button>
+                    <Button type="link" onClick={() => changeLanguage("fr")} style={{ padding: "0 10px", fontSize: "16px" }}>
+                        FR
+                    </Button>
+                </Space>
+
+                {/* Social Media */}
+                <Space>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                        <FacebookOutlined style={{ fontSize: "20px", color: "#3b5998" }} />
+                    </a>
+                    <a href="https://www.instagram.com/mert_ulu/" target="_blank" rel="noopener noreferrer">
+                        <InstagramOutlined style={{ fontSize: "20px", color: "#C13584" }} />
+                    </a>
+                </Space>
+
+                {/* Favorites */}
                 <Link to="/favorites">
-                    <Button 
-                        icon={<HeartOutlined />} 
-                        type="text" 
-                        style={{ fontSize: '18px', color: '#000' }} 
-                    />
+                    <Button icon={<HeartOutlined />} type="text" style={{ fontSize: "18px", color: "#000" }} />
                 </Link>
+
+                {/* Cart */}
                 <Link to="/cart">
                     <Button icon={<ShoppingCartOutlined />} type="text" />
                 </Link>
+
+                {/* Profile */}
                 <Link to="/profile">
                     <Button icon={<UserOutlined />} type="text">
-                        Profile
+                        {t("profile")} {/* Dynamic translation */}
                     </Button>
                 </Link>
+
+                {/* Logout */}
                 <Button onClick={handleLogout} type="text" danger>
-                    Logout
+                    {t("logout")} {/* Dynamic translation */}
                 </Button>
             </div>
         </Header>

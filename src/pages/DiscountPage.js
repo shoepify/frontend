@@ -14,11 +14,11 @@ const DiscountPage = () => {
     const fetchDiscounts = () => {
         setLoading(true);
         axios
-            .get("http://localhost:8000/get_discount/1/") // Fetch discounts based on API
+            .get("http://localhost:8000/get_all_discounts/") // Fetch all discounts
             .then((response) => {
-                const discountData = response.data.discount;
-                if (discountData) {
-                    setDiscounts([discountData]); // Set a single discount for now
+                const discountData = response.data.discounts;
+                if (discountData && Array.isArray(discountData)) {
+                    setDiscounts(discountData); // Set all discounts
                 } else {
                     setDiscounts([]);
                 }

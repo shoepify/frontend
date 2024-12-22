@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Layout, Menu, Input, Dropdown, Button } from "antd";
-import { MenuOutlined, ShoppingCartOutlined, HeartOutlined, UserAddOutlined, LoginOutlined } from "@ant-design/icons";
+import { Layout, Menu, Input, Dropdown, Button, Space } from "antd";
+import {
+    SearchOutlined,
+    ShoppingCartOutlined,
+    MenuOutlined,
+    PhoneOutlined,
+    FacebookOutlined,
+    InstagramOutlined,
+    UserAddOutlined,
+    LoginOutlined,
+} from "@ant-design/icons";
 
 const { Header } = Layout;
 
-const HeaderComponent = () => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+const GuestHeader = () => {
     const [showCategories, setShowCategories] = useState(false);
     const [categories, setCategories] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -14,7 +22,6 @@ const HeaderComponent = () => {
 
     const toggleCategories = () => setShowCategories(!showCategories);
 
-    // Fetch categories from the backend
     useEffect(() => {
         fetch("http://localhost:8000/products/")
             .then((response) => {
@@ -56,57 +63,98 @@ const HeaderComponent = () => {
                 backgroundColor: "#fff",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                 padding: "10px 20px",
+                position: "relative",
             }}
         >
+            {/* Logo Section */}
             <div style={{ display: "flex", alignItems: "center" }}>
                 <Dropdown overlay={menu} visible={showCategories} onVisibleChange={toggleCategories} trigger={["click"]}>
                     <Button icon={<MenuOutlined />} style={{ marginRight: 15 }} />
                 </Dropdown>
-                <Link to="/" style={{ fontSize: "1.5rem", fontWeight: "bold", textDecoration: "none", color: "#000" }}>
-                    My Bag Store
+                <Link to="/">
+                    <img
+                        src="/images/logo1.jpg"
+                        alt="Bag Store Logo"
+                        style={{ height: "80px", objectFit: "contain" }} // Enlarged logo size
+                    />
                 </Link>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", flex: 1, marginLeft: 20 }}>
-                <form onSubmit={handleSearch} style={{ flex: 1, display: "flex", marginRight: 20, maxWidth: "50%" }}>
+            {/* Search Bar */}
+            <div style={{ flex: 1, marginLeft: 20, marginRight: 20 }}>
+                <form onSubmit={handleSearch} style={{ display: "flex", alignItems: "center" }}>
                     <Input
                         placeholder="Search"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        prefix={<HeartOutlined />}
-                        style={{ width: "100%", marginRight: 10 }}
+                        style={{
+                            borderRadius: "15px",
+                            border: "1px solid #ccc",
+                            padding: "5px 10px",
+                            flex: 1,
+                            marginRight: "10px",
+                            maxWidth: "300px", // Compact search bar width
+                        }}
+                        prefix={<SearchOutlined />}
                     />
-                    <Button type="primary" htmlType="submit">
+                    <Button type="primary" htmlType="submit" style={{ borderRadius: "15px" }}>
                         Search
                     </Button>
                 </form>
             </div>
 
+            {/* Contact, Language, Social Media, and Actions */}
             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                {/* Phone Number */}
+                <Space style={{ marginRight: 20, fontSize: "16px" }}>
+                    <PhoneOutlined />
+                    <span>+123 456 789</span>
+                </Space>
+
+                {/* Language Selector (No translation functionality) */}
+                <Space>
+                    <Button type="link" style={{ padding: "0 10px", fontSize: "16px" }}>
+                        TR
+                    </Button>
+                    <Button type="link" style={{ padding: "0 10px", fontSize: "16px" }}>
+                        EN
+                    </Button>
+                    <Button type="link" style={{ padding: "0 10px", fontSize: "16px" }}>
+                        FR
+                    </Button>
+                </Space>
+
+                {/* Social Media */}
+                <Space>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                        <FacebookOutlined style={{ fontSize: "20px", color: "#3b5998" }} />
+                    </a>
+                    <a href="https://www.instagram.com/mert_ulu/" target="_blank" rel="noopener noreferrer">
+                        <InstagramOutlined style={{ fontSize: "20px", color: "#C13584" }} />
+                    </a>
+                </Space>
+
+                {/* Cart */}
                 <Link to="/cart">
                     <Button icon={<ShoppingCartOutlined />} type="text" />
                 </Link>
-                {!isLoggedIn ? (
-                    <>
-                        <Link to="/signup">
-                            <Button icon={<UserAddOutlined />} type="text">
-                                Sign Up
-                            </Button>
-                        </Link>
-                        <Link to="/login">
-                            <Button icon={<LoginOutlined />} type="text">
-                                Login
-                            </Button>
-                        </Link>
-                    </>
-                ) : (
-                    <Button onClick={() => setIsLoggedIn(false)} type="text" danger>
-                        Logout
-                    </Button>
-                )}
+
+                {/* Login and Sign Up */}
+                <Space>
+                    <Link to="/signup">
+                        <Button icon={<UserAddOutlined />} type="text">
+                            Sign Up
+                        </Button>
+                    </Link>
+                    <Link to="/login">
+                        <Button icon={<LoginOutlined />} type="text">
+                            Login
+                        </Button>
+                    </Link>
+                </Space>
             </div>
         </Header>
     );
 };
 
-export default HeaderComponent;
+export default GuestHeader;

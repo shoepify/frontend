@@ -59,10 +59,15 @@ const GetOrders = () => {
                 "Content-Type": "application/json",
             },
         })
-            .then((response) => response.json())
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Failed to submit refund request.");
+                }
+                return response.json();
+            })
             .then((data) => {
                 if (data.status === "success") {
-                    message.success(data.message);
+                    message.success(`${data.message} (Refund ID: ${data.refund_id})`);
                 } else {
                     message.error(data.message || "Refund request failed.");
                 }

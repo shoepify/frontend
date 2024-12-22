@@ -54,6 +54,13 @@ const SalesManagerHeader = () => {
             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
                 <Button 
                     type="primary" 
+                    onClick={() => navigate('/sales-dashboard')} // Added navigation to Sales Dashboard
+                    style={{ fontSize: '16px', fontWeight: 'bold' }}
+                >
+                    Dashboard
+                </Button>
+                <Button 
+                    type="primary" 
                     onClick={() => navigate('/mydiscounts')} 
                     style={{ fontSize: '16px', fontWeight: 'bold' }}
                 >
