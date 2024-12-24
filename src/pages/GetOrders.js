@@ -77,6 +77,37 @@ const GetOrders = () => {
             });
     };
 
+    // Handle cancel order
+    const handleCancelOrder = (orderId) => {
+        Modal.confirm({
+            title: "Are you sure you want to cancel this order?",
+            content: "This action cannot be undone.",
+            okText: "Yes, Cancel",
+            cancelText: "No",
+            onOk: () => {
+                fetch(`http://localhost:8000/order/cancel/${orderId}/`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error("Failed to cancel order.");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        message.success(data.message || "Order successfully cancelled.");
+                        setOrders((prevOrders) => prevOrders.filter((order) => order.order_id !== orderId));
+                    })
+                    .catch(() => {
+                        message.error("Failed to cancel order.");
+                    });
+            },
+        });
+    };
+
     if (loading) {
         return (
             <div className="loading-container">
@@ -112,16 +143,10 @@ const GetOrders = () => {
                         key: "actions",
                         render: (_, record) => (
                             <div style={{ display: "flex", gap: "10px" }}>
-                                <Button
-                                    type="primary"
-                                    onClick={() => handleViewProducts(record.items)}
-                                >
+                                <Button type="primary" onClick={() => handleViewProducts(record.items)}>
                                     View Products
                                 </Button>
-                                <Button
-                                    type="default"
-                                    onClick={() => handleViewInvoice(record.order_id)}
-                                >
+                                <Button type="default" onClick={() => handleViewInvoice(record.order_id)}>
                                     View Invoice
                                 </Button>
                                 <Button
@@ -136,6 +161,13 @@ const GetOrders = () => {
                                     onClick={() => handleRefundRequest(record.order_id)}
                                 >
                                     Request Refund
+                                </Button>
+                                <Button
+                                    type="default"
+                                    danger
+                                    onClick={() => handleCancelOrder(record.order_id)}
+                                >
+                                    Cancel Order
                                 </Button>
                             </div>
                         ),

@@ -108,7 +108,7 @@ const GuestHeader = () => {
                 {/* Phone Number */}
                 <Space style={{ marginRight: 20, fontSize: "16px" }}>
                     <PhoneOutlined />
-                    <span>+123 456 789</span>
+                    <span>+90 507 601 32 81</span>
                 </Space>
 
                 {/* Language Selector (No translation functionality) */}

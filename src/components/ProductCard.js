@@ -1,12 +1,11 @@
 import React from "react";
-import { Card, Button, InputNumber, Tag, Image } from "antd";
+import { Card, Button, InputNumber, Tag, Image, Badge } from "antd";
 import { ShoppingCartOutlined, HeartOutlined } from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import "../styles/ProductCard.css";
 
 const ProductCard = ({ product }) => {
     const [quantity, setQuantity] = React.useState(1);
-    const navigate = useNavigate();
 
     const handleAddToCart = () => {
         const guestId = sessionStorage.getItem("guest_id");
@@ -68,7 +67,6 @@ const ProductCard = ({ product }) => {
             })
             .then(() => {
                 alert("Product successfully added to wishlist!");
-            
             })
             .catch((error) => {
                 console.error("Error adding to wishlist:", error);
@@ -77,63 +75,76 @@ const ProductCard = ({ product }) => {
     };
 
     return (
-        <Card
-            hoverable
-            title={product.model}
-            style={{ width: 300, margin: "20px" }}
-            cover={
-                <Image
-                    src={`/images/${product.image_name}`} // public/images içinden doğrudan erişim
-                    alt={product.model}
-                    style={{ height: 200, objectFit: "cover" }}
-                />
-            }
-        >
-            <p>
-                <Tag color={product.stock > 0 ? "green" : "red"}>
-                    {product.stock > 0 ? `In Stock: ${product.stock}` : "Out of Stock"}
-                </Tag>
-            </p>
-            <p>
-                <Tag color="blue">Popularity: {parseFloat(product.popularity_score).toFixed(2)}</Tag>
-            </p>
-            <p>
-                <Tag color="gold">Average Rating: {parseFloat(product.avg_rating).toFixed(2)} / 5</Tag>
-            </p>
-            <p>Price: ${parseFloat(product.price).toFixed(2)}</p>
-            <div style={{ marginBottom: "10px" }}>
-                Quantity:{" "}
-                <InputNumber
-                    min={1}
-                    max={product.stock}
-                    value={quantity}
-                    onChange={(value) => setQuantity(value || 1)}
-                    style={{ marginLeft: "10px" }}
+        <div style={{ position: "relative", display: "inline-block", margin: "20px" }}>
+            {/* Badge Container */}
+            <div style={{ position: "absolute", top: "10px", right: "10px", zIndex: 10 }}>
+                {/* Stock Badge */}
+                <Badge.Ribbon
+                    text={product.stock > 0 ? "In Stock" : "Out of Stock"}
+                    color={product.stock > 0 ? "green" : "red"}
                 />
             </div>
-            <Button
-                type="primary"
-                icon={<ShoppingCartOutlined />}
-                onClick={handleAddToCart}
-                disabled={product.stock <= 0}
-                style={{ marginBottom: "10px", width: "100%" }}
+
+            {product.popularity_score >= 4.8 && (
+                <div style={{ position: "absolute", top: "50px", right: "10px", zIndex: 10 }}>
+                    <Badge.Ribbon text="Popular Product" color="purple" placement="end" />
+                </div>
+            )}
+
+            {/* Product Card */}
+            <Card
+                hoverable
+                title={product.model}
+                style={{ width: 300 }}
+                cover={
+                    <Image
+                        src={`/images/${product.image_name}`}
+                        alt={product.model}
+                        style={{ height: 200, objectFit: "cover" }}
+                    />
+                }
             >
-                Add to Cart
-            </Button>
-            <Button
-                type="default"
-                icon={<HeartOutlined />}
-                onClick={handleAddToWishlist}
-                style={{ marginBottom: "10px", width: "100%" }}
-            >
-                Add to Wishlist
-            </Button>
-            <Link to={`/products/${product.product_id}`}>
-                <Button type="default" style={{ width: "100%" }}>
-                    View Details
+                <p>
+                    <Tag color="blue">Popularity: {parseFloat(product.popularity_score).toFixed(2)}</Tag>
+                </p>
+                <p>
+                    <Tag color="gold">Average Rating: {parseFloat(product.avg_rating).toFixed(2)} / 5</Tag>
+                </p>
+                <p>Price: ${parseFloat(product.price).toFixed(2)}</p>
+                <div style={{ marginBottom: "10px" }}>
+                    Quantity:{" "}
+                    <InputNumber
+                        min={1}
+                        max={product.stock}
+                        value={quantity}
+                        onChange={(value) => setQuantity(value || 1)}
+                        style={{ marginLeft: "10px" }}
+                    />
+                </div>
+                <Button
+                    type="primary"
+                    icon={<ShoppingCartOutlined />}
+                    onClick={handleAddToCart}
+                    disabled={product.stock <= 0}
+                    style={{ marginBottom: "10px", width: "100%" }}
+                >
+                    Add to Cart
                 </Button>
-            </Link>
-        </Card>
+                <Button
+                    type="default"
+                    icon={<HeartOutlined />}
+                    onClick={handleAddToWishlist}
+                    style={{ marginBottom: "10px", width: "100%" }}
+                >
+                    Add to Wishlist
+                </Button>
+                <Link to={`/products/${product.product_id}`}>
+                    <Button type="default" style={{ width: "100%" }}>
+                        View Details
+                    </Button>
+                </Link>
+            </Card>
+        </div>
     );
 };
 

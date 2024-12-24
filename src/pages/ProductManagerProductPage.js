@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import ProductManagerProductCard from '../components/ProductManagerProductCard';
+import { Table, Button, Space, Typography, message } from 'antd';
+
+const { Title } = Typography;
 
 const ProductManagerProductPage = () => {
     const [products, setProducts] = useState([]); // Initialize as an empty array
@@ -26,15 +28,82 @@ const ProductManagerProductPage = () => {
     }, []);
 
     const handleEditProduct = (productId) => {
-        console.log(`Edit product: ${productId}`);
+        message.info(`Edit product: ${productId}`);
         // Navigate to edit page or show a modal
     };
 
     const handleDeleteProduct = (productId) => {
-        console.log(`Delete product: ${productId}`);
-        // Send a DELETE request to the backend and update state
-        setProducts((prevProducts) => prevProducts.filter((p) => p.product_id !== productId));
+        fetch(`http://localhost:8000/products/delete/${productId}/`, {
+            method: 'DELETE',
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete product');
+                }
+                setProducts((prevProducts) => prevProducts.filter((p) => p.product_id !== productId));
+                message.success('Product deleted successfully');
+            })
+            .catch((error) => {
+                message.error(`Error deleting product: ${error.message}`);
+            });
     };
+
+    const columns = [
+        {
+            title: 'Model',
+            dataIndex: 'model',
+            key: 'model',
+        },
+        {
+            title: 'Serial Number',
+            dataIndex: 'serial_number',
+            key: 'serial_number',
+        },
+        {
+            title: 'Stock',
+            dataIndex: 'stock',
+            key: 'stock',
+        },
+        {
+            title: 'Warranty Status',
+            dataIndex: 'warranty_status',
+            key: 'warranty_status',
+        },
+        {
+            title: 'Distributor Info',
+            dataIndex: 'distributor_info',
+            key: 'distributor_info',
+        },
+        {
+            title: 'Description',
+            dataIndex: 'description',
+            key: 'description',
+        },
+        {
+            title: 'Base Price',
+            dataIndex: 'base_price',
+            key: 'base_price',
+            render: (price) => `$${price}`,
+        },
+        {
+            title: 'Price',
+            dataIndex: 'price',
+            key: 'price',
+            render: (price) => `$${price}`,
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, record) => (
+                <Space size="middle">
+                    <Button onClick={() => handleEditProduct(record.product_id)}>Edit</Button>
+                    <Button danger onClick={() => handleDeleteProduct(record.product_id)}>
+                        Delete
+                    </Button>
+                </Space>
+            ),
+        },
+    ];
 
     if (isLoading) {
         return <p>Loading products...</p>;
@@ -45,18 +114,17 @@ const ProductManagerProductPage = () => {
     }
 
     return (
-        <div>
-            <h1>Product Manager: Manage Products</h1>
-            <div className="product-grid">
-                {products.map((product) => (
-                    <ProductManagerProductCard
-                        key={product.product_id}
-                        product={product}
-                        onEditProduct={handleEditProduct}
-                        onDeleteProduct={handleDeleteProduct}
-                    />
-                ))}
-            </div>
+        <div style={{ padding: '20px' }}>
+            <Title level={2} style={{ marginBottom: '20px' }}>
+                Product Manager: Manage Products
+            </Title>
+            <Table
+                dataSource={products}
+                columns={columns}
+                rowKey="product_id"
+                pagination={{ pageSize: 10 }}
+                bordered
+            />
         </div>
     );
 };

@@ -1,171 +1,162 @@
 import React, { useState } from "react";
+import { Form, Input, Button, Upload, message, Typography } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+
+const { Title } = Typography;
 
 const AddProductPage = () => {
-    const [productData, setProductData] = useState({
-        model: "",
-        serial_number: "",
-        stock: "",
-        warranty_status: "",
-        distributor_info: "",
-        description: "",
-        base_price: "",
-        price: "",
-    });
+    const [form] = Form.useForm();
+    const [messageApi, contextHolder] = message.useMessage();
 
-    const [message, setMessage] = useState(""); // To display success or error messages
+    const handleSubmit = (values) => {
+        const formData = new FormData();
+        Object.keys(values).forEach((key) => {
+            if (key === "image") {
+                formData.append(key, values[key][0].originFileObj);
+            } else {
+                formData.append(key, values[key]);
+            }
+        });
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setProductData({ ...productData, [name]: value });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
         fetch("http://localhost:8000/products/create/", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(productData),
+            body: formData,
         })
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
-                    setMessage(data.error); // Display error from backend
+                    messageApi.error(data.error);
                 } else {
-                    setMessage("Product added successfully!");
-                    setProductData({
-                        model: "",
-                        serial_number: "",
-                        stock: "",
-                        warranty_status: "",
-                        distributor_info: "",
-                        description: "",
-                        base_price: "",
-                        price: "",
-                    });
+                    messageApi.success("Product added successfully!");
+                    form.resetFields();
                 }
             })
             .catch((error) => {
                 console.error("Error:", error);
-                setMessage("Failed to add product. Please try again.");
+                messageApi.error("Failed to add product. Please try again.");
             });
     };
 
+    const handleFileValidation = (file) => {
+        const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+        if (!isJpgOrPng) {
+            message.error("You can only upload JPG/PNG files!");
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+            message.error("Image must be smaller than 2MB!");
+        }
+        return isJpgOrPng && isLt2M;
+    };
+
     return (
-        <div style={styles.container}>
-            <h1 style={styles.heading}>Add New Product</h1>
-            {message && <p style={styles.message}>{message}</p>}
-            <form onSubmit={handleSubmit} style={styles.form}>
-                {[
-                    { label: "Model", type: "text", name: "model" },
-                    { label: "Serial Number", type: "text", name: "serial_number" },
-                    { label: "Stock", type: "number", name: "stock" },
-                    { label: "Warranty Status", type: "text", name: "warranty_status" },
-                    { label: "Distributor Info", type: "text", name: "distributor_info" },
-                    { label: "Description", type: "textarea", name: "description" },
-                    { label: "Base Price", type: "number", name: "base_price", step: "0.01" },
-                    { label: "Price", type: "number", name: "price", step: "0.01" },
-                ].map((input) => (
-                    <div key={input.name} style={styles.inputContainer}>
-                        <label style={styles.label}>{input.label}:</label>
-                        {input.type === "textarea" ? (
-                            <textarea
-                                name={input.name}
-                                value={productData[input.name]}
-                                onChange={handleInputChange}
-                                style={styles.textarea}
-                                required
-                            ></textarea>
-                        ) : (
-                            <input
-                                type={input.type}
-                                name={input.name}
-                                value={productData[input.name]}
-                                onChange={handleInputChange}
-                                style={styles.input}
-                                required
-                                step={input.step}
-                            />
-                        )}
-                    </div>
-                ))}
-                <button type="submit" style={styles.button}>
-                    Add Product
-                </button>
-            </form>
+        <div style={{ maxWidth: "600px", margin: "50px auto", padding: "20px", background: "#fff", borderRadius: "8px", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" }}>
+            {contextHolder}
+            <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>Add New Product</Title>
+            <Form
+                form={form}
+                layout="vertical"
+                onFinish={handleSubmit}
+                initialValues={{
+                    model: "",
+                    serial_number: "",
+                    stock: "",
+                    warranty_status: "",
+                    distributor_info: "",
+                    description: "",
+                    base_price: "",
+                    price: "",
+                }}
+            >
+                <Form.Item
+                    name="model"
+                    label="Model"
+                    rules={[{ required: true, message: "Please enter the model." }]}
+                >
+                    <Input placeholder="Enter product model" />
+                </Form.Item>
+
+                <Form.Item
+                    name="serial_number"
+                    label="Serial Number"
+                    rules={[{ required: true, message: "Please enter the serial number." }]}
+                >
+                    <Input placeholder="Enter serial number" />
+                </Form.Item>
+
+                <Form.Item
+                    name="stock"
+                    label="Stock"
+                    rules={[{ required: true, message: "Please enter the stock quantity." }]}
+                >
+                    <Input type="number" placeholder="Enter stock quantity" />
+                </Form.Item>
+
+                <Form.Item
+                    name="warranty_status"
+                    label="Warranty Status"
+                    rules={[{ required: true, message: "Please enter the warranty status." }]}
+                >
+                    <Input placeholder="Enter warranty status" />
+                </Form.Item>
+
+                <Form.Item
+                    name="distributor_info"
+                    label="Distributor Info"
+                    rules={[{ required: true, message: "Please enter the distributor information." }]}
+                >
+                    <Input placeholder="Enter distributor info" />
+                </Form.Item>
+
+                <Form.Item
+                    name="description"
+                    label="Description"
+                    rules={[{ required: true, message: "Please enter the product description." }]}
+                >
+                    <Input.TextArea placeholder="Enter product description" rows={4} />
+                </Form.Item>
+
+                <Form.Item
+                    name="base_price"
+                    label="Base Price"
+                    rules={[{ required: true, message: "Please enter the base price." }]}
+                >
+                    <Input type="number" placeholder="Enter base price" />
+                </Form.Item>
+
+                <Form.Item
+                    name="price"
+                    label="Price"
+                    rules={[{ required: true, message: "Please enter the product price." }]}
+                >
+                    <Input type="number" placeholder="Enter product price" />
+                </Form.Item>
+
+                <Form.Item
+                    name="image"
+                    label="Product Image"
+                    valuePropName="fileList"
+                    getValueFromEvent={(e) => (Array.isArray(e) ? e : e && [e.file])}
+                    rules={[{ required: true, message: "Please upload a product image." }]}
+                >
+                    <Upload
+                        name="image"
+                        listType="picture"
+                        beforeUpload={handleFileValidation}
+                        maxCount={1}
+                    >
+                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                    </Upload>
+                </Form.Item>
+
+                <Form.Item>
+                    <Button type="primary" htmlType="submit" block>
+                        Add Product
+                    </Button>
+                </Form.Item>
+            </Form>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        maxWidth: "600px",
-        margin: "50px auto",
-        padding: "20px",
-        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-        borderRadius: "10px",
-        backgroundColor: "#fff",
-    },
-    heading: {
-        textAlign: "center",
-        color: "#333",
-        marginBottom: "20px",
-        fontFamily: "'Poppins', sans-serif",
-    },
-    message: {
-        textAlign: "center",
-        color: "green",
-        marginBottom: "20px",
-        fontFamily: "'Poppins', sans-serif",
-    },
-    form: {
-        display: "flex",
-        flexDirection: "column",
-        gap: "15px",
-    },
-    inputContainer: {
-        display: "flex",
-        flexDirection: "column",
-    },
-    label: {
-        fontSize: "14px",
-        color: "#555",
-        marginBottom: "5px",
-        fontFamily: "'Poppins', sans-serif",
-    },
-    input: {
-        padding: "10px",
-        fontSize: "14px",
-        border: "1px solid #ddd",
-        borderRadius: "5px",
-        outline: "none",
-        transition: "border-color 0.3s",
-    },
-    textarea: {
-        padding: "10px",
-        fontSize: "14px",
-        border: "1px solid #ddd",
-        borderRadius: "5px",
-        outline: "none",
-        resize: "vertical",
-        height: "100px",
-    },
-    button: {
-        padding: "12px 20px",
-        fontSize: "16px",
-        backgroundColor: "#007bff",
-        color: "#fff",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-        fontFamily: "'Poppins', sans-serif",
-        textAlign: "center",
-        marginTop: "10px",
-    },
-    inputFocus: {
-        borderColor: "#007bff",
-    },
 };
 
 export default AddProductPage;

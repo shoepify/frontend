@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Spin, Alert, Row, Col, Typography, Space, Checkbox, Slider, Carousel } from "antd";
+import { Button, Spin, Alert, Row, Col, Typography, Space, Checkbox, Slider, Carousel, Pagination } from "antd";
 import ProductCard from "../components/ProductCard";
 
 const { Title } = Typography;
@@ -13,6 +13,8 @@ const HomePage = () => {
     const [priceRange, setPriceRange] = useState([0, 1000]); // Default price range
     const [starRange, setStarRange] = useState([0, 5]); // Default star range
     const [selectedCategories, setSelectedCategories] = useState([]); // Selected categories
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(12); // Items per page
 
     // Fetch all products from the backend
     useEffect(() => {
@@ -83,6 +85,12 @@ const HomePage = () => {
 
         setFilteredProducts(filtered);
         setSortedProducts(filtered);
+        setCurrentPage(1); // Reset to the first page after filtering
+    };
+
+    // Handle page change
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
     };
 
     if (loading) return <Spin tip="Loading products..." style={{ display: "block", margin: "20px auto" }} />;
@@ -92,7 +100,7 @@ const HomePage = () => {
     const categories = [...new Set(products.map((product) => product.category))];
 
     // Determine min and max values for price and stars
-    const maxPrice = Math.max(...products.map((product) => product.price), 1000);
+    const maxPrice = Math.max(...products.map((product) => product.price), 250);
     const minStars = 0;
     const maxStars = 5;
 
@@ -103,6 +111,10 @@ const HomePage = () => {
         "/images/banner4.jpg",
         "/images/banner5.jpg",
     ];
+
+    // Paginated products for the current page
+    const startIndex = (currentPage - 1) * pageSize;
+    const paginatedProducts = sortedProducts.slice(startIndex, startIndex + pageSize);
 
     return (
         <div style={{ padding: "20px" }}>
@@ -168,12 +180,23 @@ const HomePage = () => {
 
             {/* Product Grid */}
             <Row gutter={[16, 16]}>
-                {sortedProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                     <Col key={product.product_id} xs={24} sm={12} md={8} lg={6}>
                         <ProductCard product={product} />
                     </Col>
                 ))}
             </Row>
+
+            {/* Pagination */}
+            <div style={{ marginTop: "20px", textAlign: "center" }}>
+                <Pagination
+                    current={currentPage}
+                    pageSize={pageSize}
+                    total={sortedProducts.length}
+                    onChange={handlePageChange}
+                    showSizeChanger={false}
+                />
+            </div>
         </div>
     );
 };

@@ -124,11 +124,17 @@ const CustomerHeader = () => {
 
             {/* Contact, Language, Social Media, and Actions */}
             <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                {/* Phone Number */}
-                <Space style={{ marginRight: 20, fontSize: "16px" }}>
-                    <PhoneOutlined />
-                    <span>+123 456 789</span>
-                </Space>
+
+                        {/* Phone Number */}
+<Space style={{ marginRight: 20, fontSize: "16px" }}>
+    <PhoneOutlined />
+    <a 
+        href="facetime://+905076013281" 
+        style={{ color: "inherit", textDecoration: "none" }}
+    >
+        +90 507 601 32 81
+    </a>
+</Space>
 
                 {/* Language Selector */}
                 <Space>

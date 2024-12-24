@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Typography, List, Card, Spin, Alert } from "antd";
+
+const { Title, Text } = Typography;
 
 const ApprovedComments = () => {
     const { productId } = useParams();
@@ -44,71 +47,36 @@ const ApprovedComments = () => {
     }, [productId]);
 
     if (loading) {
-        return <p>Loading comments...</p>;
+        return <Spin tip="Loading comments..." style={{ display: 'block', margin: '20px auto' }} />;
     }
 
     if (error) {
-        return <p>Error: {error}</p>;
+        return <Alert message="Error" description={error} type="error" showIcon style={{ marginBottom: 20 }} />;
     }
 
     if (comments.length === 0) {
-        return <p>No approved comments found for this product.</p>;
+        return <Alert message="No approved comments found for this product." type="info" showIcon style={{ marginBottom: 20 }} />;
     }
 
     return (
-        <div style={styles.container}>
-            <h2 style={styles.heading}>Approved Comments</h2>
-            {comments.map((comment) => (
-                <div key={comment.comment_id} style={styles.commentCard}>
-                    <div style={styles.formGroup}>
-                        <label style={styles.label}>Customer ID:</label>
-                        <div style={styles.value}>{comment.customer_id}</div>
-                    </div>
-                    <div style={styles.formGroup}>
-                        <label style={styles.label}>Comment:</label>
-                        <div style={styles.value}>{comment.comment}</div>
-                    </div>
-                </div>
-            ))}
+        <div style={{ padding: "20px" }}>
+            <Title level={3} style={{ textAlign: "center", marginBottom: 20 }}>Approved Comments</Title>
+            <List
+                grid={{ gutter: 16, column: 1 }}
+                dataSource={comments}
+                renderItem={(comment) => (
+                    <List.Item>
+                        <Card>
+                            <Text strong>Customer ID:</Text> <Text>{comment.customer_id}</Text>
+                            <br />
+                            <Text strong>Comment:</Text>
+                            <Text>{` ${comment.comment}`}</Text>
+                        </Card>
+                    </List.Item>
+                )}
+            />
         </div>
     );
-};
-
-const styles = {
-    container: {
-        maxWidth: "800px",
-        margin: "0 auto",
-        padding: "20px",
-        backgroundColor: "#f9f9f9",
-        borderRadius: "10px",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-    },
-    heading: {
-        textAlign: "center",
-        marginBottom: "20px",
-        color: "#333",
-        fontFamily: "'Poppins', sans-serif",
-    },
-    commentCard: {
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        padding: "16px",
-        marginBottom: "16px",
-        backgroundColor: "#fff",
-    },
-    formGroup: {
-        display: "flex",
-        marginBottom: "10px",
-    },
-    label: {
-        flex: "1",
-        fontWeight: "bold",
-        color: "#555",
-    },
-    value: {
-        flex: "2",
-        color: "#333",
-    },
 };
 
 export default ApprovedComments;

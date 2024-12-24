@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from "react-router-dom";
-import { Layout, Button } from "antd";
-import { MenuOutlined } from "@ant-design/icons";
-import '../../styles/SalesManagerHeader.css';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Layout, Button, Space, Typography } from "antd";
 import { useUser } from "../../context/UserContext";
 
 const { Header } = Layout;
+const { Title } = Typography;
 
 const SalesManagerHeader = () => {
     const navigate = useNavigate();
@@ -44,39 +43,51 @@ const SalesManagerHeader = () => {
                 padding: "10px 20px",
             }}
         >
-            <div style={{ display: "flex", alignItems: "center" }}>
-                <Button icon={<MenuOutlined />} style={{ marginRight: 15 }} />
-                <Link to="/" style={{ fontSize: "1.5rem", fontWeight: "bold", textDecoration: "none", color: "#000" }}>
-                    Sales Manager
-                </Link>
+            {/* Sol Taraf: Başlık */}
+            <div style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+                <Title
+                    level={3}
+                    style={{ margin: 0 }}
+                    onClick={() => navigate("/sales-manager-home")} // Redirect to SalesManagerHome
+                >
+                    Sales Manager Panel
+                </Title>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                <Button 
-                    type="primary" 
-                    onClick={() => navigate('/sales-dashboard')} // Added navigation to Sales Dashboard
-                    style={{ fontSize: '16px', fontWeight: 'bold' }}
+            {/* Orta Kısım: Navigasyon Butonları */}
+            <Space style={{ flex: 1, justifyContent: "center" }}>
+                <Button
+                    type="text"
+                    onClick={() => navigate("/sales-dashboard")}
+                    style={{ fontSize: "16px" }}
                 >
                     Dashboard
                 </Button>
-                <Button 
-                    type="primary" 
-                    onClick={() => navigate('/mydiscounts')} 
-                    style={{ fontSize: '16px', fontWeight: 'bold' }}
+                <Button
+                    type="text"
+                    onClick={() => navigate("/mydiscounts")}
+                    style={{ fontSize: "16px" }}
                 >
-                    My Discounts
+                    Discounts
                 </Button>
-                <Button 
-                    type="primary" 
-                    onClick={() => navigate('/refunds')} 
-                    style={{ fontSize: '16px', fontWeight: 'bold' }}
+                <Button
+                    type="text"
+                    onClick={() => navigate("/refunds")}
+                    style={{ fontSize: "16px" }}
                 >
                     Refunds
                 </Button>
-                <Button onClick={handleLogout} type="text" danger>
-                    Logout
-                </Button>
-            </div>
+            </Space>
+
+            {/* Sağ Taraf: Logout Butonu */}
+            <Button
+                onClick={handleLogout}
+                type="text"
+                danger
+                style={{ fontSize: "16px" }}
+            >
+                Logout
+            </Button>
         </Header>
     );
 };

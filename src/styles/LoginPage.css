@@ -7,6 +7,26 @@
     background: linear-gradient(to right, #4facfe, #00f2fe);
     font-family: 'Poppins', sans-serif;
 }
+/* Background styling */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    padding: 20px;
+}
+
+/* Card styling */
+.login-card {
+    max-width: 400px;
+    width: 100%;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1
+::contentReference[oaicite:0]{index=0}
+ 
+
 
 /* Container for the login box */
 .login-container {
@@ -117,4 +137,6 @@
     .change-role-button {
         font-size: 0.9rem;
     }
+
+    
 }

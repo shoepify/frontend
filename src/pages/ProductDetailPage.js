@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Typography, Card, Image, Alert, Spin, Row, Col, Space } from 'antd';
+import { Typography, Card, Image, Alert, Spin, Row, Col, Space, Button, Divider, InputNumber } from 'antd';
 import {
     BarcodeOutlined,
     InboxOutlined,
@@ -10,6 +10,8 @@ import {
     FileTextOutlined,
     DollarOutlined,
     TagOutlined,
+    HeartOutlined,
+    ShoppingCartOutlined,
 } from '@ant-design/icons';
 import ApprovedComments from './ApprovedComments';
 
@@ -20,6 +22,7 @@ const ProductDetailPage = () => {
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [quantity, setQuantity] = useState(1);
 
     useEffect(() => {
         fetch(`http://localhost:8000/products/${productId}/`)
@@ -36,6 +39,49 @@ const ProductDetailPage = () => {
                 setLoading(false);
             });
     }, [productId]);
+
+    const handleAddToCart = () => {
+        const guestId = sessionStorage.getItem("guest_id");
+        const customerId = sessionStorage.getItem("customerId");
+
+        let url;
+
+        if (customerId) {
+            url = `http://localhost:8000/add_to_cart_customer/${customerId}/${product.product_id}/${quantity}/`;
+        } else if (guestId) {
+            url = `http://localhost:8000/add_to_cart_guest/${guestId}/${product.product_id}/${quantity}/`;
+        } else {
+            alert("Please login to add items to the cart.");
+            return;
+        }
+
+        fetch(url, { method: "POST" })
+            .then((response) => {
+                if (!response.ok) throw new Error("Failed to add to cart");
+                return response.json();
+            })
+            .then(() => alert("Product added to cart successfully!"))
+            .catch(() => alert("Error adding product to cart."));
+    };
+
+    const handleAddToFavorites = () => {
+        const customerId = sessionStorage.getItem("customerId");
+
+        if (!customerId) {
+            alert("Please login to add items to favorites.");
+            return;
+        }
+
+        const url = `http://localhost:8000/wishlist/${customerId}/add/${product.product_id}/`;
+
+        fetch(url, { method: "POST" })
+            .then((response) => {
+                if (!response.ok) throw new Error("Failed to add to favorites");
+                return response.json();
+            })
+            .then(() => alert("Product added to favorites successfully!"))
+            .catch(() => alert("Error adding product to favorites."));
+    };
 
     if (loading) {
         return <Spin tip="Loading product details..." style={{ marginTop: 50 }} />;
@@ -86,8 +132,42 @@ const ProductDetailPage = () => {
                                     <TagOutlined /> <strong>Price:</strong> ${parseFloat(product.price).toFixed(2)}
                                 </Text>
                             </Space>
+
+                            <Space style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+                                <InputNumber
+                                    min={1}
+                                    max={product.stock}
+                                    value={quantity}
+                                    onChange={(value) => setQuantity(value || 1)}
+                                />
+                                <Button
+                                    type="primary"
+                                    icon={<ShoppingCartOutlined />}
+                                    onClick={handleAddToCart}
+                                    disabled={product.stock <= 0}
+                                >
+                                    Add to Cart
+                                </Button>
+                            </Space>
+
+                            <Button
+                                type="default"
+                                icon={<HeartOutlined />}
+                                onClick={handleAddToFavorites}
+                                style={{ marginTop: '10px', width: '100%' }}
+                            >
+                                Add to Favorites
+                            </Button>
                         </Col>
                     </Row>
+
+                    <Divider style={{ margin: '40px 0' }}>Return and Exchange Policy</Divider>
+                    <Text>
+                        At our store, we prioritize customer satisfaction. This product is eligible for returns and exchanges
+                        within 30 days of purchase, provided it remains unused and in its original packaging. Please refer to
+                        our detailed return policy for more information.
+                    </Text>
+
                     <div style={{ marginTop: '40px' }}>
                         <ApprovedComments />
                     </div>
