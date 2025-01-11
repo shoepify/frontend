@@ -6,24 +6,25 @@ import ProductCard from "../components/ProductCard"; // Assuming you have a Prod
 const { Title } = Typography;
 
 const CategoryPage = () => {
-    const { category } = useParams();
+    const { category } = useParams();  // Get category name from URL params
+    const [categoryData, setCategoryData] = useState(null);
     const [products, setProducts] = useState([]);
-    const [filteredProducts, setFilteredProducts] = useState([]);
     const [sortedProducts, setSortedProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:8000/products/")
+        fetch(`http://localhost:8000/get-category/${category}/`)  // Fetch products based on category
             .then((response) => {
-                if (!response.ok) throw new Error("Failed to fetch products");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch products");
+                }
                 return response.json();
             })
             .then((data) => {
-                const categoryProducts = data.filter((product) => product.category === category);
-                setProducts(data);
-                setFilteredProducts(categoryProducts);
-                setSortedProducts(categoryProducts); // Default is unsorted
+                setCategoryData(data.category); // Set category data (name, description)
+                setProducts(data.products); // Set products related to the category
+                setSortedProducts(data.products); // Default is unsorted
                 setLoading(false);
             })
             .catch((error) => {
@@ -33,7 +34,7 @@ const CategoryPage = () => {
     }, [category]);
 
     const handleSort = (key) => {
-        const sorted = [...filteredProducts].sort((a, b) => {
+        const sorted = [...sortedProducts].sort((a, b) => {
             if (key === "popularity_score") {
                 return b.popularity_score - a.popularity_score || b.price - a.price; // Popularity descending, tiebreaker price
             } else if (key === "price") {
@@ -62,7 +63,8 @@ const CategoryPage = () => {
 
     return (
         <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
-            <Title level={2}>Products in "{category}"</Title>
+            <Title level={2}>Products in "{categoryData?.name}"</Title>
+            <p>{categoryData?.description}</p>
 
             {/* Sort Buttons */}
             <Space style={{ marginBottom: "20px" }}>
