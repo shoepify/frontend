@@ -33,7 +33,7 @@ const ProductManagerProductPage = () => {
     };
 
     const handleDeleteProduct = (productId) => {
-        fetch(`http://localhost:8000/products/delete/${productId}/`, {
+        fetch(`http://localhost:8000/products/${productId}/delete/`, {
             method: 'DELETE',
         })
             .then((response) => {

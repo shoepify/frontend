@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Table, Button, Input, Modal, Form, Typography, message } from "antd";
 import axios from "axios";
-import {
-    PlusOutlined,
-    DeleteOutlined,
-    EditOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -13,36 +9,49 @@ const ProductManagerCategories = () => {
     const [categories, setCategories] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [form] = Form.useForm();
-    const [editingCategory, setEditingCategory] = useState(null);
 
     const baseURL = "http://127.0.0.1:8000"; // Adjust to your API base URL
 
-    // Fetch categories from the server
     const fetchCategories = async () => {
         try {
-            const response = await axios.get(`${baseURL}/category/view/`);
-            setCategories(response.data.categories || []);
+            // Fetch the list of category names
+            const response = await axios.get("http://127.0.0.1:8000/list-categories/");
+            const categoryNames = response.data.categories || [];
+    
+            // Fetch details (including description) for each category
+            const categoriesWithDetails = await Promise.all(categoryNames.map(async (category) => {
+                try {
+                    const categoryResponse = await axios.get(`http://127.0.0.1:8000/get-category/${category.name}/`);
+                    return categoryResponse.data.category; // This contains the full category info including description
+                } catch (error) {
+                    console.error(`Error fetching details for category ${category.name}:`, error);
+                    return null; // If fetching details fails, return null
+                }
+            }));
+    
+            // Filter out null values (categories that failed to load)
+            setCategories(categoriesWithDetails.filter(cat => cat !== null));
         } catch (error) {
-            console.error("Error fetching categories:", error);
+            console.error("Error fetching category names:", error);
             message.error("Failed to load categories.");
         }
     };
 
-    // Add or Edit category
+   
+
+    // Add category
     const handleSubmit = async (values) => {
         try {
-            if (editingCategory) {
-                await axios.put(`${baseURL}/category/edit/${editingCategory.name}/`, values);
-                message.success("Category updated successfully!");
-            } else {
-                await axios.post(`${baseURL}/category/add/`, values);
-                message.success("Category added successfully!");
-            }
+            // Trim whitespace from category name and description before sending
+            values.name = values.name.trim();
+            values.description = values.description.trim();
+
+            await axios.post("http://127.0.0.1:8000/add-category/", values);
+            message.success("Category added successfully!");
 
             form.resetFields();
             setIsModalVisible(false);
-            setEditingCategory(null);
-            fetchCategories();
+            fetchCategories(); // Refresh the category list
         } catch (error) {
             console.error("Error saving category:", error);
             message.error("Failed to save category.");
@@ -52,17 +61,25 @@ const ProductManagerCategories = () => {
     // Remove a category
     const removeCategory = async (categoryName) => {
         try {
-            await axios.delete(`${baseURL}/category/remove/${categoryName}/`);
+            const response = await axios.delete(`http://127.0.0.1:8000/delete-category/${categoryName.trim()}/`);
             message.success("Category removed successfully!");
             setCategories((prevCategories) =>
                 prevCategories.filter((cat) => cat.name !== categoryName)
             );
         } catch (error) {
-            console.error("Error removing category:", error);
-            message.error("Failed to remove category.");
+            // If the error response contains the message "Cannot delete category" (e.g., because it has products)
+            if (error.response && error.response.data && error.response.data.error) {
+                const errorMessage = error.response.data.error;
+                message.error(errorMessage);
+            } else {
+                console.error("Error removing category:", error);
+                message.error("Failed to remove category.");
+            }
         }
     };
+    
 
+    // Fetch categories when the component is mounted
     useEffect(() => {
         fetchCategories();
     }, []);
@@ -78,7 +95,6 @@ const ProductManagerCategories = () => {
                 icon={<PlusOutlined />}
                 style={{ marginBottom: "20px" }}
                 onClick={() => {
-                    setEditingCategory(null);
                     form.resetFields();
                     setIsModalVisible(true);
                 }}
@@ -106,16 +122,6 @@ const ProductManagerCategories = () => {
                         render: (_, record) => (
                             <div style={{ display: "flex", gap: "10px" }}>
                                 <Button
-                                    icon={<EditOutlined />}
-                                    onClick={() => {
-                                        setEditingCategory(record);
-                                        form.setFieldsValue(record);
-                                        setIsModalVisible(true);
-                                    }}
-                                >
-                                    Edit
-                                </Button>
-                                <Button
                                     icon={<DeleteOutlined />}
                                     danger
                                     onClick={() => removeCategory(record.name)}
@@ -128,14 +134,13 @@ const ProductManagerCategories = () => {
                 ]}
             />
 
-            {/* Modal for Add/Edit Category */}
+            {/* Modal for Add Category */}
             <Modal
-                title={editingCategory ? "Edit Category" : "Add Category"}
+                title="Add Category"
                 visible={isModalVisible}
                 onCancel={() => {
                     setIsModalVisible(false);
                     form.resetFields();
-                    setEditingCategory(null);
                 }}
                 footer={null}
             >
@@ -164,7 +169,7 @@ const ProductManagerCategories = () => {
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit" block>
-                            {editingCategory ? "Update" : "Add"} Category
+                            Add Category
                         </Button>
                     </Form.Item>
                 </Form>

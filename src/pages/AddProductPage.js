@@ -1,26 +1,54 @@
-import React, { useState } from "react";
-import { Form, Input, Button, Upload, message, Typography } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import React, { useState, useEffect } from "react";
+import { Form, Input, Button, message, Select, Typography } from "antd";
 
 const { Title } = Typography;
 
 const AddProductPage = () => {
     const [form] = Form.useForm();
+    const [categories, setCategories] = useState([]);
     const [messageApi, contextHolder] = message.useMessage();
 
-    const handleSubmit = (values) => {
-        const formData = new FormData();
-        Object.keys(values).forEach((key) => {
-            if (key === "image") {
-                formData.append(key, values[key][0].originFileObj);
-            } else {
-                formData.append(key, values[key]);
-            }
-        });
+    // Fetch categories from backend
+    useEffect(() => {
+        fetch("http://127.0.0.1:8000/list-categories/")
+            .then((response) => response.json())
+            .then((data) => {
+                setCategories(data.categories);
+            })
+            .catch((error) => {
+                console.error("Error fetching categories:", error);
+                messageApi.error("Failed to load categories.");
+            });
+    }, []);
 
-        fetch("http://localhost:8000/products/create/", {
+    const handleSubmit = (values) => {
+        // Prepare the category object with name only
+        const categoryData = {
+            name: values.category,  // Send only the category name
+        };
+
+        // Prepare the payload for the backend, ensuring price is renamed to base_price
+        const payload = {
+            model: values.model,
+            serial_number: values.serial_number,
+            stock: values.stock,
+            warranty_status: values.warranty_status,
+            distributor_info: values.distributor_info,
+            description: values.description,
+            base_price: values.price,  // Send price as base_price
+            cost: values.cost,
+            category: categoryData,  // Send category as an object with "name" field
+            popularity_score: values.popularity_score || 0,
+            image_name: values.image_name,  // Send the image name
+        };
+
+        // Send the data to backend
+        fetch("http://localhost:8000/add-product/", {
             method: "POST",
-            body: formData,
+            headers: {
+                "Content-Type": "application/json", // Ensure content is JSON
+            },
+            body: JSON.stringify(payload),  // Convert the payload to JSON
         })
             .then((response) => response.json())
             .then((data) => {
@@ -35,18 +63,6 @@ const AddProductPage = () => {
                 console.error("Error:", error);
                 messageApi.error("Failed to add product. Please try again.");
             });
-    };
-
-    const handleFileValidation = (file) => {
-        const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-        if (!isJpgOrPng) {
-            message.error("You can only upload JPG/PNG files!");
-        }
-        const isLt2M = file.size / 1024 / 1024 < 2;
-        if (!isLt2M) {
-            message.error("Image must be smaller than 2MB!");
-        }
-        return isJpgOrPng && isLt2M;
     };
 
     return (
@@ -64,8 +80,10 @@ const AddProductPage = () => {
                     warranty_status: "",
                     distributor_info: "",
                     description: "",
-                    base_price: "",
-                    price: "",
+                    price: "",  // Only price field here
+                    category: "",  // Default empty, will be selected by the user
+                    cost: "",  // Cost field added
+                    image_name: "", // Image name to be sent to backend
                 }}
             >
                 <Form.Item
@@ -117,14 +135,6 @@ const AddProductPage = () => {
                 </Form.Item>
 
                 <Form.Item
-                    name="base_price"
-                    label="Base Price"
-                    rules={[{ required: true, message: "Please enter the base price." }]}
-                >
-                    <Input type="number" placeholder="Enter base price" />
-                </Form.Item>
-
-                <Form.Item
                     name="price"
                     label="Price"
                     rules={[{ required: true, message: "Please enter the product price." }]}
@@ -132,21 +142,37 @@ const AddProductPage = () => {
                     <Input type="number" placeholder="Enter product price" />
                 </Form.Item>
 
+                {/* Category Selection: Send category name */}
                 <Form.Item
-                    name="image"
-                    label="Product Image"
-                    valuePropName="fileList"
-                    getValueFromEvent={(e) => (Array.isArray(e) ? e : e && [e.file])}
-                    rules={[{ required: true, message: "Please upload a product image." }]}
+                    name="category"
+                    label="Category"
+                    rules={[{ required: true, message: "Please select a category." }]}
                 >
-                    <Upload
-                        name="image"
-                        listType="picture"
-                        beforeUpload={handleFileValidation}
-                        maxCount={1}
-                    >
-                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                    </Upload>
+                    <Select
+                        placeholder="Select category"
+                        options={categories.map((category) => ({
+                            value: category.name,  // Sending name instead of id
+                            label: category.name,
+                        }))}
+                    />
+                </Form.Item>
+
+                {/* Cost Field */}
+                <Form.Item
+                    name="cost"
+                    label="Cost"
+                    rules={[{ required: true, message: "Please enter the product cost." }]}
+                >
+                    <Input type="number" placeholder="Enter product cost" />
+                </Form.Item>
+
+                {/* Image Name Field (Text input for image name) */}
+                <Form.Item
+                    name="image_name"
+                    label="Image Name"
+                    rules={[{ required: true, message: "Please enter the image name." }]}
+                >
+                    <Input placeholder="Enter image name (e.g., product123.jpg)" />
                 </Form.Item>
 
                 <Form.Item>

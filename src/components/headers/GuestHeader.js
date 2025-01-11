@@ -23,7 +23,7 @@ const GuestHeader = () => {
     const toggleCategories = () => setShowCategories(!showCategories);
 
     useEffect(() => {
-        fetch("http://localhost:8000/products/")
+        fetch("http://127.0.0.1:8000/list-categories/")
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Failed to fetch categories");
@@ -31,12 +31,15 @@ const GuestHeader = () => {
                 return response.json();
             })
             .then((data) => {
-                const uniqueCategories = [...new Set(data.map((product) => product.category))];
-                setCategories(uniqueCategories);
+                // Assuming the categories are in data.categories and it's an array of objects
+                const uniqueCategories = [
+                    ...new Set(data.categories.map((category) => category.name)) // Extracting category name
+                ];
+                setCategories(uniqueCategories); // Set the unique categories in state
             })
             .catch((error) => console.error("Error fetching categories:", error));
     }, []);
-
+    
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {

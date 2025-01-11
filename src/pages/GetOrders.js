@@ -20,21 +20,19 @@ const GetOrders = () => {
                 "Content-Type": "application/json",
             },
         })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("Failed to fetch orders");
-                }
-                return response.json();
-            })
+            .then((response) => response.json())
             .then((data) => {
-                if (!data.orders || !Array.isArray(data.orders)) {
-                    throw new Error("Invalid data format: 'orders' key is missing or not an array");
+                if (data.error) {
+                    setError(data.error); // Set the error message
+                    setOrders([]); // Clear any previous orders
+                    setLoading(false);
+                } else {
+                    setOrders(data.orders || []); // Set orders if available
+                    setLoading(false);
                 }
-                setOrders(data.orders);
-                setLoading(false);
             })
             .catch((err) => {
-                setError(err.message || "Failed to load orders.");
+                setError("Failed to fetch orders.");
                 setLoading(false);
             });
     }, [customerId]);
@@ -116,10 +114,16 @@ const GetOrders = () => {
         );
     }
 
-    if (error) {
+    // If there are no orders
+    if (orders.length === 0) {
         return (
-            <div className="error-container">
-                <Alert message="Error" description={error} type="error" showIcon />
+            <div className="info-container">
+                <Alert
+                    message="No Orders"
+                    description="You have no orders yet."
+                    type="info"
+                    showIcon
+                />
             </div>
         );
     }
