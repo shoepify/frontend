@@ -77,6 +77,16 @@ const ProductManagerOrders = () => {
             key: 'order_id',
         },
         {
+            title: 'Customer ID', // New column for customer_id
+            dataIndex: 'customer_id',
+            key: 'customer_id',
+        },
+        {
+            title: 'Delivery ID', // New column for delivery_id
+            dataIndex: 'delivery_id',
+            key: 'delivery_id',
+        },
+        {
             title: 'Order Date',
             dataIndex: 'order_date',
             key: 'order_date',
