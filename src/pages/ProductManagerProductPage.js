@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, Typography, message } from 'antd';
+import { Table, Button, Space, Typography, message, Modal, Input } from 'antd';
 
 const { Title } = Typography;
 
@@ -7,6 +7,8 @@ const ProductManagerProductPage = () => {
     const [products, setProducts] = useState([]); // Initialize as an empty array
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     useEffect(() => {
         // Fetch products from API
@@ -27,9 +29,9 @@ const ProductManagerProductPage = () => {
             });
     }, []);
 
-    const handleEditProduct = (productId) => {
-        message.info(`Edit product: ${productId}`);
-        // Navigate to edit page or show a modal
+    const handleEditProduct = (product) => {
+        setSelectedProduct(product);
+        setIsModalVisible(true);
     };
 
     const handleDeleteProduct = (productId) => {
@@ -46,6 +48,42 @@ const ProductManagerProductPage = () => {
             .catch((error) => {
                 message.error(`Error deleting product: ${error.message}`);
             });
+    };
+
+    const handleModalClose = () => {
+        setIsModalVisible(false);
+        setSelectedProduct(null);
+    };
+
+    const handleSaveChanges = () => {
+        if (selectedProduct && selectedProduct.stock !== undefined) {
+            fetch(`http://localhost:8000/products/${selectedProduct.product_id}/update/`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    stock: selectedProduct.stock, // Only modify the stock
+                }),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Failed to update product');
+                    }
+                    setProducts((prevProducts) =>
+                        prevProducts.map((product) =>
+                            product.product_id === selectedProduct.product_id
+                                ? { ...product, stock: selectedProduct.stock }
+                                : product
+                        )
+                    );
+                    message.success('Product updated successfully');
+                    setIsModalVisible(false);
+                })
+                .catch((error) => {
+                    message.error(`Error updating product: ${error.message}`);
+                });
+        }
     };
 
     const columns = [
@@ -96,7 +134,7 @@ const ProductManagerProductPage = () => {
             key: 'actions',
             render: (_, record) => (
                 <Space size="middle">
-                    <Button onClick={() => handleEditProduct(record.product_id)}>Edit</Button>
+                    <Button onClick={() => handleEditProduct(record)}>Edit</Button>
                     <Button danger onClick={() => handleDeleteProduct(record.product_id)}>
                         Delete
                     </Button>
@@ -125,6 +163,24 @@ const ProductManagerProductPage = () => {
                 pagination={{ pageSize: 10 }}
                 bordered
             />
+
+            <Modal
+                title="Edit Product"
+                visible={isModalVisible}
+                onCancel={handleModalClose}
+                onOk={handleSaveChanges}
+            >
+                {selectedProduct && (
+                    <>
+                        <Input
+                            value={selectedProduct.stock}
+                            onChange={(e) => setSelectedProduct({ ...selectedProduct, stock: e.target.value })}
+                            placeholder="Stock"
+                            style={{ marginBottom: 10 }}
+                        />
+                    </>
+                )}
+            </Modal>
         </div>
     );
 };
