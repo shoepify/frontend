@@ -12,7 +12,8 @@ const GetOrders = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedOrderItems, setSelectedOrderItems] = useState([]);
-    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isProductModalVisible, setIsProductModalVisible] = useState(false); // For product modal
+    const [isInvoiceModalVisible, setIsInvoiceModalVisible] = useState(false); // For invoice modal
     const [invoiceId, setInvoiceId] = useState(null); // To manage which invoice to show
 
     useEffect(() => {
@@ -39,15 +40,14 @@ const GetOrders = () => {
             });
     }, [customerId]);
 
-    const handleViewProducts = (items) => {
-        setSelectedOrderItems(items);
-        setIsModalVisible(true);
+    const handleViewProducts = (orderItems) => {
+        setSelectedOrderItems(orderItems); // Set the selected order items
+        setIsProductModalVisible(true); // Open the product modal
     };
 
-    // Modify handleViewInvoice to show the invoice in the modal
     const handleViewInvoice = (invoiceId) => {
-        setInvoiceId(invoiceId);  // Set the invoice ID
-        setIsModalVisible(true);   // Open the modal
+        setInvoiceId(invoiceId); // Set the invoice ID
+        setIsInvoiceModalVisible(true); // Open the invoice modal
     };
 
     const handleRefundRequest = (orderItemId) => {
@@ -145,7 +145,7 @@ const GetOrders = () => {
                         key: "actions",
                         render: (_, record) => (
                             <div style={{ display: "flex", gap: "10px" }}>
-                                <Button type="primary" onClick={() => handleViewProducts(record.items)}>
+                                <Button type="primary" onClick={() => handleViewProducts(record.order_items)}>
                                     View Products
                                 </Button>
                                 <Button type="default" onClick={() => handleViewInvoice(record.order_id)}>
@@ -182,21 +182,25 @@ const GetOrders = () => {
             {/* Modal for viewing products */}
             <Modal
                 title="Order Products"
-                visible={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
+                visible={isProductModalVisible}
+                onCancel={() => setIsProductModalVisible(false)}
                 footer={null}
             >
-                {selectedOrderItems.map((item) => (
-                    <OrderProductCard key={item.product_id} product={item} />
-                ))}
+                {selectedOrderItems.length === 0 ? (
+                    <p>No products selected.</p>
+                ) : (
+                    selectedOrderItems.map((item) => (
+                        <OrderProductCard key={item.product_id} product={item} />
+                    ))
+                )}
             </Modal>
 
             {/* Invoice Viewer Modal */}
             {invoiceId && (
                 <InvoiceViewer
                     invoiceId={invoiceId}
-                    visible={isModalVisible}
-                    onCancel={() => setIsModalVisible(false)}
+                    visible={isInvoiceModalVisible}
+                    onCancel={() => setIsInvoiceModalVisible(false)}
                 />
             )}
         </div>
