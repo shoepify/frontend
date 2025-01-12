@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Tag, Alert, Spin, Typography } from 'antd';
+import { Table, Button, Tag, Alert, Spin, Typography, Modal } from 'antd';
 
 const { Title } = Typography;
 
@@ -7,6 +7,9 @@ const ProductManagerOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [loadingItems, setLoadingItems] = useState(false);
+    const [orderItems, setOrderItems] = useState([]);
+    const [showOrderItems, setShowOrderItems] = useState(false);
 
     useEffect(() => {
         fetch('http://localhost:8000/get_all_orders/')
@@ -23,6 +26,24 @@ const ProductManagerOrders = () => {
                 setLoading(false);
             });
     }, []);
+
+    const fetchOrderItems = (orderId) => {
+        setLoadingItems(true);
+        fetch(`http://localhost:8000/get_order_items/${orderId}/`)
+            .then((response) => {
+                if (!response.ok) throw new Error('Failed to fetch order items');
+                return response.json();
+            })
+            .then((data) => {
+                setOrderItems(data.order_items || []);
+                setLoadingItems(false);
+                setShowOrderItems(true);
+            })
+            .catch((err) => {
+                setError(err.message);
+                setLoadingItems(false);
+            });
+    };
 
     const updateOrderStatus = (orderId, newStatus) => {
         fetch(`http://localhost:8000/update_order_status/${orderId}/`, {
@@ -72,6 +93,11 @@ const ProductManagerOrders = () => {
             key: 'customer_name',
         },
         {
+            title: 'Address',
+            dataIndex: 'customer_address',
+            key: 'customer_address',
+        },
+        {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
@@ -115,6 +141,13 @@ const ProductManagerOrders = () => {
                     >
                         Delivered
                     </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => fetchOrderItems(record.order_id)}
+                    >
+                        View Items
+                    </Button>
                 </>
             ),
         },
@@ -148,6 +181,33 @@ const ProductManagerOrders = () => {
                 bordered
                 pagination={{ pageSize: 5 }}
             />
+            <Modal
+                title={`Order Items`}
+                visible={showOrderItems}
+                onCancel={() => setShowOrderItems(false)}
+                footer={null}
+                width={600}
+            >
+                {loadingItems ? (
+                    <Spin tip="Loading order items..." />
+                ) : (
+                    <Table
+                        dataSource={orderItems}
+                        columns={[
+                            { title: 'Product ID', dataIndex: 'product_id', key: 'product_id' },
+                            { title: 'Quantity', dataIndex: 'quantity', key: 'quantity' },
+                            {
+                                title: 'Price Per Item',
+                                dataIndex: 'price_per_item',
+                                key: 'price_per_item',
+                                render: (price) => `$${parseFloat(price).toFixed(2)}`,
+                            },
+                        ]}
+                        rowKey="order_item_id"
+                        pagination={false}
+                    />
+                )}
+            </Modal>
         </div>
     );
 };
