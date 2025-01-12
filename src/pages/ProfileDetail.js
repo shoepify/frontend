@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Card, Spin, Alert, Typography, Descriptions, Button, Space } from "antd";
-import { UserOutlined, MailOutlined, IdcardOutlined, HomeOutlined, EditOutlined, LogoutOutlined } from "@ant-design/icons";
+import { useParams } from "react-router-dom";
+import { Card, Spin, Alert, Typography, Descriptions } from "antd";
+import { UserOutlined, MailOutlined, IdcardOutlined, HomeOutlined, DollarCircleOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -10,7 +10,6 @@ const ProfileDetails = () => {
     const [customer, setCustomer] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
 
     useEffect(() => {
         fetch(`http://localhost:8000/customer/${customerId}/`, {
@@ -34,15 +33,6 @@ const ProfileDetails = () => {
                 setLoading(false);
             });
     }, [customerId]);
-
-    const handleEditProfile = () => {
-        navigate(`/profile/edit/${customerId}`);
-    };
-
-    const handleLogout = () => {
-        sessionStorage.clear();
-        navigate("/login");
-    };
 
     if (loading) {
         return (
@@ -91,11 +81,12 @@ const ProfileDetails = () => {
                         {customer.tax_id}
                     </Descriptions.Item>
                     <Descriptions.Item label={<span><HomeOutlined /> Home Address</span>}>
-                        {customer.home_address}
+                        {customer.address}
+                    </Descriptions.Item>
+                    <Descriptions.Item label={<span><DollarCircleOutlined /> Balance</span>}>
+                        ${parseFloat(customer.balance).toFixed(2)}
                     </Descriptions.Item>
                 </Descriptions>
-                <Space style={{ marginTop: "20px", display: "flex", justifyContent: "center" }}>
-                </Space>
             </Card>
         </div>
     );
