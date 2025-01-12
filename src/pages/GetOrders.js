@@ -14,8 +14,26 @@ const GetOrders = () => {
     const [isProductModalVisible, setIsProductModalVisible] = useState(false); // For product modal
     const [invoiceModalVisible, setInvoiceModalVisible] = useState(false); // For invoice modal
     const [invoiceId, setInvoiceId] = useState(null); // To store the invoice ID
+    const [customerAddress, setCustomerAddress] = useState(""); // To store the customer address
 
     useEffect(() => {
+        // Fetch customer data to get the address
+        fetch(`http://localhost:8000/customer/${customerId}/`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.customer_id) {
+                    setCustomerAddress(data.address); // Set the address for the customer
+                }
+            })
+            .catch(() => {
+                setCustomerAddress("");
+            });
+
         // Fetch all orders for the customer
         fetch(`http://localhost:8000/get_orders/${customerId}/`, {
             method: "GET",
@@ -96,7 +114,10 @@ const GetOrders = () => {
                 Your Orders
             </Title>
             <Table
-                dataSource={orders}
+                dataSource={orders.map((order) => ({
+                    ...order,
+                    address: customerAddress, // Add address to each order
+                }))}
                 columns={[
                     { title: "Order ID", dataIndex: "order_id", key: "order_id" },
                     { title: "Order Date", dataIndex: "order_date", key: "order_date" },
@@ -104,6 +125,7 @@ const GetOrders = () => {
                     { title: "Discount", dataIndex: "discount_applied", key: "discount_applied" },
                     { title: "Purchase Status", dataIndex: "payment_status", key: "payment_status" },
                     { title: "Delivery Status", dataIndex: "status", key: "status" },
+                    { title: "Address", dataIndex: "address", key: "address" }, // New address column
                     {
                         title: "Actions",
                         key: "actions",
