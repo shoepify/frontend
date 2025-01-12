@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, Modal, Image, Typography, Alert, Spin, Card, Form, Input, DatePicker } from "antd";
 import { ShoppingCartOutlined, DeleteOutlined } from "@ant-design/icons";
+import InvoiceViewer from "../components/InvoiceViewer"; // Import InvoiceViewer component
 import moment from "moment";
 
 const { Title } = Typography;
@@ -14,6 +15,8 @@ const Cart = () => {
     const [paymentModalVisible, setPaymentModalVisible] = useState(false);
     const [userId, setUserId] = useState(null);
     const [isGuest, setIsGuest] = useState(false);
+    const [invoiceModalVisible, setInvoiceModalVisible] = useState(false); // For invoice modal visibility
+    const [invoiceUrl, setInvoiceUrl] = useState(""); // To store the invoice URL for the modal
     const navigate = useNavigate();
     const [form] = Form.useForm();
 
@@ -124,10 +127,16 @@ const Cart = () => {
                         } else {
                             alert(`Order placed successfully! Order ID: ${data.order_id}`);
 
-                            const invoiceUrl = `http://localhost:8000/invoice/${data.order_id}/create-pdf-ozan/`;
-                            window.open(invoiceUrl, "_blank");
+                            // Generate the invoice URL using invoice_id
+                            const invoiceId = data.invoice_id;  // Use the invoice_id returned in the response
+                            
+                            // Generate the invoice URL based on invoice_id
+                            const invoiceUrl = `http://localhost:8000/invoice/${invoiceId}/create-pdf-ozan/`;
+
+                            // Set the URL for the InvoiceViewer modal
+                            setInvoiceUrl(invoiceUrl);
+                            setInvoiceModalVisible(true);  // Open the Invoice modal to show the PDF
                         }
-                        setPaymentModalVisible(false);
                     })
                     .catch((error) => {
                         console.error("Error placing order:", error);
@@ -137,6 +146,10 @@ const Cart = () => {
             .catch((error) => {
                 console.error("Validation failed:", error);
             });
+    };
+
+    const closeInvoiceModal = () => {
+        setInvoiceModalVisible(false);
     };
 
     const validateCardName = (_, value) => {
@@ -275,8 +288,16 @@ const Cart = () => {
                     </Form.Item>
                 </Form>
             </Modal>
+
+            {/* InvoiceViewer modal */}
+            <InvoiceViewer 
+                visible={invoiceModalVisible} 
+                onCancel={closeInvoiceModal} 
+                invoiceUrl={invoiceUrl} 
+            />
         </Card>
     );
 };
 
 export default Cart;
+

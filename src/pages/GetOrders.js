@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Table, Spin, Alert, Typography, Button, Modal, message } from "antd";
-import OrderProductCard from "../components/OrderProductCard";
-import InvoiceViewer from "../components/InvoiceViewer";  // Import InvoiceViewer component
+import OrderProductCard from "../components/OrderProductCard"; // Import OrderProductCard component
+import InvoiceViewer from "../components/InvoiceViewer"; // Import InvoiceViewer component
 
 const { Title } = Typography;
 
@@ -10,13 +10,13 @@ const GetOrders = () => {
     const { customerId } = useParams(); // Get customer ID from the URL
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [selectedOrderItems, setSelectedOrderItems] = useState([]);
     const [isProductModalVisible, setIsProductModalVisible] = useState(false); // For product modal
-    const [isInvoiceModalVisible, setIsInvoiceModalVisible] = useState(false); // For invoice modal
-    const [invoiceId, setInvoiceId] = useState(null); // To manage which invoice to show
+    const [invoiceModalVisible, setInvoiceModalVisible] = useState(false); // For invoice modal
+    const [invoiceId, setInvoiceId] = useState(null); // To store the invoice ID
 
     useEffect(() => {
+        // Fetch all orders for the customer
         fetch(`http://localhost:8000/get_orders/${customerId}/`, {
             method: "GET",
             headers: {
@@ -26,7 +26,6 @@ const GetOrders = () => {
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
-                    setError(data.error);
                     setOrders([]);
                     setLoading(false);
                 } else {
@@ -34,8 +33,8 @@ const GetOrders = () => {
                     setLoading(false);
                 }
             })
-            .catch((err) => {
-                setError("Failed to fetch orders.");
+            .catch(() => {
+                setOrders([]);
                 setLoading(false);
             });
     }, [customerId]);
@@ -45,34 +44,9 @@ const GetOrders = () => {
         setIsProductModalVisible(true); // Open the product modal
     };
 
-    const handleViewInvoice = (invoiceId) => {
-        setInvoiceId(invoiceId); // Set the invoice ID
-        setIsInvoiceModalVisible(true); // Open the invoice modal
-    };
-
-    const handleRefundRequest = (orderItemId) => {
-        fetch(`http://localhost:8000/refund/request/${orderItemId}/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error("Failed to submit refund request.");
-                }
-                return response.json();
-            })
-            .then((data) => {
-                if (data.status === "success") {
-                    message.success(`${data.message} (Refund ID: ${data.refund_id})`);
-                } else {
-                    message.error(data.message || "Refund request failed.");
-                }
-            })
-            .catch(() => {
-                message.error("Failed to submit refund request.");
-            });
+    const handleViewInvoice = (orderId) => {
+        setInvoiceId(orderId); // Set the invoice ID to be used by InvoiceViewer
+        setInvoiceModalVisible(true); // Open the invoice modal
     };
 
     const handleCancelOrder = (orderId) => {
@@ -88,12 +62,7 @@ const GetOrders = () => {
                         "Content-Type": "application/json",
                     },
                 })
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error("Failed to cancel order.");
-                        }
-                        return response.json();
-                    })
+                    .then((response) => response.json())
                     .then((data) => {
                         message.success(data.message || "Order successfully cancelled.");
                         setOrders((prevOrders) => prevOrders.filter((order) => order.order_id !== orderId));
@@ -116,12 +85,7 @@ const GetOrders = () => {
     if (orders.length === 0) {
         return (
             <div className="info-container">
-                <Alert
-                    message="No Orders"
-                    description="You have no orders yet."
-                    type="info"
-                    showIcon
-                />
+                <Alert message="No Orders" description="You have no orders yet." type="info" showIcon />
             </div>
         );
     }
@@ -143,36 +107,42 @@ const GetOrders = () => {
                     {
                         title: "Actions",
                         key: "actions",
-                        render: (_, record) => (
-                            <div style={{ display: "flex", gap: "10px" }}>
-                                <Button type="primary" onClick={() => handleViewProducts(record.order_items)}>
-                                    View Products
-                                </Button>
-                                <Button type="default" onClick={() => handleViewInvoice(record.order_id)}>
-                                    View Invoice
-                                </Button>
-                                <Button
-                                    type="primary"
-                                    danger
-                                    style={{
-                                        backgroundColor: "#ff4d4f",
-                                        borderColor: "#ff4d4f",
-                                        color: "#fff",
-                                        fontWeight: "bold",
-                                    }}
-                                    onClick={() => handleRefundRequest(record.order_id)}
-                                >
-                                    Request Refund
-                                </Button>
-                                <Button
-                                    type="default"
-                                    danger
-                                    onClick={() => handleCancelOrder(record.order_id)}
-                                >
-                                    Cancel Order
-                                </Button>
-                            </div>
-                        ),
+                        render: (_, record) => {
+                            // Check if order is cancelled
+                            const isCancelled = record.status === "Cancelled";
+                            return (
+                                <div style={{ display: "flex", gap: "10px" }}>
+                                    <Button
+                                        type="primary"
+                                        onClick={() => handleViewProducts(record.order_items)} // Pass order items
+                                        disabled={isCancelled} // Disable if order is cancelled
+                                    >
+                                        View Products
+                                    </Button>
+                                    <Button
+                                        type="default"
+                                        onClick={() => handleViewInvoice(record.order_id)} // View invoice
+                                        disabled={isCancelled} // Disable if order is cancelled
+                                    >
+                                        View Invoice
+                                    </Button>
+                                    <Button
+                                        type="primary"
+                                        danger
+                                        style={{
+                                            backgroundColor: "#ff4d4f",
+                                            borderColor: "#ff4d4f",
+                                            color: "#fff",
+                                            fontWeight: "bold",
+                                        }}
+                                        onClick={() => handleCancelOrder(record.order_id)}
+                                        disabled={isCancelled} // Disable cancel if order is already cancelled
+                                    >
+                                        Cancel Order
+                                    </Button>
+                                </div>
+                            );
+                        },
                     },
                 ]}
                 rowKey="order_id"
@@ -189,20 +159,28 @@ const GetOrders = () => {
                 {selectedOrderItems.length === 0 ? (
                     <p>No products selected.</p>
                 ) : (
-                    selectedOrderItems.map((item) => (
-                        <OrderProductCard key={item.product_id} product={item} />
-                    ))
+                    selectedOrderItems.map((item) => {
+                        const isRefunded = item.refunded === true;
+                        const orderStatus = item.refunded ? "Refunded" : "Not Refunded";
+
+                        return (
+                            <OrderProductCard
+                                key={item.order_item_id}
+                                product={item}
+                                isRefunded={isRefunded} // Pass refunded status
+                                orderStatus={orderStatus} // Pass the order status to control actions
+                            />
+                        );
+                    })
                 )}
             </Modal>
 
-            {/* Invoice Viewer Modal */}
-            {invoiceId && (
-                <InvoiceViewer
-                    invoiceId={invoiceId}
-                    visible={isInvoiceModalVisible}
-                    onCancel={() => setIsInvoiceModalVisible(false)}
-                />
-            )}
+            {/* InvoiceViewer modal */}
+            <InvoiceViewer 
+                invoiceId={invoiceId} // Pass the invoice ID
+                visible={invoiceModalVisible} 
+                onCancel={() => setInvoiceModalVisible(false)} 
+            />
         </div>
     );
 };
