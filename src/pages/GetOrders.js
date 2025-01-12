@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Table, Spin, Alert, Typography, Button, Modal, message } from "antd";
 import OrderProductCard from "../components/OrderProductCard";
+import InvoiceViewer from "../components/InvoiceViewer";  // Import InvoiceViewer component
 
 const { Title } = Typography;
 
@@ -12,6 +13,7 @@ const GetOrders = () => {
     const [error, setError] = useState(null);
     const [selectedOrderItems, setSelectedOrderItems] = useState([]);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [invoiceId, setInvoiceId] = useState(null); // To manage which invoice to show
 
     useEffect(() => {
         fetch(`http://localhost:8000/get_orders/${customerId}/`, {
@@ -23,11 +25,11 @@ const GetOrders = () => {
             .then((response) => response.json())
             .then((data) => {
                 if (data.error) {
-                    setError(data.error); // Set the error message
-                    setOrders([]); // Clear any previous orders
+                    setError(data.error);
+                    setOrders([]);
                     setLoading(false);
                 } else {
-                    setOrders(data.orders || []); // Set orders if available
+                    setOrders(data.orders || []);
                     setLoading(false);
                 }
             })
@@ -37,19 +39,17 @@ const GetOrders = () => {
             });
     }, [customerId]);
 
-    // Handle viewing products in a modal
     const handleViewProducts = (items) => {
         setSelectedOrderItems(items);
         setIsModalVisible(true);
     };
 
-    // Handle viewing invoice
+    // Modify handleViewInvoice to show the invoice in the modal
     const handleViewInvoice = (invoiceId) => {
-        const url = `http://localhost:8000/invoice/${invoiceId}/create-pdf-ozan/`;
-        window.open(url, "_blank"); // Open the invoice URL in a new tab
+        setInvoiceId(invoiceId);  // Set the invoice ID
+        setIsModalVisible(true);   // Open the modal
     };
 
-    // Handle refund request
     const handleRefundRequest = (orderItemId) => {
         fetch(`http://localhost:8000/refund/request/${orderItemId}/`, {
             method: "POST",
@@ -75,7 +75,6 @@ const GetOrders = () => {
             });
     };
 
-    // Handle cancel order
     const handleCancelOrder = (orderId) => {
         Modal.confirm({
             title: "Are you sure you want to cancel this order?",
@@ -114,7 +113,6 @@ const GetOrders = () => {
         );
     }
 
-    // If there are no orders
     if (orders.length === 0) {
         return (
             <div className="info-container">
@@ -192,6 +190,15 @@ const GetOrders = () => {
                     <OrderProductCard key={item.product_id} product={item} />
                 ))}
             </Modal>
+
+            {/* Invoice Viewer Modal */}
+            {invoiceId && (
+                <InvoiceViewer
+                    invoiceId={invoiceId}
+                    visible={isModalVisible}
+                    onCancel={() => setIsModalVisible(false)}
+                />
+            )}
         </div>
     );
 };
