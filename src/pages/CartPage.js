@@ -7,7 +7,7 @@ import moment from "moment";
 
 const { Title } = Typography;
 
-const Cart = () => {
+const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -16,7 +16,7 @@ const Cart = () => {
     const [userId, setUserId] = useState(null);
     const [isGuest, setIsGuest] = useState(false);
     const [invoiceModalVisible, setInvoiceModalVisible] = useState(false); // For invoice modal visibility
-    const [invoiceUrl, setInvoiceUrl] = useState(""); // To store the invoice URL for the modal
+    const [invoiceId, setInvoiceId] = useState(null); // Store the invoice ID
     const navigate = useNavigate();
     const [form] = Form.useForm();
 
@@ -127,14 +127,9 @@ const Cart = () => {
                         } else {
                             alert(`Order placed successfully! Order ID: ${data.order_id}`);
 
-                            // Generate the invoice URL using invoice_id
+                            // Set the invoice_id for InvoiceViewer modal
                             const invoiceId = data.invoice_id;  // Use the invoice_id returned in the response
-                            
-                            // Generate the invoice URL based on invoice_id
-                            const invoiceUrl = `http://localhost:8000/invoice/${invoiceId}/create-pdf-ozan/`;
-
-                            // Set the URL for the InvoiceViewer modal
-                            setInvoiceUrl(invoiceUrl);
+                            setInvoiceId(invoiceId);  // Pass the invoice_id to the InvoiceViewer
                             setInvoiceModalVisible(true);  // Open the Invoice modal to show the PDF
                         }
                     })
@@ -148,8 +143,10 @@ const Cart = () => {
             });
     };
 
-    const closeInvoiceModal = () => {
-        setInvoiceModalVisible(false);
+    const closeInvoiceModal = (e) => {
+        e.preventDefault(); // Prevent page reload
+        setInvoiceModalVisible(false); // Close the modal
+        window.location.reload(); // Refresh the whole page programmatically
     };
 
     const validateCardName = (_, value) => {
@@ -293,11 +290,10 @@ const Cart = () => {
             <InvoiceViewer 
                 visible={invoiceModalVisible} 
                 onCancel={closeInvoiceModal} 
-                invoiceUrl={invoiceUrl} 
+                invoiceId={invoiceId} // Pass the invoiceId here
             />
         </Card>
     );
 };
 
-export default Cart;
-
+export default CartPage;
