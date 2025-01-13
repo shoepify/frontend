@@ -65,6 +65,13 @@ const SalesManagerHeader = () => {
                 </Button>
                 <Button
                     type="text"
+                    onClick={() => navigate("/sales-manager-invoices")}
+                    style={{ fontSize: "16px" }}
+                >
+                    Invoices
+                </Button>
+                <Button
+                    type="text"
                     onClick={() => navigate("/mydiscounts")}
                     style={{ fontSize: "16px" }}
                 >
