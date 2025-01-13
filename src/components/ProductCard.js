@@ -110,7 +110,21 @@ const ProductCard = ({ product }) => {
                 <p>
                     <Tag color="gold">Average Rating: {parseFloat(product.avg_rating).toFixed(2)} / 5</Tag>
                 </p>
-                <p>Price: ${parseFloat(product.price).toFixed(2)}</p>
+                <p>
+                    {product.base_price !== product.price ? (
+                        <>
+                            <span style={{ textDecoration: "line-through", color: "black" }}>
+                                ${parseFloat(product.base_price).toFixed(2)}
+                            </span>
+                            <br />
+                            <span style={{ fontWeight: "bold", color: "black" }}>
+                                ${parseFloat(product.price).toFixed(2)}
+                            </span>
+                        </>
+                    ) : (
+                        <span style={{ color: "black" }}>${parseFloat(product.price).toFixed(2)}</span>
+                    )}
+                </p>
                 <div style={{ marginBottom: "10px" }}>
                     Quantity:{" "}
                     <InputNumber
