@@ -1,27 +1,94 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../styles/OrderProductCard.css";
 
 const OrderProductCard = ({ product, orderStatus, isRefunded, onRefundSuccess }) => {
     const [comment, setComment] = useState("");
     const [rating, setRating] = useState(0);
     const [isProcessingRefund, setIsProcessingRefund] = useState(false);
+    const [productDetails, setProductDetails] = useState(product); // Use product as initial value
+    const [loading, setLoading] = useState(true);
 
+    // Fetch product details if price is missing
+    useEffect(() => {
+        if (!product.price) {
+            fetch(`http://localhost:8000/products/${product.product_id}/`)
+                .then((response) => {
+                    if (!response.ok) throw new Error("Failed to fetch product details");
+                    return response.json();
+                })
+                .then((data) => {
+                    setProductDetails(data);
+                    setLoading(false);
+                })
+                .catch((err) => {
+                    console.error("Error fetching product details:", err);
+                    setLoading(false);
+                });
+        } else {
+            setLoading(false);
+        }
+    }, [product]);
+
+    // Handle comment submission
     const handleAddComment = () => {
         if (!comment.trim()) {
             alert("Comment cannot be empty.");
             return;
         }
 
-        // Add comment logic here
+        fetch(`http://localhost:8000/products/${productDetails.product_id}/add_comment/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                customer_id: sessionStorage.getItem("customerId"),
+                comment,
+            }),
+        })
+            .then((response) => {
+                if (!response.ok) throw new Error("Failed to submit comment");
+                return response.json();
+            })
+            .then(() => {
+                alert("Your comment has been submitted and is awaiting approval.");
+                setComment("");
+            })
+            .catch((error) => {
+                console.error("Error submitting comment:", error);
+                alert("Failed to submit comment. Please try again.");
+            });
     };
 
+    // Handle rating submission
     const handleAddRating = () => {
         if (rating < 1 || rating > 5) {
             alert("Please select a rating between 1 and 5.");
             return;
         }
 
-        // Add rating logic here
+        fetch(`http://localhost:8000/products/${productDetails.product_id}/add_rating/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                customer_id: sessionStorage.getItem("customerId"),
+                rating_value: rating,
+            }),
+        })
+            .then((response) => {
+                if (!response.ok) throw new Error("Failed to submit rating");
+                return response.json();
+            })
+            .then(() => {
+                alert(`You rated this product ${rating} stars!`);
+                setRating(0);
+            })
+            .catch((error) => {
+                console.error("Error submitting rating:", error);
+                alert("Failed to submit rating. Please try again.");
+            });
     };
 
     const handleRefundRequest = () => {
@@ -43,10 +110,12 @@ const OrderProductCard = ({ product, orderStatus, isRefunded, onRefundSuccess })
                 setIsProcessingRefund(false);
             })
             .catch(() => {
-                
+                alert("An error occurred while processing the refund request.");
                 setIsProcessingRefund(false);
             });
     };
+
+    if (loading) return <p>Loading product details...</p>;
 
     return (
         <div className="order-product-card">
@@ -62,7 +131,6 @@ const OrderProductCard = ({ product, orderStatus, isRefunded, onRefundSuccess })
                 <p>Quantity: {product.quantity}</p>
             </div>
 
-            {/* Display 'Refunded' or 'Request Refund' */}
             {isRefunded ? (
                 <p style={{ color: "gray" }}>Refunded</p>
             ) : (
@@ -75,7 +143,6 @@ const OrderProductCard = ({ product, orderStatus, isRefunded, onRefundSuccess })
                 </button>
             )}
 
-            {/* Comment and Rating */}
             <div className="add-comment">
                 <textarea
                     value={comment}
