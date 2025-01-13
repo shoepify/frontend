@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Form, Input, Button, message, Select, Typography } from "antd";
+import { Form, Input, Button, message, Select, Typography, Modal } from "antd";
 
 const { Title } = Typography;
 
 const AddProductPage = () => {
     const [form] = Form.useForm();
     const [categories, setCategories] = useState([]);
+    const [selectedImage, setSelectedImage] = useState("");  // Store selected image name
     const [messageApi, contextHolder] = message.useMessage();
 
     // Fetch categories from backend
@@ -39,7 +40,7 @@ const AddProductPage = () => {
             cost: values.cost,
             category: categoryData,  // Send category as an object with "name" field
             popularity_score: values.popularity_score || 0,
-            image_name: values.image_name,  // Send the image name
+            image_name: selectedImage,  // Send the selected image name (from file input)
         };
 
         // Send the data to backend
@@ -57,12 +58,20 @@ const AddProductPage = () => {
                 } else {
                     messageApi.success("Product added successfully!");
                     form.resetFields();
+                    setSelectedImage(""); // Reset selected image after submission
                 }
             })
             .catch((error) => {
                 console.error("Error:", error);
                 messageApi.error("Failed to add product. Please try again.");
             });
+    };
+
+    const handleImageChange = (event) => {
+        const file = event.target.files[0];  // Get the selected file
+        if (file) {
+            setSelectedImage(file.name);  // Set the file name (not the full path)
+        }
     };
 
     return (
@@ -83,7 +92,6 @@ const AddProductPage = () => {
                     price: "",  // Only price field here
                     category: "",  // Default empty, will be selected by the user
                     cost: "",  // Cost field added
-                    image_name: "", // Image name to be sent to backend
                 }}
             >
                 <Form.Item
@@ -166,13 +174,10 @@ const AddProductPage = () => {
                     <Input type="number" placeholder="Enter product cost" />
                 </Form.Item>
 
-                {/* Image Name Field (Text input for image name) */}
-                <Form.Item
-                    name="image_name"
-                    label="Image Name"
-                    rules={[{ required: true, message: "Please enter the image name." }]}
-                >
-                    <Input placeholder="Enter image name (e.g., product123.jpg)" />
+                {/* Image Name Field */}
+                <Form.Item label="Image Name">
+                    <input type="file" onChange={handleImageChange} />
+                    {selectedImage && <p>Selected Image: {selectedImage}</p>}  {/* Display selected image name */}
                 </Form.Item>
 
                 <Form.Item>

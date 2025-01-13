@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Table, Button, DatePicker, Typography, Card, Row, Col, message } from "antd";
+import { Button, DatePicker, Typography, Card, Row, Col, message } from "antd";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
 
@@ -14,12 +14,16 @@ const SalesManagerDashboard = () => {
 
     const fetchData = (startDate, endDate) => {
         setLoading(true);
-        fetch(`http://127.0.0.1:8000/revenue/profit-loss/data/?start_date=${startDate}&end_date=${endDate}`)
+        fetch("http://127.0.0.1:8000/revenue/profit-loss/data/")
             .then((response) => response.json())
             .then((data) => {
                 const fetchedData = data.data || [];
-                setData(fetchedData);
-                calculateSummaryAndChart(fetchedData);
+                // Filter data based on the selected date range
+                const filteredData = fetchedData.filter(
+                    (item) => item.date >= startDate && item.date <= endDate
+                );
+                setData(filteredData);
+                calculateSummaryAndChart(filteredData);
                 setLoading(false);
             })
             .catch((error) => {
