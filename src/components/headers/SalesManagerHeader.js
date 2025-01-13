@@ -77,6 +77,13 @@ const SalesManagerHeader = () => {
                 >
                     Refunds
                 </Button>
+                <Button
+                    type="text"
+                    onClick={() => navigate("/sales-manager-products")}
+                    style={{ fontSize: "16px" }}
+                >
+                    Products
+                </Button>
             </Space>
 
             {/* Sağ Taraf: Logout Butonu */}

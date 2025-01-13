@@ -31,7 +31,7 @@ import DiscountPage from "./DiscountPage";
 import RefundPage from "./RefundPage";
 import SalesManagerDashboard from "./SalesManagerDashboard";
 import SalesManagerHome from "./SalesManagerHome"; // Import SalesManagerHome component
-
+import SalesManagerProducts from "./SalesManagerProducts";
 
 const App = () => {
     const { userRole } = useUser(); // Get the current role
@@ -103,7 +103,9 @@ const App = () => {
                         <Route path="/" element={<SalesManagerHome />} /> {/* Sales Manager Home Page */}
                         <Route path="/mydiscounts" element={<DiscountPage />} /> {/* My Discounts Route */}
                         <Route path="/refunds" element={<RefundPage />} /> {/* My Discounts Route */}
+                        <Route path="/sales-manager-products" element={<SalesManagerProducts/>} /> {/* My Discounts Route */}
                         <Route path="/sales-dashboard" element={<SalesManagerDashboard />} />
+
                          </>
                     )}
 
