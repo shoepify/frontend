@@ -43,7 +43,7 @@ const OrderProductCard = ({ product, orderStatus, isRefunded, onRefundSuccess })
                 setIsProcessingRefund(false);
             })
             .catch(() => {
-                alert("Failed to submit refund request.");
+                
                 setIsProcessingRefund(false);
             });
     };

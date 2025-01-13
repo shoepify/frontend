@@ -7,69 +7,72 @@ const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
 const SalesManagerDashboard = () => {
-    const [invoices, setInvoices] = useState([]);
+    const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [chartData, setChartData] = useState(null);
     const [summaryData, setSummaryData] = useState(null);
 
-    const fetchInvoices = (startDate, endDate) => {
+    const fetchData = (startDate, endDate) => {
         setLoading(true);
-        fetch(`http://127.0.0.1:8000/invoices/date-range/?start_date=${startDate}&end_date=${endDate}`)
+        fetch(`http://127.0.0.1:8000/revenue/profit-loss/data/?start_date=${startDate}&end_date=${endDate}`)
             .then((response) => response.json())
             .then((data) => {
-                const fetchedInvoices = data.invoices || [];
-                setInvoices(fetchedInvoices);
-                calculateSummaryAndChart(fetchedInvoices);
+                const fetchedData = data.data || [];
+                setData(fetchedData);
+                calculateSummaryAndChart(fetchedData);
                 setLoading(false);
             })
             .catch((error) => {
-                console.error("Error fetching invoices:", error);
-                message.error("Failed to fetch invoices");
+                console.error("Error fetching data:", error);
+                message.error("Failed to fetch data");
                 setLoading(false);
             });
     };
 
-    const calculateSummaryAndChart = (invoices) => {
-        if (!invoices.length) {
+    const calculateSummaryAndChart = (data) => {
+        if (!data.length) {
             setSummaryData(null);
             setChartData(null);
             return;
         }
 
-        // Group invoices by date
-        const dailyData = invoices.reduce((acc, invoice) => {
-            const { invoice_date, total_amount } = invoice;
-            acc[invoice_date] = (acc[invoice_date] || 0) + parseFloat(total_amount);
-            return acc;
-        }, {});
-
-        // Calculate total revenue and profit (for simplicity, assuming profit = revenue - 0)
-        const totalRevenue = Object.values(dailyData).reduce((sum, revenue) => sum + revenue, 0);
-        const totalCost = 0; // Replace this with actual cost data if available
+        // Calculate total revenue, cost, and profit
+        const totalRevenue = data.reduce((sum, item) => sum + item.daily_revenue, 0);
+        const totalCost = data.reduce((sum, item) => sum + item.daily_cost, 0);
         const profitLoss = totalRevenue - totalCost;
 
-        // Update summary
+        // Update summary data
         setSummaryData({ totalRevenue, totalCost, profitLoss });
 
         // Prepare chart data
-        const labels = Object.keys(dailyData).sort(); // Sort by date
-        const data = labels.map((date) => dailyData[date]);
+        const labels = data.map((item) => item.date);
+        const revenueData = data.map((item) => item.daily_revenue || 0);
+        const costData = data.map((item) => item.daily_cost || 0);
+        const profitData = data.map((item) => item.daily_profit || 0);
 
         setChartData({
             labels,
             datasets: [
                 {
                     label: "Daily Revenue",
-                    data,
+                    data: revenueData,
                     borderColor: "blue",
                     fill: false,
+                    steppedLine: true, // For discrete steps in the line
                 },
                 {
-                    label: "Profit (Assuming no cost)",
-                    data,
-                    borderColor: "green",
-                    borderDash: [5, 5],
+                    label: "Daily Cost",
+                    data: costData,
+                    borderColor: "red",
                     fill: false,
+                    steppedLine: true, // For discrete steps in the line
+                },
+                {
+                    label: "Profit (Revenue - Cost)",
+                    data: profitData,
+                    borderColor: "green",
+                    fill: false,
+                    steppedLine: true, // For discrete steps in the line
                 },
             ],
         });
@@ -78,44 +81,21 @@ const SalesManagerDashboard = () => {
     const handleDateRangeChange = (dates) => {
         if (!dates) return;
         const [startDate, endDate] = dates.map((date) => date.format("YYYY-MM-DD"));
-        fetchInvoices(startDate, endDate);
+        fetchData(startDate, endDate);
     };
 
     const downloadPDF = () => {
-        if (!invoices.length) {
-            message.warning("No invoices available for the selected date range.");
+        if (!data.length) {
+            message.warning("No data available for the selected date range.");
             return;
         }
-        const startDate = invoices[0]?.invoice_date;
-        const endDate = invoices[invoices.length - 1]?.invoice_date;
+        const startDate = data[0]?.date;
+        const endDate = data[data.length - 1]?.date;
         window.open(
-            `http://127.0.0.1:8000/invoices/date-range/pdf/?start_date=${startDate}&end_date=${endDate}`,
+            `http://127.0.0.1:8000/revenue/profit-loss/data/pdf/?start_date=${startDate}&end_date=${endDate}`,
             "_blank"
         );
     };
-
-    const invoiceColumns = [
-        {
-            title: "Invoice ID",
-            dataIndex: "invoice_id",
-            key: "invoice_id",
-        },
-        {
-            title: "Order ID",
-            dataIndex: "order_id",
-            key: "order_id",
-        },
-        {
-            title: "Invoice Date",
-            dataIndex: "invoice_date",
-            key: "invoice_date",
-        },
-        {
-            title: "Total Amount",
-            dataIndex: "total_amount",
-            key: "total_amount",
-        },
-    ];
 
     return (
         <div style={{ padding: "20px" }}>
@@ -146,23 +126,10 @@ const SalesManagerDashboard = () => {
                 </Row>
             )}
 
-            {/* Invoice Table */}
-            <Table
-                dataSource={invoices}
-                columns={invoiceColumns}
-                rowKey="invoice_id"
-                loading={loading}
-                pagination={{ pageSize: 5 }}
-                style={{ marginBottom: "20px" }}
-            />
-            <Button type="primary" onClick={downloadPDF}>
-                Download Invoices PDF
-            </Button>
-
-            {/* Daily Revenue and Profit Chart */}
+            {/* Daily Revenue, Cost, and Profit Chart */}
             {chartData && (
                 <div style={{ marginTop: "30px" }}>
-                    <Title level={4}>Daily Revenue and Profit</Title>
+                    <Title level={4}>Daily Revenue, Cost, and Profit</Title>
                     <Line data={chartData} />
                 </div>
             )}
