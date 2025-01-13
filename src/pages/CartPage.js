@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table, Button, Modal, Image, Typography, Alert, Spin, Card, Form, Input, DatePicker } from "antd";
 import { ShoppingCartOutlined, DeleteOutlined } from "@ant-design/icons";
-import InvoiceViewer from "../components/InvoiceViewer"; // Import InvoiceViewer component
+import InvoiceViewer from "../components/InvoiceViewer";
 import moment from "moment";
 
 const { Title } = Typography;
@@ -15,8 +15,8 @@ const CartPage = () => {
     const [paymentModalVisible, setPaymentModalVisible] = useState(false);
     const [userId, setUserId] = useState(null);
     const [isGuest, setIsGuest] = useState(false);
-    const [invoiceModalVisible, setInvoiceModalVisible] = useState(false); // For invoice modal visibility
-    const [invoiceId, setInvoiceId] = useState(null); // Store the invoice ID
+    const [invoiceModalVisible, setInvoiceModalVisible] = useState(false);
+    const [invoiceId, setInvoiceId] = useState(null);
     const navigate = useNavigate();
     const [form] = Form.useForm();
 
@@ -126,11 +126,9 @@ const CartPage = () => {
                             alert(data.error);
                         } else {
                             alert(`Order placed successfully! Order ID: ${data.order_id}`);
-
-                            // Set the invoice_id for InvoiceViewer modal
-                            const invoiceId = data.invoice_id;  // Use the invoice_id returned in the response
-                            setInvoiceId(invoiceId);  // Pass the invoice_id to the InvoiceViewer
-                            setInvoiceModalVisible(true);  // Open the Invoice modal to show the PDF
+                            const invoiceId = data.invoice_id;
+                            setInvoiceId(invoiceId);
+                            setInvoiceModalVisible(true);
                         }
                     })
                     .catch((error) => {
@@ -144,9 +142,9 @@ const CartPage = () => {
     };
 
     const closeInvoiceModal = (e) => {
-        e.preventDefault(); // Prevent page reload
-        setInvoiceModalVisible(false); // Close the modal
-        window.location.reload(); // Refresh the whole page programmatically
+        e.preventDefault();
+        setInvoiceModalVisible(false);
+        window.location.reload();
     };
 
     const validateCardName = (_, value) => {
@@ -249,25 +247,37 @@ const CartPage = () => {
                 onCancel={() => setPaymentModalVisible(false)}
                 title="Enter Payment Details"
             >
-                <Form form={form} layout="vertical">
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onValuesChange={() => {
+                        form.validateFields()
+                            .then(() => {
+                                console.log("Form is valid:", form.getFieldsValue()); // Debugging
+                            })
+                            .catch(() => {
+                                console.log("Form is invalid:", form.getFieldsValue()); // Debugging
+                            });
+                    }}
+                >
                     <Form.Item
                         name="cardNumber"
                         label="Card Number"
-                        rules={[{ required: true, validator: validateCardNumber }]}
+                        rules={[{ required: true, message: "Card number is required." }, { validator: validateCardNumber }]}
                     >
-                        <Input placeholder="1234 5678 1234 5678" />
+                        <Input placeholder="1234 5678 1234 5678" maxLength={16} />
                     </Form.Item>
                     <Form.Item
                         name="cardName"
                         label="Card Holder Name"
-                        rules={[{ required: true, validator: validateCardName }]}
+                        rules={[{ required: true, message: "Card holder name is required." }, { validator: validateCardName }]}
                     >
                         <Input placeholder="John Doe" />
                     </Form.Item>
                     <Form.Item
                         name="expiryDate"
                         label="Expiry Date"
-                        rules={[{ required: true, validator: validateExpiryDate }]}
+                        rules={[{ required: true, message: "Expiry date is required." }, { validator: validateExpiryDate }]}
                     >
                         <DatePicker
                             picker="month"
@@ -279,21 +289,22 @@ const CartPage = () => {
                     <Form.Item
                         name="cvv"
                         label="CVV"
-                        rules={[{ required: true, validator: validateCVV }]}
+                        rules={[{ required: true, message: "CVV is required." }, { validator: validateCVV }]}
                     >
-                        <Input placeholder="123" type="password" />
+                        <Input placeholder="123" type="password" maxLength={3} />
                     </Form.Item>
                 </Form>
             </Modal>
 
             {/* InvoiceViewer modal */}
-            <InvoiceViewer 
-                visible={invoiceModalVisible} 
-                onCancel={closeInvoiceModal} 
-                invoiceId={invoiceId} // Pass the invoiceId here
+            <InvoiceViewer
+                visible={invoiceModalVisible}
+                onCancel={closeInvoiceModal}
+                invoiceId={invoiceId}
             />
         </Card>
     );
 };
 
 export default CartPage;
+
